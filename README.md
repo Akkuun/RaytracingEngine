@@ -4,6 +4,7 @@
 - Linux system (tested on Arch Linux)
 - CMake >= 3.10
 - OpenCL runtime and development headers (e.g. `opencl-headers`, `opencl-clhpp`, `ocl-icd`)
+- Qt6 (Widgets) development libraries (e.g. `qt6-base`, `qt6-tools`, `qt6-qtbase-devel`)
 - C++17 compatible compiler (e.g. g++, clang++)
 - Git
 
@@ -38,6 +39,16 @@ cmake -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ..
 sudo make install
 ```
 
+### 2b. Install Qt6 (required for GUI)
+- On Arch Linux:
+  ```bash
+  sudo pacman -S qt6-base qt6-tools
+  ```
+- On Ubuntu:
+  ```bash
+  sudo apt install qt6-base-dev qt6-tools-dev-tools
+  ```
+
 ### 3. Install dependencies depending on your graphics hardware (NVIDIA or AMD)
 
 ```bash
@@ -70,9 +81,11 @@ This will:
 - Run CMake and make
 - Copy the OpenCL kernel file
 - Launch the executable
+- Afficher une interface graphique Qt6 avec un bouton pour lancer le calcul OpenCL et afficher le résultat
 
 ## Project Structure
-- `main.cpp`: Host C++ code
+- `main.cpp`: Host C++ code, lance l'interface Qt6
+- `mainwindow.cpp`/`mainwindow.h`: Interface graphique Qt6, bouton et affichage du résultat
 - `hello.cl`: OpenCL kernel (simple sum)
 - `CMakeLists.txt`: Build configuration
 - `build.sh`: Build and run script
