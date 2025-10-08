@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/raytrace.dir/main.cpp.o -o raytrace  /usr/lib/libOpenCL.so
