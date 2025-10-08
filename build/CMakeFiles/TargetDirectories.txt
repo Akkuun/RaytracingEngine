@@ -1,3 +1,0 @@
-/home/mathis/Programming/RaytracingEngine/build/CMakeFiles/raytrace.dir
-/home/mathis/Programming/RaytracingEngine/build/CMakeFiles/edit_cache.dir
-/home/mathis/Programming/RaytracingEngine/build/CMakeFiles/rebuild_cache.dir
