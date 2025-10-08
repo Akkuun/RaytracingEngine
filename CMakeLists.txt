@@ -20,7 +20,7 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
 # Add OpenCL C++ bindings path - adjust this path if needed
 include_directories(${OpenCL_INCLUDE_DIRS})
 # If you downloaded OpenCL-CLHPP, add its include path:
-# include_directories(external/OpenCL-CLHPP/include)
+include_directories(external/OpenCL-CLHPP/include)
 
 # Add executable
 add_executable(raytrace main.cpp)

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/home/mathis/Programming/RaytracingEngine/external/OpenCL-CLHPP/include
 
 CXX_FLAGS = -std=gnu++17
 

@@ -1,6 +1,7 @@
 CMakeFiles/raytrace.dir/main.cpp.o: \
  /home/mathis/Programming/RaytracingEngine/main.cpp \
- /usr/include/stdc-predef.h /usr/local/include/CL/opencl.hpp \
+ /usr/include/stdc-predef.h \
+ /home/mathis/Programming/RaytracingEngine/external/OpenCL-CLHPP/include/CL/opencl.hpp \
  /usr/include/CL/opencl.h /usr/include/CL/cl.h \
  /usr/include/CL/cl_version.h /usr/include/CL/cl_platform.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdint.h \
