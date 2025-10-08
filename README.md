@@ -38,7 +38,29 @@ cmake -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ..
 sudo make install
 ```
 
-### 3. Build and Run the Project
+### 3. Install dependencies depending on your graphics hardware (NVIDIA or AMD)
+
+```bash
+# For NVIDIA GPUs (Ubuntu/Debian)
+sudo apt install nvidia-opencl-icd
+# Or on Arch Linux
+sudo pacman -S opencl-nvidia
+
+# For AMD GPUs (Ubuntu/Debian)
+sudo apt install ocl-icd-libopencl1 mesa-opencl-icd
+# Or on Arch Linux
+sudo pacman -S opencl-mesa
+```
+
+If you use Intel integrated graphics, you may need:
+```bash
+# Intel (Ubuntu/Debian)
+sudo apt install intel-opencl-icd
+# Or on Arch Linux
+sudo pacman -S intel-compute-runtime
+```
+
+### 4. Build and Run the Project
 From the project root:
 ```bash
 bash build.sh
