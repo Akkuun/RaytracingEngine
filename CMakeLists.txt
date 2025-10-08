@@ -32,6 +32,9 @@ endif()
 # Find OpenCL
 find_package(OpenCL REQUIRED)
 
+# Find Qt6
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
 find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     HINTS
     ${OpenCL_INCLUDE_DIRS}
@@ -40,7 +43,8 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     /opt/local/include)
 
 # Sources
-set(SOURCES main.cpp)
+qt6_wrap_cpp(MOC_SOURCES mainwindow.h)
+set(SOURCES main.cpp mainwindow.cpp ${MOC_SOURCES})
 
 # Executable
 add_executable(raytrace ${SOURCES})
@@ -53,7 +57,7 @@ target_include_directories(raytrace PRIVATE
 )
 
 # Link
-target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES})
+target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets)
 
 # Copy kernel
 configure_file(${CMAKE_SOURCE_DIR}/hello.cl ${CMAKE_BINARY_DIR}/hello.cl COPYONLY)
