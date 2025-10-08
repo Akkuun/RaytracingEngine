@@ -5,6 +5,10 @@ project(RaytracingEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable debug symbols
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
 # Find OpenCL package
 find_package(OpenCL REQUIRED)
 
