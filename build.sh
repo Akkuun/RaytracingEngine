@@ -15,8 +15,5 @@ cmake ..
 # Build the project
 make
 
-# Copy kernel file if needed (CMake does this, but ensure it's present)
-cp ../hello.cl .
-
 # Run the executable
 ./raytrace

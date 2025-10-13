@@ -1,10 +1,18 @@
-cmake_minimum_required(VERSION 3.10)
-project(RaytracingEngine)
+cmake_minimum_required(VERSION 3.16)
+project(RaytracingEngine VERSION 1.0.0 LANGUAGES CXX)
+
+# Prevent in-source builds
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+    message(FATAL_ERROR "In-source builds are not allowed. Please create a separate build directory.")
+endif()
 
 # Options de build
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_WARNINGS "Enable extra compiler warnings" ON)
+option(BUILD_TESTS "Build unit tests" OFF)
 set(DEFAULT_BUILD_TYPE "Debug" CACHE STRING "Default build type")
+
+# Set build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE} CACHE STRING "Build type" FORCE)
 endif()
@@ -12,6 +20,12 @@ endif()
 # C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Compilation flags
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -42,9 +56,29 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     /usr/local/include
     /opt/local/include)
 
+# Qt6 MOC
+qt6_wrap_cpp(MOC_SOURCES 
+    ui/MainWindow.h
+    ui/CollapsiblePanel.h
+    ui/RenderWidget.h
+    panels/CameraPanel.h
+    panels/ObjectPanel.h
+    panels/ParametersPanel.h
+    panels/ScenePanel.h
+)
+
 # Sources
-qt6_wrap_cpp(MOC_SOURCES mainwindow.h)
-set(SOURCES main.cpp mainwindow.cpp ${MOC_SOURCES})
+set(SOURCES
+    main.cpp
+    ui/MainWindow.cpp
+    ui/CollapsiblePanel.cpp
+    ui/RenderWidget.cpp
+    panels/CameraPanel.cpp
+    panels/ObjectPanel.cpp
+    panels/ParametersPanel.cpp
+    panels/ScenePanel.cpp
+    ${MOC_SOURCES}
+)
 
 # Executable
 add_executable(raytrace ${SOURCES})
@@ -59,8 +93,15 @@ target_include_directories(raytrace PRIVATE
 # Link
 target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets)
 
-# Copy kernel
-configure_file(${CMAKE_SOURCE_DIR}/hello.cl ${CMAKE_BINARY_DIR}/hello.cl COPYONLY)
+# Copy kernels to output directory
+file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernel/*.cl")
+foreach(KERNEL_FILE ${KERNEL_FILES})
+    get_filename_component(KERNEL_NAME ${KERNEL_FILE} NAME)
+    configure_file(${KERNEL_FILE} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${KERNEL_NAME} COPYONLY)
+endforeach()
+
+# Also copy to build root for backwards compatibility
+configure_file(${CMAKE_SOURCE_DIR}/kernel/hello.cl ${CMAKE_BINARY_DIR}/hello.cl COPYONLY)
 
 # Print summary
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
