@@ -1,5 +1,4 @@
-#ifndef PARAMETERSPANEL_H
-#define PARAMETERSPANEL_H
+#pragma once
 
 #include <QWidget>
 
@@ -13,5 +12,3 @@ public:
 private:
     void setupUI();
 };
-
-#endif // PARAMETERSPANEL_H

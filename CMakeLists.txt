@@ -57,7 +57,7 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     /opt/local/include)
 
 # Automatically find all header files that need MOC processing
-file(GLOB_RECURSE HEADERS "ui/*.h" "panels/*.h")
+file(GLOB_RECURSE HEADERS "*.h" "*.hpp")
 
 # Qt6 MOC - process all found headers
 qt6_wrap_cpp(MOC_SOURCES ${HEADERS})
@@ -66,9 +66,9 @@ qt6_wrap_cpp(MOC_SOURCES ${HEADERS})
 file(GLOB SOURCES "*.cpp")
 file(GLOB_RECURSE UI_SOURCES "ui/*.cpp")
 file(GLOB_RECURSE PANEL_SOURCES "panels/*.cpp")
-
+file(GLOB_RECURSE SRC_SOURCES "src/*.cpp")
 # Combine all sources
-list(APPEND SOURCES ${UI_SOURCES} ${PANEL_SOURCES} ${MOC_SOURCES})
+list(APPEND SOURCES ${UI_SOURCES} ${PANEL_SOURCES} ${SRC_SOURCES} ${MOC_SOURCES})
 
 # Executable
 add_executable(raytrace ${SOURCES})

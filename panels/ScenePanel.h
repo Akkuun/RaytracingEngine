@@ -1,5 +1,4 @@
-#ifndef SCENEPANEL_H
-#define SCENEPANEL_H
+#pragma once
 
 #include <QWidget>
 #include <QTreeWidget>
@@ -15,5 +14,3 @@ private:
     void setupUI();
     QTreeWidget *sceneTree;
 };
-
-#endif // SCENEPANEL_H

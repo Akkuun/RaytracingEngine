@@ -1,4 +1,6 @@
+#include <CL/opencl.hpp>
 #include "ObjectPanel.h"
+#include "../src/core/DeviceManager/DeviceManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -14,7 +16,6 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
-#include <CL/opencl.hpp>
 #include <fstream>
 #include <vector>
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent)
@@ -256,56 +257,11 @@ void ObjectPanel::testKernel()
     qDebug() << "Kernel source loaded successfully, size:" << src.size();
     cl::Program::Sources sources(1, {src.c_str(), src.size()});
 
-    //  list all available platforms
-    std::vector<cl::Platform> platforms;
-    cl::Platform::get(&platforms);
-
-    if (platforms.empty())
-    {
-        qDebug() << "ERROR: No OpenCL platforms found!";
-        QMessageBox::warning(this, "OpenCL Error", "No OpenCL platforms found!");
-        return;
-    }
-
-    qDebug() << "Found" << platforms.size() << "OpenCL platform(s)";
-
-    // Essayer de trouver un device GPU sur chaque plateforme
-    cl::Platform platform;
-    cl::Device device;
-    bool deviceFound = false;
-
-    for (auto &p : platforms)
-    {
-        std::string platformName;
-        p.getInfo(CL_PLATFORM_NAME, &platformName);
-        qDebug() << "Platform:" << QString::fromStdString(platformName);
-
-        std::vector<cl::Device> devices;
-
-        p.getDevices(CL_DEVICE_TYPE_GPU, &devices);
-        if (!devices.empty())
-        {
-            platform = p;
-            device = devices.front();
-            deviceFound = true;
-
-            std::string deviceName;
-            device.getInfo(CL_DEVICE_NAME, &deviceName);
-            qDebug() << "Using GPU device:" << QString::fromStdString(deviceName);
-            break;
-        }
-    }
-
-    if (!deviceFound)
-    {
-        qDebug() << "ERROR: No GPU devices found!";
-        QMessageBox::warning(this, "OpenCL Error", "No GPU devices found!");
-        return;
-    }
-
-    // Contexte + queue
-    cl::Context context(device);
-    cl::CommandQueue queue(context, device);
+    // Get OpenCL context, device, and command queue from DeviceSystem
+    DeviceManager *deviceManager = DeviceManager::getInstance();
+    cl::Context context = deviceManager->getContext();
+    cl::Device device = deviceManager->getDevice();
+    cl::CommandQueue queue = deviceManager->getCommandQueue();
 
     // Programme et kernel
     cl::Program program(context, sources);

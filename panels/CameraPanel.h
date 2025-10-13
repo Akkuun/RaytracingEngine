@@ -1,6 +1,4 @@
-#ifndef CAMERAPANEL_H
-#define CAMERAPANEL_H
-
+#pragma once
 #include <QWidget>
 
 class CameraPanel : public QWidget
@@ -13,5 +11,3 @@ public:
 private:
     void setupUI();
 };
-
-#endif // CAMERAPANEL_H

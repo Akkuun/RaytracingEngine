@@ -1,5 +1,4 @@
-#ifndef RENDERWIDGET_H
-#define RENDERWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -13,5 +12,3 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
 };
-
-#endif // RENDERWIDGET_H

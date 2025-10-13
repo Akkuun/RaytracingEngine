@@ -5,6 +5,7 @@
 #include "../panels/ObjectPanel.h"
 #include "../panels/CameraPanel.h"
 #include "../panels/ParametersPanel.h"
+#include "../src/core/DeviceManager/DeviceManager.h"
 #include <QVBoxLayout>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
@@ -18,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
     leftButtonAnimation = new QPropertyAnimation(this);
     rightButtonAnimation = new QPropertyAnimation(this);
 
+    deviceManager = DeviceManager::getInstance();
+    deviceManager->initialize(); // create OpenCL context, device, and command queue
     setupUI();
 }
 
