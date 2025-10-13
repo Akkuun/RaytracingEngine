@@ -237,17 +237,71 @@ void ObjectPanel::setupUI()
 
 void ObjectPanel::testKernel()
 {
+    // Check if kernel file exists and load it
     std::ifstream file("hello.cl");
+    if (!file.is_open())
+    {
+        qDebug() << "ERROR: Cannot open hello.cl file!";
+        QMessageBox::warning(this, "Kernel Error", "Cannot find hello.cl file!");
+        return;
+    }
+
     std::string src((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    if (src.empty())
+    {
+        qDebug() << "ERROR: Kernel file is empty!";
+        return;
+    }
+
+    qDebug() << "Kernel source loaded successfully, size:" << src.size();
     cl::Program::Sources sources(1, {src.c_str(), src.size()});
 
-    // Plateforme et device
+    //  list all available platforms
     std::vector<cl::Platform> platforms;
     cl::Platform::get(&platforms);
-    auto platform = platforms.front();
-    std::vector<cl::Device> devices;
-    platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
-    auto device = devices.front();
+
+    if (platforms.empty())
+    {
+        qDebug() << "ERROR: No OpenCL platforms found!";
+        QMessageBox::warning(this, "OpenCL Error", "No OpenCL platforms found!");
+        return;
+    }
+
+    qDebug() << "Found" << platforms.size() << "OpenCL platform(s)";
+
+    // Essayer de trouver un device GPU sur chaque plateforme
+    cl::Platform platform;
+    cl::Device device;
+    bool deviceFound = false;
+
+    for (auto &p : platforms)
+    {
+        std::string platformName;
+        p.getInfo(CL_PLATFORM_NAME, &platformName);
+        qDebug() << "Platform:" << QString::fromStdString(platformName);
+
+        std::vector<cl::Device> devices;
+
+        p.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+        if (!devices.empty())
+        {
+            platform = p;
+            device = devices.front();
+            deviceFound = true;
+
+            std::string deviceName;
+            device.getInfo(CL_DEVICE_NAME, &deviceName);
+            qDebug() << "Using GPU device:" << QString::fromStdString(deviceName);
+            break;
+        }
+    }
+
+    if (!deviceFound)
+    {
+        qDebug() << "ERROR: No GPU devices found!";
+        QMessageBox::warning(this, "OpenCL Error", "No GPU devices found!");
+        return;
+    }
 
     // Contexte + queue
     cl::Context context(device);
@@ -255,19 +309,24 @@ void ObjectPanel::testKernel()
 
     // Programme et kernel
     cl::Program program(context, sources);
+
     program.build({device});
+
     cl::Kernel kernel(program, "hello");
 
-    // Buffer pour le message (int)
+    // Message buffer for the output (int)
     cl::Buffer buffer(context, CL_MEM_WRITE_ONLY, sizeof(int));
     kernel.setArg(0, buffer);
 
-    // Lancer le kernel
+    // kernel launch
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(1));
     queue.finish();
 
-    // Lire la sortie (int)
+    // Read back the result (int)
     int result = 0;
     queue.enqueueReadBuffer(buffer, CL_TRUE, 0, sizeof(result), &result);
-    qDebug() << "Kernel result:" << result;
+
+    qDebug() << "Kernel executed successfully! Result:" << result;
+    QMessageBox::information(this, "Kernel Test",
+                             QString("Kernel executed successfully!\nResult: %1").arg(result));
 }

@@ -15,5 +15,5 @@ cmake ..
 # Build the project
 make
 
-# Run the executable
-./raytrace
+# Run the executable (it's now in bin/ subdirectory)
+./bin/raytrace

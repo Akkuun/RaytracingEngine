@@ -56,29 +56,19 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     /usr/local/include
     /opt/local/include)
 
-# Qt6 MOC
-qt6_wrap_cpp(MOC_SOURCES 
-    ui/MainWindow.h
-    ui/CollapsiblePanel.h
-    ui/RenderWidget.h
-    panels/CameraPanel.h
-    panels/ObjectPanel.h
-    panels/ParametersPanel.h
-    panels/ScenePanel.h
-)
+# Automatically find all header files that need MOC processing
+file(GLOB_RECURSE HEADERS "ui/*.h" "panels/*.h")
 
-# Sources
-set(SOURCES
-    main.cpp
-    ui/MainWindow.cpp
-    ui/CollapsiblePanel.cpp
-    ui/RenderWidget.cpp
-    panels/CameraPanel.cpp
-    panels/ObjectPanel.cpp
-    panels/ParametersPanel.cpp
-    panels/ScenePanel.cpp
-    ${MOC_SOURCES}
-)
+# Qt6 MOC - process all found headers
+qt6_wrap_cpp(MOC_SOURCES ${HEADERS})
+
+# Automatically find all source files (excluding external directory)
+file(GLOB SOURCES "*.cpp")
+file(GLOB_RECURSE UI_SOURCES "ui/*.cpp")
+file(GLOB_RECURSE PANEL_SOURCES "panels/*.cpp")
+
+# Combine all sources
+list(APPEND SOURCES ${UI_SOURCES} ${PANEL_SOURCES} ${MOC_SOURCES})
 
 # Executable
 add_executable(raytrace ${SOURCES})
