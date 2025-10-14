@@ -1,5 +1,5 @@
 #pragma once
-
+#include "../DeviceManager/DeviceManager.h"
 #include <CL/opencl.hpp>
 #include <unordered_map>
 #include <string>

@@ -2,6 +2,7 @@
 
 #include <QWidget>
 
+
 class ObjectPanel : public QWidget
 {
     Q_OBJECT

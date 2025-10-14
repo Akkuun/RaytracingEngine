@@ -1,5 +1,4 @@
 #include "KernelManager.h"
-#include "../DeviceManager/DeviceManager.h"
 #include <fstream>
 #include <iostream>
 KernelManager *KernelManager::instance = nullptr;

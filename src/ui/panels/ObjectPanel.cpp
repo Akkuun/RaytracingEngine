@@ -1,7 +1,7 @@
 #include <CL/opencl.hpp>
 #include "ObjectPanel.h"
-#include "../../core/KernelManager/KernelManager.h"
-#include "../../core/DeviceManager/DeviceManager.h"
+#include "../../core/systems/KernelManager/KernelManager.h"
+#include "../../core/systems/DeviceManager/DeviceManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>

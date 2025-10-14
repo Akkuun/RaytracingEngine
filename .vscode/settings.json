@@ -10,6 +10,7 @@
         "text_encoding": "cpp",
         "typeinfo": "cpp",
         "qscrollarea": "cpp",
-        "qpropertyanimation": "cpp"
+        "qpropertyanimation": "cpp",
+        "qdoublespinbox": "cpp"
     }
 }

@@ -8,8 +8,8 @@
 #include <QEvent>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
-#include "../core/DeviceManager/DeviceManager.h"
-#include "../core/KernelManager/KernelManager.h"
+#include "../core/systems/DeviceManager/DeviceManager.h"
+#include "../core/systems/KernelManager/KernelManager.h"
 
 class RenderWidget;
 

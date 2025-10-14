@@ -5,8 +5,6 @@
 #include "./panels/ObjectPanel.h"
 #include "./panels/CameraPanel.h"
 #include "./panels/ParametersPanel.h"
-#include  "../core/DeviceManager/DeviceManager.h"
-#include  "../core/KernelManager/KernelManager.h"
 #include <QVBoxLayout>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
