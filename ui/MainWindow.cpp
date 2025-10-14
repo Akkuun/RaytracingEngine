@@ -6,6 +6,7 @@
 #include "../panels/CameraPanel.h"
 #include "../panels/ParametersPanel.h"
 #include "../src/core/DeviceManager/DeviceManager.h"
+#include "../src/core/KernelManager/KernelManager.h"
 #include <QVBoxLayout>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
@@ -21,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     deviceManager = DeviceManager::getInstance();
     deviceManager->initialize(); // create OpenCL context, device, and command queue
+
+    kernelManager = &KernelManager::getInstance();
     setupUI();
 }
 

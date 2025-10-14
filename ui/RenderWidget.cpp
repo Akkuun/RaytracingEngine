@@ -6,7 +6,7 @@ RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
     setMinimumSize(400, 300);
 }
 
-void RenderWidget::paintEvent(QPaintEvent *event)
+void RenderWidget::paintEvent()
 {
     QPainter painter(this);
     painter.fillRect(rect(), Qt::black);

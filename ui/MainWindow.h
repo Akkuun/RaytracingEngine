@@ -9,6 +9,7 @@
 #include <QPropertyAnimation>
 #include <QEasingCurve>
 #include "../src/core/DeviceManager/DeviceManager.h"
+#include "../src/core/KernelManager/KernelManager.h"
 
 class RenderWidget;
 
@@ -58,6 +59,9 @@ private:
 
     // OpenCL Device Manager
     DeviceManager* deviceManager;
+
+    // Kernel Manager
+    KernelManager* kernelManager;
 
     bool leftPanelVisible;
     bool rightPanelVisible;

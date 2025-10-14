@@ -1,6 +1,7 @@
 #include <CL/opencl.hpp>
 #include "ObjectPanel.h"
 #include "../src/core/DeviceManager/DeviceManager.h"
+#include "../src/core/KernelManager/KernelManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -238,49 +239,25 @@ void ObjectPanel::setupUI()
 
 void ObjectPanel::testKernel()
 {
-    // Check if kernel file exists and load it
-    std::ifstream file("hello.cl");
-    if (!file.is_open())
-    {
-        qDebug() << "ERROR: Cannot open hello.cl file!";
-        QMessageBox::warning(this, "Kernel Error", "Cannot find hello.cl file!");
-        return;
-    }
-
-    std::string src((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    if (src.empty())
-    {
-        qDebug() << "ERROR: Kernel file is empty!";
-        return;
-    }
-
-    qDebug() << "Kernel source loaded successfully, size:" << src.size();
-    cl::Program::Sources sources(1, {src.c_str(), src.size()});
-
+    
+    // get hello kernel
+    cl::Kernel &kernel = KernelManager::getInstance().getKernel("hello");
     // Get OpenCL context, device, and command queue from DeviceSystem
     DeviceManager *deviceManager = DeviceManager::getInstance();
     cl::Context context = deviceManager->getContext();
     cl::Device device = deviceManager->getDevice();
     cl::CommandQueue queue = deviceManager->getCommandQueue();
 
-    // Programme et kernel
-    cl::Program program(context, sources);
-
-    program.build({device});
-
-    cl::Kernel kernel(program, "hello");
-
-    // Message buffer for the output (int)
-    cl::Buffer buffer(context, CL_MEM_WRITE_ONLY, sizeof(int));
-    kernel.setArg(0, buffer);
-
-    // kernel launch
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(1));
-    queue.finish();
-
-    // Read back the result (int)
-    int result = 0;
-    queue.enqueueReadBuffer(buffer, CL_TRUE, 0, sizeof(result), &result);
+    // Create buffer for output
+    cl::Buffer outputBuffer(context, CL_MEM_WRITE_ONLY, sizeof(int));
+    // Set kernel arguments
+    kernel.setArg(0, outputBuffer); 
+    // Enqueue kernel execution
+    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(1), cl::NullRange);
+    // Read back the result
+    int result;
+    queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, sizeof(int), &result);
+    // Print the result
 
     qDebug() << "Kernel executed successfully! Result:" << result;
     QMessageBox::information(this, "Kernel Test",

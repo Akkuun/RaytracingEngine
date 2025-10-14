@@ -10,5 +10,5 @@ public:
     explicit RenderWidget(QWidget *parent = nullptr);
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
+    void paintEvent();
 };

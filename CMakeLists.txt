@@ -84,14 +84,14 @@ target_include_directories(raytrace PRIVATE
 target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets)
 
 # Copy kernels to output directory
-file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernel/*.cl")
+file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")
 foreach(KERNEL_FILE ${KERNEL_FILES})
     get_filename_component(KERNEL_NAME ${KERNEL_FILE} NAME)
     configure_file(${KERNEL_FILE} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${KERNEL_NAME} COPYONLY)
 endforeach()
 
 # Also copy to build root for backwards compatibility
-configure_file(${CMAKE_SOURCE_DIR}/kernel/hello.cl ${CMAKE_BINARY_DIR}/hello.cl COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/kernels/hello.cl ${CMAKE_BINARY_DIR}/hello.cl COPYONLY)
 
 # Print summary
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
