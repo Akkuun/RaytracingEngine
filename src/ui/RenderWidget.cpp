@@ -26,6 +26,6 @@ void RenderWidget::paintEvent(QPaintEvent *event)
     colorToggle = (cyclePosition >= toggleIntervalMs);
 
     // Alterner entre blanc et rouge
-    QColor currentColor = colorToggle ? Qt::red : Qt::black;
+    QColor currentColor = colorToggle ? Qt::gray : Qt::black;
     painter.fillRect(rect(), currentColor);
 }
