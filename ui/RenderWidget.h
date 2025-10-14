@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QElapsedTimer>
 
 class RenderWidget : public QWidget
 {
@@ -10,5 +11,10 @@ public:
     explicit RenderWidget(QWidget *parent = nullptr);
 
 protected:
-    void paintEvent();
+    void paintEvent( QPaintEvent *event) override;
+
+private:
+    QTimer *renderTimer;
+    QElapsedTimer elapsedTimer;
+    bool colorToggle;
 };
