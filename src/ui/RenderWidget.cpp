@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <QDebug>
-
+#include <iostream>
 RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
 {
     renderEngine = new RenderEngine();
@@ -10,13 +10,19 @@ RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
     // main loop , each 16 ms ( ~60 FPS) we call renderFrame
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &RenderWidget::renderFrame);
-    timer->start(16); // ~60 FPS
+    timer->start(1); // asap
+    elapsedTimer.start();
+    frameCount = 0;
 }
 
 void RenderWidget::renderFrame()
 {
     width = QWidget::width();
     height = QWidget::height();
+    if (renderedImage.width() != width || renderedImage.height() != height)
+    {
+        renderedImage = QImage(width, height, QImage::Format_RGB32);
+    }
 
     if (width > 0 && height > 0)
     {
@@ -25,32 +31,34 @@ void RenderWidget::renderFrame()
         // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1 
         std::vector<float> imageData = renderEngine->getImageData();
 
+        // Direct access to QImage bits for performance
+        uchar *bits = renderedImage.bits();
+        const float *data = imageData.data();
+        int pixelCount = width * height;
 
-        QImage image(width, height, QImage::Format_RGB32);
-        for (int y = 0; y < height; ++y)
+        //  vectorisable opération
+        for (int i = 0; i < pixelCount; ++i)
         {
-            for (int x = 0; x < width; ++x)
-            {
-                int idx = (y * width + x) * 3;
-                // // qdebug the value of the pixel
+            int baseIdx = i * 3;
+            int baseIdxOut = i * 4; // QImage Format_RGB32 use 4 bytes for each pixel (ARGB)
 
-
-                // [0-1] > [0-255]
-                int r = static_cast<int>(imageData[idx] * 255.0f);
-                int g = static_cast<int>(imageData[idx + 1] * 255.0f);
-                int b = static_cast<int>(imageData[idx + 2] * 255.0f);
-
-                // Clamp values
-                r = std::max(0, std::min(255, r));
-                g = std::max(0, std::min(255, g));
-                b = std::max(0, std::min(255, b));
-
-                image.setPixel(x, y, qRgb(r, g, b));
-            }
+            // Conversion optimisée float → byte
+            bits[baseIdxOut + 2] = static_cast<uchar>(std::min(255.0f, data[baseIdx] * 255.0f));     // R
+            bits[baseIdxOut + 1] = static_cast<uchar>(std::min(255.0f, data[baseIdx + 1] * 255.0f)); // G
+            bits[baseIdxOut + 0] = static_cast<uchar>(std::min(255.0f, data[baseIdx + 2] * 255.0f)); // B
+            bits[baseIdxOut + 3] = 255;                                                              // Alpha 
         }
 
-        renderedImage = image;
-        update(); // Trigger repaint
+        // FPS
+        frameCount++;
+        if (elapsedTimer.elapsed() >= 1000)
+        {
+            std::cout << "FPS:" << frameCount << std::endl;
+            frameCount = 0;
+            elapsedTimer.restart();
+        }
+
+        update();
     }
 }
 
@@ -68,4 +76,5 @@ void RenderWidget::paintEvent(QPaintEvent *event)
         painter.setPen(Qt::white);
         painter.drawText(rect(), Qt::AlignCenter, "No data...");
     }
+    
 }

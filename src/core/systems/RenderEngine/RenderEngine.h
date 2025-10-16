@@ -25,5 +25,4 @@ private:
 
     
     void setupBuffers(int width, int height);
-    bool intersect_sphere();
 };
