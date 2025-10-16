@@ -1,7 +1,7 @@
-#ifndef OBJECTPANEL_H
-#define OBJECTPANEL_H
+#pragma once
 
 #include <QWidget>
+
 
 class ObjectPanel : public QWidget
 {
@@ -14,5 +14,3 @@ private:
     void setupUI();
     void testKernel();
 };
-
-#endif // OBJECTPANEL_H

@@ -57,7 +57,7 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     /opt/local/include)
 
 # Automatically find all header files that need MOC processing
-file(GLOB_RECURSE HEADERS "ui/*.h" "panels/*.h")
+file(GLOB_RECURSE HEADERS "*.h" "*.hpp")
 
 # Qt6 MOC - process all found headers
 qt6_wrap_cpp(MOC_SOURCES ${HEADERS})
@@ -66,9 +66,9 @@ qt6_wrap_cpp(MOC_SOURCES ${HEADERS})
 file(GLOB SOURCES "*.cpp")
 file(GLOB_RECURSE UI_SOURCES "ui/*.cpp")
 file(GLOB_RECURSE PANEL_SOURCES "panels/*.cpp")
-
+file(GLOB_RECURSE SRC_SOURCES "src/*.cpp")
 # Combine all sources
-list(APPEND SOURCES ${UI_SOURCES} ${PANEL_SOURCES} ${MOC_SOURCES})
+list(APPEND SOURCES ${UI_SOURCES} ${PANEL_SOURCES} ${SRC_SOURCES} ${MOC_SOURCES})
 
 # Executable
 add_executable(raytrace ${SOURCES})
@@ -84,15 +84,20 @@ target_include_directories(raytrace PRIVATE
 target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets)
 
 # Copy kernels to output directory
-file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernel/*.cl")
+file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")
 foreach(KERNEL_FILE ${KERNEL_FILES})
     get_filename_component(KERNEL_NAME ${KERNEL_FILE} NAME)
     configure_file(${KERNEL_FILE} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${KERNEL_NAME} COPYONLY)
 endforeach()
 
-# Also copy to build root for backwards compatibility
-configure_file(${CMAKE_SOURCE_DIR}/kernel/hello.cl ${CMAKE_BINARY_DIR}/hello.cl COPYONLY)
-
+# Copy kernels to output directory
+file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")
+foreach(KERNEL_FILE ${KERNEL_FILES})
+    get_filename_component(KERNEL_NAME ${KERNEL_FILE} NAME)
+    configure_file(${KERNEL_FILE} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${KERNEL_NAME} COPYONLY)
+    # Also copy to build root for backwards compatibility
+    configure_file(${KERNEL_FILE} ${CMAKE_BINARY_DIR}/${KERNEL_NAME} COPYONLY)
+endforeach()
 # Print summary
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")

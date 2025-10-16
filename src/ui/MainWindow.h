@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QWidget>
@@ -9,6 +8,8 @@
 #include <QEvent>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
+#include "../core/systems/DeviceManager/DeviceManager.h"
+#include "../core/systems/KernelManager/KernelManager.h"
 
 class RenderWidget;
 
@@ -56,8 +57,12 @@ private:
     QPropertyAnimation *leftButtonAnimation;
     QPropertyAnimation *rightButtonAnimation;
 
+    // OpenCL Device Manager
+    DeviceManager* deviceManager;
+
+    // Kernel Manager
+    KernelManager* kernelManager;
+
     bool leftPanelVisible;
     bool rightPanelVisible;
 };
-
-#endif // MAINWINDOW_H

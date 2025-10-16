@@ -1,10 +1,10 @@
 #include "MainWindow.h"
 #include "RenderWidget.h"
 #include "CollapsiblePanel.h"
-#include "../panels/ScenePanel.h"
-#include "../panels/ObjectPanel.h"
-#include "../panels/CameraPanel.h"
-#include "../panels/ParametersPanel.h"
+#include "./panels/ScenePanel.h"
+#include "./panels/ObjectPanel.h"
+#include "./panels/CameraPanel.h"
+#include "./panels/ParametersPanel.h"
 #include <QVBoxLayout>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     leftButtonAnimation = new QPropertyAnimation(this);
     rightButtonAnimation = new QPropertyAnimation(this);
 
+    deviceManager = DeviceManager::getInstance();
+    
+
+    kernelManager = &KernelManager::getInstance();
     setupUI();
 }
 

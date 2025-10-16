@@ -1,5 +1,4 @@
-#ifndef COLLAPSIBLEPANEL_H
-#define COLLAPSIBLEPANEL_H
+#pragma once
 
 #include <QWidget>
 #include <QVBoxLayout>
@@ -22,5 +21,3 @@ private:
     QVBoxLayout *mainLayout;
     bool collapsed;
 };
-
-#endif // COLLAPSIBLEPANEL_H
