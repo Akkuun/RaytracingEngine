@@ -21,9 +21,11 @@ private:
     QImage renderedImage; // output image
     RenderEngine* renderEngine;
     void renderFrame();
+    void updateFPS();
 
     int width;
     int height;
 
     int frameCount;
+    
 };

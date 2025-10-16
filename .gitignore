@@ -18,7 +18,7 @@ external/OpenCL-CLHPP/build/
 # Ignore editor/project files
 *.swp
 *.swo
-*.vscode/
+#*.vscode/
 *.idea/
 
 # Ignore kernel copies

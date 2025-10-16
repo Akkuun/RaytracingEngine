@@ -42,22 +42,15 @@ void RenderWidget::renderFrame()
             int baseIdx = i * 3;
             int baseIdxOut = i * 4; // QImage Format_RGB32 use 4 bytes for each pixel (ARGB)
 
-            // Conversion optimisée float → byte
+            // Conversion optimized float → byte
             bits[baseIdxOut + 2] = static_cast<uchar>(std::min(255.0f, data[baseIdx] * 255.0f));     // R
             bits[baseIdxOut + 1] = static_cast<uchar>(std::min(255.0f, data[baseIdx + 1] * 255.0f)); // G
             bits[baseIdxOut + 0] = static_cast<uchar>(std::min(255.0f, data[baseIdx + 2] * 255.0f)); // B
             bits[baseIdxOut + 3] = 255;                                                              // Alpha 
         }
 
-        // FPS
-        frameCount++;
-        if (elapsedTimer.elapsed() >= 1000)
-        {
-            std::cout << "FPS:" << frameCount << std::endl;
-            frameCount = 0;
-            elapsedTimer.restart();
-        }
-
+        
+        updateFPS();
         update();
     }
 }
@@ -77,4 +70,15 @@ void RenderWidget::paintEvent(QPaintEvent *event)
         painter.drawText(rect(), Qt::AlignCenter, "No data...");
     }
     
+}
+
+void RenderWidget::updateFPS()
+{
+    frameCount++;
+    if (elapsedTimer.elapsed() >= 1000) // every second
+    {
+        qDebug() << "FPS:" << frameCount;
+        frameCount = 0;
+        elapsedTimer.restart();
+    }
 }
