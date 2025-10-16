@@ -5,7 +5,9 @@
 DeviceManager *DeviceManager::deviceManagerInstance = nullptr;
 
 
-DeviceManager::DeviceManager() {}
+DeviceManager::DeviceManager() {
+    initialize(); // create OpenCL context, device, and command queue
+}
 
 DeviceManager::~DeviceManager(){}
 

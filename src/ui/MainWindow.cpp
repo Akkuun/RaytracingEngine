@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     rightButtonAnimation = new QPropertyAnimation(this);
 
     deviceManager = DeviceManager::getInstance();
-    deviceManager->initialize(); // create OpenCL context, device, and command queue
+    
 
     kernelManager = &KernelManager::getInstance();
     setupUI();

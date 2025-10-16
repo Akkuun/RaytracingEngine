@@ -1,11 +1,11 @@
 #pragma once
 #include "../math/vec3.h"
-
+#include "../defines/Defines.h"
 class Shape
 {
 public:
     virtual ~Shape() = default;
-
+    virtual ShapeType getType() const = 0;
     
 
 private:
