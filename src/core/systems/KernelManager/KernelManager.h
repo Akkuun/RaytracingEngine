@@ -12,8 +12,12 @@ private:
     std::unordered_map<std::string, cl::Program> programs; // <name, program>
 
     void loadKernel(const std::string &name, const std::string &filePath);
+    
 
-    KernelManager() { preloadAllKernels(); }
+    KernelManager()
+    {
+        preloadAllKernels();
+    }
 
 public:
     static KernelManager &getInstance();

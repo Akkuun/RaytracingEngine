@@ -1,31 +1,71 @@
 #include "RenderWidget.h"
 #include <QPainter>
 #include <QTimer>
+#include <QDebug>
 
 RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
 {
-    setMinimumSize(400, 300);
+    renderEngine = new RenderEngine();
 
-    elapsedTimer.start(); // Démarre le timer au lancement
+    // main loop , each 16 ms ( ~60 FPS) we call renderFrame
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &RenderWidget::renderFrame);
+    timer->start(16); // ~60 FPS
+}
 
-    renderTimer = new QTimer(this);
-    connect(renderTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    renderTimer->start(16); // ~60 FPS
+void RenderWidget::renderFrame()
+{
+    width = QWidget::width();
+    height = QWidget::height();
+
+    if (width > 0 && height > 0)
+    {
+        renderEngine->render(width, height);
+
+        // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1 
+        std::vector<float> imageData = renderEngine->getImageData();
+
+
+        QImage image(width, height, QImage::Format_RGB32);
+        for (int y = 0; y < height; ++y)
+        {
+            for (int x = 0; x < width; ++x)
+            {
+                int idx = (y * width + x) * 3;
+                // // qdebug the value of the pixel
+
+
+                // [0-1] > [0-255]
+                int r = static_cast<int>(imageData[idx] * 255.0f);
+                int g = static_cast<int>(imageData[idx + 1] * 255.0f);
+                int b = static_cast<int>(imageData[idx + 2] * 255.0f);
+
+                // Clamp values
+                r = std::max(0, std::min(255, r));
+                g = std::max(0, std::min(255, g));
+                b = std::max(0, std::min(255, b));
+
+                image.setPixel(x, y, qRgb(r, g, b));
+            }
+        }
+
+        renderedImage = image;
+        update(); // Trigger repaint
+    }
 }
 
 void RenderWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    // Changer de couleur toutes les 1000ms (1 seconde)
-    const qint64 toggleIntervalMs = 1000;
-
-    qint64 elapsed = elapsedTimer.elapsed();
-    qint64 cyclePosition = elapsed % (toggleIntervalMs * 2); // Cycle complet = 2 secondes
-
-    colorToggle = (cyclePosition >= toggleIntervalMs);
-
-    // Alterner entre blanc et rouge
-    QColor currentColor = colorToggle ? Qt::gray : Qt::black;
-    painter.fillRect(rect(), currentColor);
+    if (!renderedImage.isNull())
+    {
+        painter.drawImage(rect(), renderedImage);
+    }
+    else
+    {
+        painter.fillRect(rect(), Qt::black);
+        painter.setPen(Qt::white);
+        painter.drawText(rect(), Qt::AlignCenter, "No data...");
+    }
 }

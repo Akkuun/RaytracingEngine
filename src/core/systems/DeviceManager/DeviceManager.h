@@ -25,6 +25,8 @@ public:
 
     bool isInitialized = false;
     void initialize();
+
+    
     
     inline cl::Context getContext() const { return context; };
     inline cl::Device getDevice() const { return device; };
