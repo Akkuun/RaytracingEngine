@@ -37,15 +37,16 @@ void RenderWidget::renderFrame()
         int pixelCount = width * height;
 
         //  vectorisable opération
+        #pragma omp parallel for
         for (int i = 0; i < pixelCount; ++i)
         {
             int baseIdx = i * 3;
             int baseIdxOut = i * 4; // QImage Format_RGB32 use 4 bytes for each pixel (ARGB)
 
             // Conversion optimized float → byte
-            bits[baseIdxOut + 2] = static_cast<uchar>(std::min(255.0f, data[baseIdx] * 255.0f));     // R
-            bits[baseIdxOut + 1] = static_cast<uchar>(std::min(255.0f, data[baseIdx + 1] * 255.0f)); // G
-            bits[baseIdxOut + 0] = static_cast<uchar>(std::min(255.0f, data[baseIdx + 2] * 255.0f)); // B
+            bits[baseIdxOut + 2] = data[baseIdx] * 255.0f;     // R
+            bits[baseIdxOut + 1] = data[baseIdx + 1] * 255.0f; // G
+            bits[baseIdxOut + 0] = data[baseIdx + 2] * 255.0f; // B
             bits[baseIdxOut + 3] = 255;                                                              // Alpha 
         }
 

@@ -2,6 +2,8 @@
 #define SQUARE 2
 #define TRIANGLE 3
 
+#define EPSILON 0.001f
+
 struct Ray{
 	float3 origin;
 	float3 dir;
@@ -35,6 +37,7 @@ struct Intersection {
 	float3 hitpoint;
 	float3 normal;
 	float2 uv;
+	int hitShapeIndex;
 };
 
 struct Shape{
@@ -46,33 +49,65 @@ struct Shape{
     } data;
 };
 
+float3 get_shape_color(const struct Shape* shape)
+{
+	if (shape->type == SPHERE) {
+		return shape->data.sphere.color;
+	} else if (shape->type == SQUARE) {
+		return shape->data.square.color;
+	}
+	return (float3)(0.0f, 0.0f, 0.0f); /* default color */
+}
+
 struct Intersection intersect_sphere(const struct Sphere* sphere, const struct Ray* ray, float* t)
 {
 	float3 rayToCenter = sphere->pos - ray->origin;
 
 	/* calculate coefficients a, b, c from quadratic equation */
-
 	/* float a = dot(ray->dir, ray->dir); // ray direction is normalised, dotproduct simplifies to 1 */ 
 	float b = dot(rayToCenter, ray->dir);
-	float c = dot(rayToCenter, rayToCenter) - sphere->radius*sphere->radius;
+	float c = dot(rayToCenter, rayToCenter) - sphere->radius * sphere->radius;
 	float disc = b * b - c; /* discriminant of quadratic formula */
-
-	/* solve for t (distance to hitpoint along ray) */
 
 	struct Intersection result;
 	result.t = -1.0f; /* default to no intersection */
 
-	if (disc < 0.0f) return result;
-	else *t = b - sqrt(disc);
+	if (disc < 0.0f) return result; /* no intersection */
 
-	if (*t < 0.0f){
-		*t = b + sqrt(disc);
-		if (*t < 0.0f) return result; 
+	/* solve for t (distance to hitpoint along ray) */
+	float sqrt_disc = sqrt(disc);
+	float t1 = b - sqrt_disc; /* near intersection */
+	float t2 = b + sqrt_disc; /* far intersection */
+
+	/* choose the closest positive t with epsilon threshold */
+	*t = -1.0f;
+	if (t1 > EPSILON) {
+		*t = t1;
+	} else if (t2 > EPSILON) {
+		*t = t2; /* ray starts inside sphere, use exit point */
+	} else {
+		return result; /* both intersections behind ray or too close */
 	}
 
 	result.t = *t;
 	result.hitpoint = ray->origin + ray->dir * (*t);
+	
+	/* calculate normal - always point outward from sphere center */
 	result.normal = normalize(result.hitpoint - sphere->pos);
+	
+	/* backface culling: if ray and normal point in same direction, reject */
+	if (dot(ray->dir, result.normal) > 0.0f && *t == t1) {
+		/* hitting sphere from behind (outside->inside), reject this intersection */
+		result.t = -1.0f;
+		return result;
+	}
+	
+	/* if we're using the far intersection (t2), we're inside the sphere */
+	/* so flip the normal to point inward for proper shading */
+	if (*t == t2) {
+		result.normal = -result.normal;
+	}
+	
 	result.uv = (float2)(0.0f, 0.0f); // Placeholder for UV coordinates TODO spheric uv mapping
 	return result;
 }
@@ -85,12 +120,15 @@ struct Intersection intersect_square(const struct Square* square, const struct R
     result.t = -1.0f; /* default to no intersection */
 
     float denom = dot(square->normal, ray->dir);
-    if (fabs(denom) < 1e-6f) return result; /* ray is parallel to square plane */
+    if (fabs(denom) < EPSILON) return result; /* ray is parallel to square plane */
+
+    /* backface culling: if ray and normal point in same direction, reject */
+    if (denom > 0.0f) return result; /* hitting square from behind */
 
     float3 diff = square->pos - ray->origin;
     *t = dot(diff, square->normal) / denom;
 
-    if (*t < 0.0f) return result; /* square is behind ray */
+    if (*t < EPSILON) return result; /* square is behind ray or too close */
 
     /* calculate hitpoint */
     float3 hitpoint = ray->origin + ray->dir * (*t);
@@ -139,6 +177,89 @@ struct Intersection intersect_shape(const struct Shape* shape, const struct Ray*
 	return result;
 }
 
+struct Intersection compute_intersection(const struct Shape* shapes, int numShapes, const struct Ray* ray)
+{
+	float t = 1e20;
+	int hitShapeIndex = -1;
+	struct Intersection finalIntersection;
+	finalIntersection.t = -1.0f; /* default to no intersection */
+
+	for (int i = 0; i < numShapes; i++){
+		struct Shape currentShape = shapes[i];
+		float t_temp = 1e20;
+		struct Intersection intersection;
+		intersection = intersect_shape(&currentShape, ray, &t_temp);
+
+		if (intersection.t > EPSILON && intersection.t < t){
+			t = intersection.t;
+			hitShapeIndex = i;
+			finalIntersection = intersection;
+			finalIntersection.hitShapeIndex = hitShapeIndex;
+		}
+	}
+
+	return finalIntersection;
+}
+
+bool compute_shadow(const struct Shape* shapes, int numShapes, const struct Ray* shadowRay, float maxDistance)
+{
+	for (int i = 0; i < numShapes; i++){
+		struct Shape currentShape = shapes[i];
+		float t_temp = 1e20;
+		struct Intersection intersection;
+		intersection = intersect_shape(&currentShape, shadowRay, &t_temp);
+
+		if (intersection.t > EPSILON && intersection.t < maxDistance){
+			return true; /* in shadow */
+		}
+	}
+
+	return false; /* not in shadow */
+}
+
+float3 raytrace_recursive(const struct Ray* ray, const struct Shape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, int remainingBounces)
+{
+	float3 color = (float3)(0.0f, 0.0f, 0.0f);
+	if (remainingBounces <= 0) return color;
+	
+	struct Intersection intersection = compute_intersection(shapes, numShapes, ray);
+	if (intersection.t < EPSILON) return color; /* no intersection, return "sky" color, to change later */
+
+	float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
+	color += diffuse * 0.25f; /* ambient term */
+
+	for (int i = 0; i < numLights; i++){
+		float3 lightDir = normalize(lights[i].pos - intersection.hitpoint);
+		float dotLN = dot(lightDir, intersection.normal);
+
+		if (dotLN > EPSILON) {
+			// light and shadow 
+			struct Ray shadowRay;
+			shadowRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f; /* proper offset */
+			shadowRay.dir = lightDir;
+			float lightDistance = length(lights[i].pos - intersection.hitpoint);
+			
+			if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON)) {
+				/* not in shadow - add full lighting */
+				color += diffuse * lights[i].color * lights[i].intensity * dotLN;
+			} else {
+				/* in shadow - add reduced lighting */
+				color += diffuse * lights[i].color * lights[i].intensity * dotLN * 0.2f;
+			}
+		}
+	}
+
+	//reflection 
+	if (remainingBounces > 1) {
+		float3 reflectDir = normalize(ray->dir - 2.0f * dot(ray->dir, intersection.normal) * intersection.normal);
+		struct Ray reflectRay;
+		reflectRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f; /* proper offset */
+		reflectRay.dir = reflectDir;
+		color += 0.3f * raytrace_recursive(&reflectRay, shapes, numShapes, lights, numLights, maxBounces, remainingBounces - 1);
+	}
+
+	return color;
+}
 
 struct Ray createCamRay(const int x_coord, const int y_coord, const int width, const int height){
 
@@ -198,7 +319,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	square1.pos = (float3)(0.0f, -0.5f, 0.0f);
 	square1.u_vec = (float3)(1.5f, 0.0f, 0.0f);
 	square1.v_vec = (float3)(0.0f, 0.0f, -80.0f);
-	square1.normal = (float3)(0.0f, -1.0f, 0.0f);
+	square1.normal = (float3)(0.0f, 1.0f, 0.0f);
 	square1.color = (float3)(0.9f, 0.9f, 0.9f);
 	squareShape1.data.square = square1;
 
@@ -208,7 +329,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	squareTop.pos = (float3)(0.0f, 0.35f, 3.0f);
 	squareTop.u_vec = (float3)(1.5f, 0.0f, 0.0f);
 	squareTop.v_vec = (float3)(0.0f, 0.0f, -80.0f);
-	squareTop.normal = (float3)(0.0f, 1.0f, 0.0f);
+	squareTop.normal = (float3)(0.0f, -1.0f, 0.0f);
 	squareTop.color = (float3)(0.9f, 0.9f, 0.9f);
 	squareShapeTop.data.square = squareTop;
 
@@ -218,7 +339,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	squareLeft.pos = (float3)(-0.75f, 0.0f, 0.0f);
 	squareLeft.u_vec = (float3)(0.0f, 1.5f, 0.0f);
 	squareLeft.v_vec = (float3)(0.0f, 0.0f, -80.0f);
-	squareLeft.normal = (float3)(-1.0f, 0.0f, 0.0f);
+	squareLeft.normal = (float3)(1.0f, 0.0f, 0.0f);
 	squareLeft.color = (float3)(0.9f, 0.1f, 0.1f);
 	squareShapeLeft.data.square = squareLeft;
 
@@ -228,7 +349,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	squareRight.pos = (float3)(0.75f, 0.0f, 0.0f);
 	squareRight.u_vec = (float3)(0.0f, 1.5f, 0.0f);
 	squareRight.v_vec =	 (float3)(0.0f, 0.0f, -80.0f);
-	squareRight.normal = (float3)(1.0f, 0.0f, 0.0f);
+	squareRight.normal = (float3)(-1.0f, 0.0f, 0.0f);
 	squareRight.color = (float3)(0.1f, 0.9f, 0.1f);
 	squareShapeRight.data.square = squareRight;
 
@@ -251,50 +372,29 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	shapes[5] = squareShapeRight;
 	shapes[6] = squareShapeBack;
 
+	// struct Shape shapes[2];
+	// shapes[0] = sphereShape1;
+	// shapes[1] = sphereShape2;
+
 	struct Light lights[1];
-	lights[0].pos = (float3)(0.0f, 0.4f, -10.0f);
+	lights[0].pos = (float3)(0.0f, 0.2f, 2.5f);
 	lights[0].color = (float3)(1.0f, 1.0f, 1.0f);
 	lights[0].intensity = 1.0f;
 
 	int numShapes = sizeof(shapes) / sizeof(shapes[0]);
+	int numLights = sizeof(lights) / sizeof(lights[0]);
 
-	/* intersect ray with sphere */
-	float t = 1e20;
-	int hitShapeIndex = -1;
-	for (int i = 0; i < numShapes; i++){
-		struct Shape currentShape = shapes[i];
-		float t_temp = 1e20;
-		struct Intersection intersection;
-		intersection = intersect_shape(&currentShape, &camray, &t_temp);
-
-		if (intersection.t > 0.0f && intersection.t < t){
-			t = intersection.t;
-			hitShapeIndex = i;
-		}
-	}
-
-	/* if ray misses sphere, return background colour 
-	background colour is a blue-ish gradient dependent on image height */
-	float3 color,normal,outputPixelColor;
+	int maxbounce = 1;
 	
-    if (t > 1e19) { 
-        outputPixelColor = (float3)(fy * 0.1f, fy * 0.3f, 0.3f);
-    } else {
-		struct Shape hitShape = shapes[hitShapeIndex];
-		struct Intersection intersection;
-		intersection = intersect_shape(&hitShape, &camray, &t);
-		normal = intersection.normal;
+	float3 outputPixelColor = raytrace_recursive(&camray, shapes, numShapes, lights, numLights, maxbounce, maxbounce);
 
-		if (hitShape.type == SPHERE){
-			float cosine_factor = dot(normal, camray.dir) * -1.0f;
-			color = hitShape.data.sphere.color * cosine_factor;
-		} else if (hitShape.type == SQUARE){
-			float cosine_factor = dot(normal, camray.dir) * -1.0f;
-			color = hitShape.data.square.color * cosine_factor;
-		}
-		
-		outputPixelColor = color;
+	/* If no intersection found, return background colour */
+	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {
+		outputPixelColor = (float3)(fy * 0.7f, fy * 0.3f, 0.3f);
+	} else {
+		outputPixelColor = clamp(outputPixelColor/(float)maxbounce, 0.0f, 1.0f);
 	}
+
     
     // index *3 for RGB
     int base_idx = work_item_id * 3;
