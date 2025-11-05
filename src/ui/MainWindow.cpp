@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
+#include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), leftPanelVisible(true), rightPanelVisible(true)
@@ -23,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     kernelManager = &KernelManager::getInstance();
     setupUI();
+    
+    // Setup keyboard shortcut to toggle both panels with F key
+    togglePanelsShortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
+    connect(togglePanelsShortcut, &QShortcut::activated, this, &MainWindow::toggleBothPanels);
 }
 
 MainWindow::~MainWindow() {}
@@ -305,4 +310,38 @@ void MainWindow::animateRightPanel(bool show)
 
     rightPanelAnimation->start();
     rightButtonAnimation->start();
+}
+
+void MainWindow::toggleBothPanels()
+{
+    // Hide both panels if either one is visible, otherwise show both
+    bool shouldHide = leftPanelVisible || rightPanelVisible;
+    
+    if (shouldHide)
+    {
+        // Hide both panels
+        if (leftPanelVisible)
+        {
+            leftPanelVisible = false;
+            leftToggleBtn->setText("▶");
+            animateLeftPanel(false);
+        }
+        if (rightPanelVisible)
+        {
+            rightPanelVisible = false;
+            rightToggleBtn->setText("◀");
+            animateRightPanel(false);
+        }
+    }
+    else
+    {
+        // Show both panels
+        leftPanelVisible = true;
+        leftToggleBtn->setText("◀");
+        animateLeftPanel(true);
+        
+        rightPanelVisible = true;
+        rightToggleBtn->setText("▶");
+        animateRightPanel(true);
+    }
 }
