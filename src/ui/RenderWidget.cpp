@@ -28,15 +28,15 @@ void RenderWidget::renderFrame()
     {
         renderEngine->render(width, height);
 
-        // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1 
+        // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1
         std::vector<float> imageData = renderEngine->getImageData();
 
         // Direct access to QImage bits for performance
         uchar *bits = renderedImage.bits();
         const float *data = imageData.data();
-        int pixelCount = width * height;
+        const int pixelCount = width * height;
 
-        //  vectorisable opération
+        //  pragma omp for to parallelize the loop  of writing pixels
         #pragma omp parallel for
         for (int i = 0; i < pixelCount; ++i)
         {
@@ -47,10 +47,9 @@ void RenderWidget::renderFrame()
             bits[baseIdxOut + 2] = data[baseIdx] * 255.0f;     // R
             bits[baseIdxOut + 1] = data[baseIdx + 1] * 255.0f; // G
             bits[baseIdxOut + 0] = data[baseIdx + 2] * 255.0f; // B
-            bits[baseIdxOut + 3] = 255;                                                              // Alpha 
+            bits[baseIdxOut + 3] = 255;                        // Alpha
         }
 
-        
         updateFPS();
         update();
     }
@@ -70,7 +69,6 @@ void RenderWidget::paintEvent(QPaintEvent *event)
         painter.setPen(Qt::white);
         painter.drawText(rect(), Qt::AlignCenter, "No data...");
     }
-    
 }
 
 void RenderWidget::updateFPS()

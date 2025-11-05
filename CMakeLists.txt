@@ -46,6 +46,9 @@ endif()
 # Find OpenCL
 find_package(OpenCL REQUIRED)
 
+# Find OpenMP
+find_package(OpenMP REQUIRED)
+
 # Find Qt6
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
@@ -81,7 +84,7 @@ target_include_directories(raytrace PRIVATE
 )
 
 # Link
-target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets)
+target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets OpenMP::OpenMP_CXX)
 
 # Copy kernels to output directory
 file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")
