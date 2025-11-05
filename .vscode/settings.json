@@ -81,6 +81,10 @@
         "valarray": "cpp",
         "variant": "cpp",
         "qtimer": "cpp",
-        "qpainter": "cpp"
+        "qpainter": "cpp",
+        "bitset": "cpp",
+        "complex": "cpp",
+        "forward_list": "cpp",
+        "source_location": "cpp"
     }
 }
