@@ -7,6 +7,12 @@ struct Ray{
 	float3 dir;
 };
 
+struct Light {
+	float3 pos;
+	float3 color;
+	float intensity;
+};
+
 struct Sphere{
 	float radius;
 	float3 pos;
@@ -121,6 +127,18 @@ struct Intersection intersect_square(const struct Square* square, const struct R
 }
 
 
+struct Intersection intersect_shape(const struct Shape* shape, const struct Ray* ray, float* t)
+{
+	if (shape->type == SPHERE) {
+		return intersect_sphere(&shape->data.sphere, ray, t);
+	} else if (shape->type == SQUARE) {
+		return intersect_square(&shape->data.square, ray, t);
+	}
+	struct Intersection result;
+	result.t = -1.0f; /* default to no intersection */
+	return result;
+}
+
 
 struct Ray createCamRay(const int x_coord, const int y_coord, const int width, const int height){
 
@@ -233,6 +251,11 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	shapes[5] = squareShapeRight;
 	shapes[6] = squareShapeBack;
 
+	struct Light lights[1];
+	lights[0].pos = (float3)(0.0f, 0.4f, -10.0f);
+	lights[0].color = (float3)(1.0f, 1.0f, 1.0f);
+	lights[0].intensity = 1.0f;
+
 	int numShapes = sizeof(shapes) / sizeof(shapes[0]);
 
 	/* intersect ray with sphere */
@@ -242,11 +265,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 		struct Shape currentShape = shapes[i];
 		float t_temp = 1e20;
 		struct Intersection intersection;
-		if (currentShape.type == SPHERE){
-			intersection = intersect_sphere(&currentShape.data.sphere, &camray, &t_temp);
-		} else if (currentShape.type == SQUARE){
-			intersection = intersect_square(&currentShape.data.square, &camray, &t_temp);
-		}
+		intersection = intersect_shape(&currentShape, &camray, &t_temp);
 
 		if (intersection.t > 0.0f && intersection.t < t){
 			t = intersection.t;
@@ -263,12 +282,9 @@ __kernel void render_kernel(__global float* output, int width, int height)
     } else {
 		struct Shape hitShape = shapes[hitShapeIndex];
 		struct Intersection intersection;
-		if (hitShape.type == SPHERE){
-			intersection = intersect_sphere(&hitShape.data.sphere, &camray, &t);
-		} else if (hitShape.type == SQUARE){
-			intersection = intersect_square(&hitShape.data.square, &camray, &t);
-		}
+		intersection = intersect_shape(&hitShape, &camray, &t);
 		normal = intersection.normal;
+
 		if (hitShape.type == SPHERE){
 			float cosine_factor = dot(normal, camray.dir) * -1.0f;
 			color = hitShape.data.sphere.color * cosine_factor;
@@ -276,6 +292,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 			float cosine_factor = dot(normal, camray.dir) * -1.0f;
 			color = hitShape.data.square.color * cosine_factor;
 		}
+		
 		outputPixelColor = color;
 	}
     
