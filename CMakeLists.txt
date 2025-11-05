@@ -52,6 +52,10 @@ find_package(OpenMP REQUIRED)
 # Find Qt6
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
+# Define OpenCL version to avoid warnings
+add_definitions(-DCL_HPP_TARGET_OPENCL_VERSION=300)
+add_definitions(-DCL_HPP_MINIMUM_OPENCL_VERSION=120)
+
 find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     HINTS
     ${OpenCL_INCLUDE_DIRS}
@@ -59,11 +63,11 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
     /usr/local/include
     /opt/local/include)
 
-# Automatically find all header files that need MOC processing
-file(GLOB_RECURSE HEADERS "*.h" "*.hpp")
+# Find only Qt headers that need MOC processing (contain Q_OBJECT or Q_GADGET)
+file(GLOB UI_HEADERS "src/ui/*.h" "src/ui/panels/*.h")
 
-# Qt6 MOC - process all found headers
-qt6_wrap_cpp(MOC_SOURCES ${HEADERS})
+# Qt6 MOC - process only Qt headers
+qt6_wrap_cpp(MOC_SOURCES ${UI_HEADERS})
 
 # Automatically find all source files (excluding external directory)
 file(GLOB SOURCES "*.cpp")
@@ -85,13 +89,6 @@ target_include_directories(raytrace PRIVATE
 
 # Link
 target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets OpenMP::OpenMP_CXX)
-
-# Copy kernels to output directory
-file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")
-foreach(KERNEL_FILE ${KERNEL_FILES})
-    get_filename_component(KERNEL_NAME ${KERNEL_FILE} NAME)
-    configure_file(${KERNEL_FILE} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${KERNEL_NAME} COPYONLY)
-endforeach()
 
 # Copy kernels to output directory
 file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")

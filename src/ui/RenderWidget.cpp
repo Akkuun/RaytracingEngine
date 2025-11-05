@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <QDebug>
-#include <iostream>
+
 RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
 {
     renderEngine = new RenderEngine();
@@ -55,7 +55,7 @@ void RenderWidget::renderFrame()
     }
 }
 
-void RenderWidget::paintEvent(QPaintEvent *event)
+void RenderWidget::paintEvent(QPaintEvent * /*event*/)
 {
     QPainter painter(this);
 
