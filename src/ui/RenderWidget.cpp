@@ -28,7 +28,7 @@ void RenderWidget::renderFrame()
     {
         renderEngine->render(width, height);
 
-        // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1 
+        // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1
         std::vector<float> imageData = renderEngine->getImageData();
 
         // Direct access to QImage bits for performance
@@ -50,7 +50,6 @@ void RenderWidget::renderFrame()
             bits[baseIdxOut + 3] = 255;                        // Alpha
         }
 
-        
         updateFPS();
         update();
     }
@@ -70,7 +69,6 @@ void RenderWidget::paintEvent(QPaintEvent *event)
         painter.setPen(Qt::white);
         painter.drawText(rect(), Qt::AlignCenter, "No data...");
     }
-    
 }
 
 void RenderWidget::updateFPS()
