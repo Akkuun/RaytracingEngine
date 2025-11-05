@@ -28,27 +28,27 @@ void RenderEngine::render(int width, int height)
         cl::Kernel kernel = kernelManager->getKernel("render_kernel");
         cl::CommandQueue queue = deviceManager->getCommandQueue(); 
 
-        std::cout << "Setting kernel args: width=" << width << ", height=" << height << std::endl;
+       // std::cout << "Setting kernel args: width=" << width << ", height=" << height << std::endl;
         
         kernel.setArg(0, outputBuffer);
         kernel.setArg(1, width);
         kernel.setArg(2, height);
 
         cl::NDRange globalSize(width * height); // One work item per pixel
-        std::cout << "Global size: " << width * height << std::endl;
+        //std::cout << "Global size: " << width * height << std::endl;
 
        
 
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize); 
         queue.finish();
 
-        std::cout << "Kernel executed successfully" << std::endl;
+       // std::cout << "Kernel executed successfully" << std::endl;
 
         queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0,
                                 width * height * 3 * sizeof(float), // we allocate 3 floats per pixel (RGB)
                                 imageData.data()); // that we put in imageData , a vector of float 
 
-        std::cout << "Frame rendered: " << width << "x" << height << std::endl;
+        //std::cout << "Frame rendered: " << width << "x" << height << std::endl;
     }
     catch (const std::runtime_error &e)
     {
@@ -64,9 +64,3 @@ void RenderEngine::render(int width, int height)
     }
 }
 
-bool RenderEngine::intersect_sphere()
-{
-    // Cette méthode n'est plus utilisée, tout se fait dans le kernel
-    std::cout << "Sphere intersection handled by GPU kernel" << std::endl;
-    return true;
-}
