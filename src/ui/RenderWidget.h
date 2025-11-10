@@ -23,6 +23,7 @@ private:
     bool colorToggle;
     QImage renderedImage; // output image
     RenderEngine* renderEngine;
+    SceneManager* sceneManager;
     void renderFrame();
     void updateFPS();
 

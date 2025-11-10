@@ -3,7 +3,7 @@
 #include <CL/opencl.hpp>
 #include "../KernelManager/KernelManager.h"
 #include "../DeviceManager/DeviceManager.h"
-
+#include "../SceneManager/SceneManager.h"
 class RenderEngine
 {
 public:
@@ -13,10 +13,12 @@ public:
     void render(int width, int height);
     const std::vector<float>& getImageData() const { return imageData; }
     void resetAccumulation() { frameCount = 0; } // Call when camera/scene changes
-
+    inline SceneManager* getSceneManager() { return sceneManager; }
+    
 private:
     KernelManager* kernelManager;
     DeviceManager* deviceManager;
+    SceneManager* sceneManager;
     
     cl::Buffer outputBuffer;
     cl::Buffer accumBuffer;

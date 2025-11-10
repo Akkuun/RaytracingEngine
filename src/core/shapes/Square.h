@@ -1,0 +1,36 @@
+#pragma once
+#include "Shape.h"
+#include "../defines/Defines.h"
+
+class Square : public Shape
+{
+public:
+    Square(const vec3& pos, const vec3& u, const vec3& v, const vec3& norm, const vec3& col)
+        : Shape(pos), u_vec(u), v_vec(v), normal(norm), color(col) {}
+    
+    ~Square() override = default;
+
+    // Méthode pour convertir vers GPU
+    GPUSquare toGPU() const;
+
+    inline ShapeType getType() const override { return ShapeType::SQUARE; }
+    
+    // Getters spécifiques à Square
+    const vec3& getUVector() const { return u_vec; }
+    const vec3& getVVector() const { return v_vec; }
+    const vec3& getNormal() const { return normal; }
+    const vec3& getColor() const { return color; }
+    
+    // Setters spécifiques à Square
+    void setUVector(const vec3& u) { u_vec = u; }
+    void setVVector(const vec3& v) { v_vec = v; }
+    void setNormal(const vec3& n) { normal = n; }
+    void setColor(const vec3& c) { color = c; }
+
+private:
+    // Attributs spécifiques à Square
+    vec3 u_vec;     // U vector (width direction)
+    vec3 v_vec;     // V vector (height direction)
+    vec3 normal;    // Normal vector
+    vec3 color;     // Color
+};
