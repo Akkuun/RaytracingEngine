@@ -4,10 +4,62 @@
 
 #define EPSILON 0.001f
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
+
 struct Ray{
 	float3 origin;
 	float3 dir;
 };
+
+// Simple random number generator (PCG hash)
+uint wang_hash(uint seed)
+{
+	seed = (seed ^ 61) ^ (seed >> 16);
+	seed *= 9;
+	seed = seed ^ (seed >> 4);
+	seed *= 0x27d4eb2d;
+	seed = seed ^ (seed >> 15);
+	return seed;
+}
+
+// Generate random float in [0,1)
+float random_float(uint* seed)
+{
+	*seed = wang_hash(*seed);
+	return (float)(*seed) / 4294967296.0f;
+}
+
+// Generate random direction in hemisphere oriented around normal
+// Uses cosine-weighted importance sampling
+float3 random_hemisphere_direction(float3 normal, uint* seed)
+{
+	// Generate two random numbers
+	float r1 = random_float(seed);
+	float r2 = random_float(seed);
+	
+	// Cosine-weighted hemisphere sampling
+	float phi = 2.0f * M_PI * r1;
+	float cos_theta = sqrt(1.0f - r2);
+	float sin_theta = sqrt(r2);
+	
+	// Create local coordinate system around normal
+	float3 tangent;
+	if (fabs(normal.x) > 0.1f) {
+		tangent = normalize(cross((float3)(0.0f, 1.0f, 0.0f), normal));
+	} else {
+		tangent = normalize(cross((float3)(1.0f, 0.0f, 0.0f), normal));
+	}
+	float3 bitangent = cross(normal, tangent);
+	
+	// Transform from local to world space
+	float3 direction = cos(phi) * sin_theta * tangent +
+	                   sin(phi) * sin_theta * bitangent +
+	                   cos_theta * normal;
+	
+	return normalize(direction);
+}
 
 struct Light {
 	float3 pos;
@@ -217,48 +269,70 @@ bool compute_shadow(const struct Shape* shapes, int numShapes, const struct Ray*
 	return false; /* not in shadow */
 }
 
-float3 raytrace_recursive(const struct Ray* ray, const struct Shape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, int remainingBounces)
+// Iterative version to avoid recursion issues with Rusticl driver
+// Uses hemisphere sampling for diffuse materials
+float3 raytrace_iterative(const struct Ray* initialRay, const struct Shape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed)
 {
-	float3 color = (float3)(0.0f, 0.0f, 0.0f);
-	if (remainingBounces <= 0) return color;
+	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
+	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
+	struct Ray currentRay = *initialRay;
 	
-	struct Intersection intersection = compute_intersection(shapes, numShapes, ray);
-	if (intersection.t < EPSILON) return color; /* no intersection, return "sky" color, to change later */
+	for (int bounce = 0; bounce < maxBounces; bounce++) {
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &currentRay);
+		
+		if (intersection.t < EPSILON) {
+			// No intersection, could add sky color here
+			break;
+		}
 
-	float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
-	color += diffuse * 0.25f; /* ambient term */
+		float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
+		
+		// Direct lighting contribution
+		float3 directLight = (float3)(0.0f, 0.0f, 0.0f);
+		
+		// Ambient term
+		directLight += diffuse * 0.25f;
 
-	for (int i = 0; i < numLights; i++){
-		float3 lightDir = normalize(lights[i].pos - intersection.hitpoint);
-		float dotLN = dot(lightDir, intersection.normal);
+		// Direct lighting from light sources
+		for (int i = 0; i < numLights; i++){
+			float3 lightDir = normalize(lights[i].pos - intersection.hitpoint);
+			float dotLN = dot(lightDir, intersection.normal);
 
-		if (dotLN > EPSILON) {
-			// light and shadow 
-			struct Ray shadowRay;
-			shadowRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f; /* proper offset */
-			shadowRay.dir = lightDir;
-			float lightDistance = length(lights[i].pos - intersection.hitpoint);
-			
-			if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON)) {
-				/* not in shadow - add full lighting */
-				color += diffuse * lights[i].color * lights[i].intensity * dotLN;
-			} else {
-				/* in shadow - add reduced lighting */
-				color += diffuse * lights[i].color * lights[i].intensity * dotLN * 0.2f;
+			if (dotLN > EPSILON) {
+				struct Ray shadowRay;
+				shadowRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
+				shadowRay.dir = lightDir;
+				float lightDistance = length(lights[i].pos - intersection.hitpoint);
+				
+				if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON)) {
+					// Not in shadow - add full lighting
+					directLight += diffuse * lights[i].color * lights[i].intensity * dotLN;
+				} else {
+					// In shadow - add reduced lighting
+					directLight += diffuse * lights[i].color * lights[i].intensity * dotLN * 0.2f;
+				}
 			}
+		}
+
+		// Add direct lighting modulated by throughput
+		accumulatedColor += throughput * directLight;
+
+		// Update throughput for next bounce (material absorption)
+		throughput *= diffuse;
+		
+		// Russian roulette termination for efficiency
+		float maxThroughput = fmax(fmax(throughput.x, throughput.y), throughput.z);
+		if (maxThroughput < 0.01f) break; // Stop if contribution is too small
+
+		// Prepare next ray with random hemisphere sampling (diffuse BRDF)
+		if (bounce < maxBounces - 1) {
+			float3 newDir = random_hemisphere_direction(intersection.normal, seed);
+			currentRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
+			currentRay.dir = newDir;
 		}
 	}
 
-	//reflection 
-	if (remainingBounces > 1) {
-		float3 reflectDir = normalize(ray->dir - 2.0f * dot(ray->dir, intersection.normal) * intersection.normal);
-		struct Ray reflectRay;
-		reflectRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f; /* proper offset */
-		reflectRay.dir = reflectDir;
-		color += 0.3f * raytrace_recursive(&reflectRay, shapes, numShapes, lights, numLights, maxBounces, remainingBounces - 1);
-	}
-
-	return color;
+	return accumulatedColor;
 }
 
 struct Ray createCamRay(const int x_coord, const int y_coord, const int width, const int height){
@@ -282,7 +356,9 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 	return ray;
 }
 // __global output -> [R,G,B,R,G,B,...]
-__kernel void render_kernel(__global float* output, int width, int height)
+// __global accumBuffer -> accumulates samples over frames [R,G,B,R,G,B,...]
+// frameCount -> number of frames accumulated so far (resets when camera/scene changes)
+__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */
@@ -384,23 +460,48 @@ __kernel void render_kernel(__global float* output, int width, int height)
 	int numShapes = sizeof(shapes) / sizeof(shapes[0]);
 	int numLights = sizeof(lights) / sizeof(lights[0]);
 
-	int maxbounce = 1;
+	int maxbounce = 10;
 	
-	float3 outputPixelColor = raytrace_recursive(&camray, shapes, numShapes, lights, numLights, maxbounce, maxbounce);
+	// Initialize random seed based on pixel position AND frame count for temporal variation
+	uint seed = (x_coord * 1973 + y_coord * 9277 + frameCount * 26699) | 1;
+	
+	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed);
 
 	/* If no intersection found, return background colour */
 	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {
 		outputPixelColor = (float3)(fy * 0.7f, fy * 0.3f, 0.3f);
-	} else {
-		outputPixelColor = clamp(outputPixelColor/(float)maxbounce, 0.0f, 1.0f);
 	}
-
-    
-    // index *3 for RGB
-    int base_idx = work_item_id * 3;
 	
-    output[base_idx] = outputPixelColor.x;     // R
-    output[base_idx + 1] = outputPixelColor.y; // G
-    output[base_idx + 2] = outputPixelColor.z; // B
-
+	// index *3 for RGB
+	int base_idx = work_item_id * 3;
+	
+	// Temporal accumulation: blend new sample with accumulated samples
+	float3 accumulatedColor;
+	if (frameCount == 0) {
+		// First frame: just use current sample
+		accumulatedColor = outputPixelColor;
+	} else {
+		// Progressive accumulation using running average
+		float3 previousAccum = (float3)(accumBuffer[base_idx], 
+		                                 accumBuffer[base_idx + 1], 
+		                                 accumBuffer[base_idx + 2]);
+		
+		// Running average: new_avg = (old_avg * n + new_sample) / (n + 1)
+		float t = (float)frameCount / (float)(frameCount + 1);
+		accumulatedColor = previousAccum * t + outputPixelColor * (1.0f - t);
+	}
+	
+	// Store accumulated color (linear space)
+	accumBuffer[base_idx] = accumulatedColor.x;
+	accumBuffer[base_idx + 1] = accumulatedColor.y;
+	accumBuffer[base_idx + 2] = accumulatedColor.z;
+	
+	// Apply post-processing for display
+	float3 displayColor = clamp(accumulatedColor, 0.0f, 1.0f);
+	// Apply gamma correction (gamma = 2.2)
+	//displayColor = pow(displayColor, (float3)(1.0f / 2.2f));
+	
+	output[base_idx] = displayColor.x;     // R
+	output[base_idx + 1] = displayColor.y; // G
+	output[base_idx + 2] = displayColor.z; // B
 }

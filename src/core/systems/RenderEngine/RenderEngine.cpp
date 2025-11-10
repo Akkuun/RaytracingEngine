@@ -9,14 +9,28 @@ RenderEngine::RenderEngine()
 
 void RenderEngine::setupBuffers(int width, int height)
 {
-    size_t imageSize =3 * sizeof(float) * width *height; //  float * 3 for RGB * width * height 
+    size_t imageSize = 3 * sizeof(float) * width * height; //  float * 3 for RGB * width * height 
 
     // Resize image data vector
     imageData.resize(width * height * 3);
 
-    // Create or recreate output buffer
+    // Create or recreate buffers if size changed
     cl::Context context = deviceManager->getContext();
-    outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+    
+    if (width != lastWidth || height != lastHeight) {
+        outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
+        
+        // Reset frame count when resolution changes
+        frameCount = 0;
+        lastWidth = width;
+        lastHeight = height;
+        
+        // Initialize accumulation buffer to zero
+        std::vector<float> zeros(width * height * 3, 0.0f);
+        cl::CommandQueue queue = deviceManager->getCommandQueue();
+        queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
+    }
 }
 
 void RenderEngine::render(int width, int height)
@@ -31,8 +45,10 @@ void RenderEngine::render(int width, int height)
        // std::cout << "Setting kernel args: width=" << width << ", height=" << height << std::endl;
         
         kernel.setArg(0, outputBuffer);
-        kernel.setArg(1, width);
-        kernel.setArg(2, height);
+        kernel.setArg(1, accumBuffer);
+        kernel.setArg(2, width);
+        kernel.setArg(3, height);
+        kernel.setArg(4, frameCount);
 
         cl::NDRange globalSize(width * height); // One work item per pixel
         //std::cout << "Global size: " << width * height << std::endl;
@@ -49,6 +65,9 @@ void RenderEngine::render(int width, int height)
                                 imageData.data()); // that we put in imageData , a vector of float 
 
         //std::cout << "Frame rendered: " << width << "x" << height << std::endl;
+        
+        // Increment frame count for next frame
+        frameCount++;
     }
     catch (const std::runtime_error &e)
     {
