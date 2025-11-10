@@ -3,16 +3,29 @@
 #include <QTimer>
 #include <QDebug>
 
-RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
+RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false)
 {
     renderEngine = new RenderEngine();
 
-    // main loop , each 16 ms ( ~60 FPS) we call renderFrame
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &RenderWidget::renderFrame);
-    timer->start(16); // Target 60 FPS (1000ms / 60 ≈ 16ms)
-    elapsedTimer.start();
+    // Continuous rendering - render as fast as possible
+    fpsTimer.start();
     frameCount = 0;
+    
+    // Start the rendering loop
+    QMetaObject::invokeMethod(this, "scheduleNextFrame", Qt::QueuedConnection);
+}
+
+void RenderWidget::scheduleNextFrame()
+{
+    if (!isRendering)
+    {
+        isRendering = true;
+        renderFrame();
+        isRendering = false;
+        
+        // Immediately schedule the next frame (render as fast as possible)
+        QMetaObject::invokeMethod(this, "scheduleNextFrame", Qt::QueuedConnection);
+    }
 }
 
 void RenderWidget::renderFrame()
@@ -74,10 +87,10 @@ void RenderWidget::paintEvent(QPaintEvent * /*event*/)
 void RenderWidget::updateFPS()
 {
     frameCount++;
-    if (elapsedTimer.elapsed() >= 1000) // every second
+    if (fpsTimer.elapsed() >= 1000) // every second
     {
         qDebug() << "FPS:" << frameCount;
         frameCount = 0;
-        elapsedTimer.restart();
+        fpsTimer.restart();
     }
 }

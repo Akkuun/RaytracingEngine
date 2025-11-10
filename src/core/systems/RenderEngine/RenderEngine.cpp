@@ -1,5 +1,6 @@
 #include "RenderEngine.h"
 #include <iostream>
+#include <cstring>
 
 RenderEngine::RenderEngine()
 {
@@ -51,13 +52,17 @@ void RenderEngine::render(int width, int height)
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, 
                                    cl::NDRange(adjustedGlobalSize), 
                                    cl::NDRange(localSize)); 
-        queue.finish();
-
-       // std::cout << "Kernel executed successfully" << std::endl;
-
-        queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0,
-                                width * height * 3 * sizeof(float), // we allocate 3 floats per pixel (RGB)
-                                imageData.data()); // that we put in imageData , a vector of float 
+        
+        // Map buffer for zero-copy read (faster than enqueueReadBuffer)
+        float* mappedPtr = (float*)queue.enqueueMapBuffer(outputBuffer, CL_TRUE, CL_MAP_READ, 0,
+                                                          width * height * 3 * sizeof(float));
+        
+        // Copy data from mapped memory
+        std::memcpy(imageData.data(), mappedPtr, width * height * 3 * sizeof(float));
+        
+        // Unmap the buffer
+        queue.enqueueUnmapMemObject(outputBuffer, mappedPtr);
+        queue.finish(); 
 
         //std::cout << "Frame rendered: " << width << "x" << height << std::endl;
     }

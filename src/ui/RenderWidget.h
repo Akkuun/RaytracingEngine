@@ -14,9 +14,12 @@ public:
 protected:
     void paintEvent( QPaintEvent *event) override;
 
+private slots:
+    void scheduleNextFrame();
+
 private:
-    QTimer *renderTimer; // Qt timer to launch a render
     QElapsedTimer elapsedTimer;
+    QElapsedTimer fpsTimer;
     bool colorToggle;
     QImage renderedImage; // output image
     RenderEngine* renderEngine;
@@ -27,5 +30,6 @@ private:
     int height;
 
     int frameCount;
+    bool isRendering;
     
 };
