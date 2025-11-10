@@ -2,26 +2,39 @@
 #include "Shape.h"
 #include "../defines/Defines.h"
 
-// Struct GPU-compatible (for the kernel)
-struct GPUSphere
-{
-    float center[3]; // x, y, z
-    float radius;
-    float material[3]; // r, g, b
-};
 
 class Sphere : public Shape
 {
 public:
-    Sphere(double r, vec3 c) : radius(r), center(c) {}
-    ~Sphere() override = default;
+    Sphere(float r, const vec3& center) 
+        : Shape(center), radius(r), color(1.0f, 1.0f, 1.0f), emission(0.0f, 0.0f, 0.0f) {}
+    
+    Sphere(float r, const vec3& center, const vec3& color)
+        : Shape(center), radius(r), color(color), emission(0.0f, 0.0f, 0.0f) {}
+    
+    Sphere(float r, const vec3& center, const vec3& color, const vec3& emi)
+        : Shape(center), radius(r), color(color), emission(emi) {}
 
-    // Méthode pour convertir vers GPU
+
     GPUSphere toGPU() const;
 
-    inline ShapeType getType() const override { return ShapeType::SPHERE; }
+    ShapeType getType() const override { return ShapeType::SPHERE; }
+    
+
+    float getRadius() const { return radius; }
+    const vec3& getColor() const { return color; }
+    const vec3& getEmission() const { return emission; }
+
+    
+    // Setters spécifiques à Sphere
+    void setRadius(float r) { radius = r; }
+    void setColor(const vec3& c) { color = c; }
+    void setEmission(const vec3& e) { emission = e; }
+
+    std::string toString() const;
 
 private:
-    double radius;
-    vec3 center;
+    float radius;   // Attribut spécifique à Sphere
+    vec3 color;     // Color
+    vec3 emission;  // Emission (light)
 };

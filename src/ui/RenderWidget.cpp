@@ -7,6 +7,7 @@ RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false
 {
     renderEngine = new RenderEngine();
 
+
     // Continuous rendering - render as fast as possible
     fpsTimer.start();
     frameCount = 0;
