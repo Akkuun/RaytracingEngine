@@ -30,6 +30,7 @@ struct GPUSquare
     Vec3 u_vec;
     Vec3 v_vec;
     Vec3 normal;
+    Vec3 emi;
     Vec3 color;
 };
 

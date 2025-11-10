@@ -102,9 +102,54 @@ See LICENSE.txt for details.
 
 ## Shapes Size
 
-CPU (C++)              vs    GPU (OpenCL)        ✅
----------------------------------------------------
-Vec3: 16 bytes         vs    float3: 16 bytes    ✅
-GPUSphere: 64 bytes    vs    Sphere: 64 bytes    ✅
-GPUSquare: 80 bytes    vs    Square: 80 bytes    ✅
-GPUShape: 96 bytes     vs    Shape: 96 bytes     ✅
+### Structure Sizes (Confirmed Matching):
+```
+CPU Side:
+- Vec3:       16 bytes ✓
+- GPUSphere:  64 bytes ✓
+- GPUSquare:  96 bytes ✓
+- GPUShape:  112 bytes ✓
+
+GPU Side:
+- Vec3:       16 bytes ✓
+- GPUSphere:  64 bytes ✓
+- GPUSquare:  96 bytes ✓
+- GPUShape:  112 bytes ✓
+```
+
+### GPUShape Memory Layout:
+```
+Offset   0: int type (4 bytes)
+Offset   4: float _padding[3] (12 bytes)
+Offset  16: union data (96 bytes max)
+            - GPUSphere sphere (64 bytes)
+            - GPUSquare square (96 bytes)
+Total: 112 bytes (aligned to 16)
+```
+
+  - `Vec3`: 16 bytes (x, y, z, _padding)
+  - `GPUSphere`: 64 bytes (radius + padding + 3 Vec3)
+  - `GPUSquare`: 96 bytes (6 Vec3)
+  - `GPUShape`: 112 bytes (aligned union)
+
+
+  ### GPUSphere Structure:
+```
+Offset 0:  float radius (4 bytes)
+Offset 4:  float _padding1[3] (12 bytes)
+Offset 16: Vec3 pos (16 bytes)
+Offset 32: Vec3 emi (16 bytes)
+Offset 48: Vec3 color (16 bytes)
+Total: 64 bytes
+```
+
+### GPUSquare Structure:
+```
+Offset 0:  Vec3 pos (16 bytes)
+Offset 16: Vec3 u_vec (16 bytes)
+Offset 32: Vec3 v_vec (16 bytes)
+Offset 48: Vec3 normal (16 bytes)
+Offset 64: Vec3 emi (16 bytes)
+Offset 80: Vec3 color (16 bytes)
+Total: 96 bytes
+```

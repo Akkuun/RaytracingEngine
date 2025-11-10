@@ -26,9 +26,16 @@ int main() {
         cl::CommandQueue queue(context, device);
         
         // Load and compile kernel
-        std::string kernelSource = loadKernel("kernels/test_sizes.cl");
+        std::string kernelSource = loadKernel("test_sizes.cl");
         cl::Program program(context, kernelSource);
-        program.build({device});
+        try {
+            program.build({device});
+        } catch (const std::exception& e) {
+            std::cerr << "Build error: " << e.what() << std::endl;
+            std::string buildLog = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device);
+            std::cerr << "Build log:\n" << buildLog << std::endl;
+            return 1;
+        }
         
         // Create kernel
         cl::Kernel kernel(program, "test_sizes");
@@ -36,6 +43,8 @@ int main() {
         // Execute
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(1), cl::NullRange);
         queue.finish();
+        
+        std::cout << "Kernel executed successfully. Check console for printf output." << std::endl;
         
     
 

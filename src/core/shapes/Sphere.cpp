@@ -16,6 +16,11 @@ GPUSphere Sphere::toGPU() const
     gpuSphere.pos.z = static_cast<float>(position.z);
     gpuSphere.pos._padding = 0.0f;
     
+    // emission
+    gpuSphere.emi.x = static_cast<float>(emission.x);
+    gpuSphere.emi.y = static_cast<float>(emission.y);
+    gpuSphere.emi.z = static_cast<float>(emission.z);
+    gpuSphere.emi._padding = 0.0f;
     
     // color
     gpuSphere.color.x = static_cast<float>(color.x);

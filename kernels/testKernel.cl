@@ -1,5 +1,5 @@
 #define SPHERE 1
-#define SQUARE 2
+#define SQUARE 3
 #define TRIANGLE 3
 
 #define EPSILON 0.001f
@@ -7,6 +7,17 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
+
+// Match CPU-side Vec3 with padding to align to 16 bytes (same as float4)
+typedef struct {
+    float x, y, z;
+    float _padding;
+} Vec3;
+
+// Helper function to convert Vec3 to float3
+float3 vec3_to_float3(Vec3 v) {
+    return (float3)(v.x, v.y, v.z);
+}
 
 struct Ray{
 	float3 origin;
@@ -67,22 +78,24 @@ struct Light {
 	float intensity;
 };
 
-struct Sphere{
-	float radius;
-	float3 pos;
-	float3 emi;
-	float3 color;
-};
+// Match CPU-side GPUSphere exactly
+typedef struct {
+    float radius;
+    float _padding1[3];  // Padding to align next Vec3
+    Vec3 pos;
+    Vec3 emi;
+    Vec3 color;
+} GPUSphere;
 
-struct Square{
-	float3 pos;
-	float3 u_vec;
-	float3 v_vec;
-	float3 normal;
-
-	float3 emi;
-	float3 color;
-};
+// Match CPU-side GPUSquare exactly
+typedef struct {
+    Vec3 pos;
+    Vec3 u_vec;
+    Vec3 v_vec;
+    Vec3 normal;
+    Vec3 emi;
+    Vec3 color;
+} GPUSquare;
 
 struct Intersection {
 	float t;
@@ -92,28 +105,30 @@ struct Intersection {
 	int hitShapeIndex;
 };
 
-struct Shape{
-    int type;           //  form type(SPHERE=1, PLANE=2, etc.)
+// Match CPU-side GPUShape exactly
+typedef struct __attribute__((aligned(16))) {
+    int type;           // form type(SPHERE=1, PLANE=2, SQUARE=3, etc.)
+    float _padding[3];  // Padding after int to align union to 16 bytes
     union {
-        struct Sphere sphere;
-        struct Square square;
-        // GPUTriangle tri;   // later
+        GPUSphere sphere;
+        GPUSquare square;
     } data;
-};
+} GPUShape;
 
-float3 get_shape_color(const struct Shape* shape)
+float3 get_shape_color(__global const GPUShape* shape)
 {
 	if (shape->type == SPHERE) {
-		return shape->data.sphere.color;
+		return vec3_to_float3(shape->data.sphere.color);
 	} else if (shape->type == SQUARE) {
-		return shape->data.square.color;
+		return vec3_to_float3(shape->data.square.color);
 	}
 	return (float3)(0.0f, 0.0f, 0.0f); /* default color */
 }
 
-struct Intersection intersect_sphere(const struct Sphere* sphere, const struct Ray* ray, float* t)
+struct Intersection intersect_sphere(__global const GPUSphere* sphere, const struct Ray* ray, float* t)
 {
-	float3 rayToCenter = sphere->pos - ray->origin;
+	float3 sphere_pos = vec3_to_float3(sphere->pos);
+	float3 rayToCenter = sphere_pos - ray->origin;
 
 	/* calculate coefficients a, b, c from quadratic equation */
 	/* float a = dot(ray->dir, ray->dir); // ray direction is normalised, dotproduct simplifies to 1 */ 
@@ -145,7 +160,7 @@ struct Intersection intersect_sphere(const struct Sphere* sphere, const struct R
 	result.hitpoint = ray->origin + ray->dir * (*t);
 	
 	/* calculate normal - always point outward from sphere center */
-	result.normal = normalize(result.hitpoint - sphere->pos);
+	result.normal = normalize(result.hitpoint - sphere_pos);
 	
 	/* backface culling: if ray and normal point in same direction, reject */
 	if (dot(ray->dir, result.normal) > 0.0f && *t == t1) {
@@ -164,21 +179,26 @@ struct Intersection intersect_sphere(const struct Sphere* sphere, const struct R
 	return result;
 }
 
-struct Intersection intersect_square(const struct Square* square, const struct Ray* ray, float* t)
+struct Intersection intersect_square(__global const GPUSquare* square, const struct Ray* ray, float* t)
 {
     /* calculate intersection of ray with plane of square */
 
     struct Intersection result;
     result.t = -1.0f; /* default to no intersection */
 
-    float denom = dot(square->normal, ray->dir);
+    float3 square_normal = vec3_to_float3(square->normal);
+    float3 square_pos = vec3_to_float3(square->pos);
+    float3 square_u_vec = vec3_to_float3(square->u_vec);
+    float3 square_v_vec = vec3_to_float3(square->v_vec);
+
+    float denom = dot(square_normal, ray->dir);
     if (fabs(denom) < EPSILON) return result; /* ray is parallel to square plane */
 
     /* backface culling: if ray and normal point in same direction, reject */
     if (denom > 0.0f) return result; /* hitting square from behind */
 
-    float3 diff = square->pos - ray->origin;
-    *t = dot(diff, square->normal) / denom;
+    float3 diff = square_pos - ray->origin;
+    *t = dot(diff, square_normal) / denom;
 
     if (*t < EPSILON) return result; /* square is behind ray or too close */
 
@@ -186,18 +206,18 @@ struct Intersection intersect_square(const struct Square* square, const struct R
     float3 hitpoint = ray->origin + ray->dir * (*t);
     result.t = *t;
     result.hitpoint = hitpoint;
-    result.normal = square->normal;
+    result.normal = square_normal;
 
     /* check if hitpoint is inside square bounds */
-    float3 local_pos = hitpoint - square->pos;
+    float3 local_pos = hitpoint - square_pos;
 
     // Get the actual lengths of the vectors
-    float u_length = length(square->u_vec);
-    float v_length = length(square->v_vec);
+    float u_length = length(square_u_vec);
+    float v_length = length(square_v_vec);
     
     // Normalize the vectors for projection
-    float3 u_normalized = square->u_vec / u_length;
-    float3 v_normalized = square->v_vec / v_length;
+    float3 u_normalized = square_u_vec / u_length;
+    float3 v_normalized = square_v_vec / v_length;
 
     float u_dist = dot(local_pos, u_normalized);
     if (u_dist < -u_length * 0.5f || u_dist > u_length * 0.5f) {
@@ -217,7 +237,7 @@ struct Intersection intersect_square(const struct Square* square, const struct R
 }
 
 
-struct Intersection intersect_shape(const struct Shape* shape, const struct Ray* ray, float* t)
+struct Intersection intersect_shape(__global const GPUShape* shape, const struct Ray* ray, float* t)
 {
 	if (shape->type == SPHERE) {
 		return intersect_sphere(&shape->data.sphere, ray, t);
@@ -229,7 +249,7 @@ struct Intersection intersect_shape(const struct Shape* shape, const struct Ray*
 	return result;
 }
 
-struct Intersection compute_intersection(const struct Shape* shapes, int numShapes, const struct Ray* ray)
+struct Intersection compute_intersection(__global const GPUShape* shapes, int numShapes, const struct Ray* ray)
 {
 	float t = 1e20;
 	int hitShapeIndex = -1;
@@ -237,10 +257,9 @@ struct Intersection compute_intersection(const struct Shape* shapes, int numShap
 	finalIntersection.t = -1.0f; /* default to no intersection */
 
 	for (int i = 0; i < numShapes; i++){
-		struct Shape currentShape = shapes[i];
 		float t_temp = 1e20;
 		struct Intersection intersection;
-		intersection = intersect_shape(&currentShape, ray, &t_temp);
+		intersection = intersect_shape(&shapes[i], ray, &t_temp);
 
 		if (intersection.t > EPSILON && intersection.t < t){
 			t = intersection.t;
@@ -253,13 +272,12 @@ struct Intersection compute_intersection(const struct Shape* shapes, int numShap
 	return finalIntersection;
 }
 
-bool compute_shadow(const struct Shape* shapes, int numShapes, const struct Ray* shadowRay, float maxDistance)
+bool compute_shadow(__global const GPUShape* shapes, int numShapes, const struct Ray* shadowRay, float maxDistance)
 {
 	for (int i = 0; i < numShapes; i++){
-		struct Shape currentShape = shapes[i];
 		float t_temp = 1e20;
 		struct Intersection intersection;
-		intersection = intersect_shape(&currentShape, shadowRay, &t_temp);
+		intersection = intersect_shape(&shapes[i], shadowRay, &t_temp);
 
 		if (intersection.t > EPSILON && intersection.t < maxDistance){
 			return true; /* in shadow */
@@ -271,7 +289,7 @@ bool compute_shadow(const struct Shape* shapes, int numShapes, const struct Ray*
 
 // Iterative version to avoid recursion issues with Rusticl driver
 // Uses hemisphere sampling for diffuse materials
-float3 raytrace_iterative(const struct Ray* initialRay, const struct Shape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed)
+float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed)
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
@@ -358,7 +376,7 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 // __global output -> [R,G,B,R,G,B,...]
 // __global accumBuffer -> accumulates samples over frames [R,G,B,R,G,B,...]
 // frameCount -> number of frames accumulated so far (resets when camera/scene changes)
-__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, int numShapes)
+__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, __global GPUShape* shapes, int numShapes)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */
@@ -372,85 +390,8 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	/*create a camera ray */
 	struct Ray camray = createCamRay(x_coord, y_coord, width, height);
 
-	/* Cornell box uwu :3 */
-	struct Shape sphereShape1;
-	sphereShape1.type = SPHERE;
-	struct Sphere sphere1;
-	sphere1.radius = 0.15f;
-	sphere1.pos = (float3)(0.25f, -0.2f, -1.25f);
-	sphere1.color = (float3)(0.9f, 0.9f, 0.9f);
-	sphereShape1.data.sphere = sphere1;
-
-	struct Shape sphereShape2;
-	sphereShape2.type = SPHERE;
-	struct Sphere sphere2;
-	sphere2.radius = 0.1f;
-	sphere2.pos = (float3)(-0.25f, -0.25f, -2.25f);
-	sphere2.color = (float3)(0.95f, 0.95f, 0.95f);
-	sphereShape2.data.sphere = sphere2;
-
-	struct Shape squareShape1;
-	squareShape1.type = SQUARE;
-	struct Square square1;
-	square1.pos = (float3)(0.0f, -0.5f, 0.0f);
-	square1.u_vec = (float3)(1.5f, 0.0f, 0.0f);
-	square1.v_vec = (float3)(0.0f, 0.0f, -80.0f);
-	square1.normal = (float3)(0.0f, 1.0f, 0.0f);
-	square1.color = (float3)(0.9f, 0.9f, 0.9f);
-	squareShape1.data.square = square1;
-
-	struct Shape squareShapeTop;
-	squareShapeTop.type = SQUARE;
-	struct Square squareTop;
-	squareTop.pos = (float3)(0.0f, 0.35f, 3.0f);
-	squareTop.u_vec = (float3)(1.5f, 0.0f, 0.0f);
-	squareTop.v_vec = (float3)(0.0f, 0.0f, -80.0f);
-	squareTop.normal = (float3)(0.0f, -1.0f, 0.0f);
-	squareTop.color = (float3)(0.9f, 0.9f, 0.9f);
-	squareShapeTop.data.square = squareTop;
-
-	struct Shape squareShapeLeft;
-	squareShapeLeft.type = SQUARE;
-	struct Square squareLeft;
-	squareLeft.pos = (float3)(-0.75f, 0.0f, 0.0f);
-	squareLeft.u_vec = (float3)(0.0f, 1.5f, 0.0f);
-	squareLeft.v_vec = (float3)(0.0f, 0.0f, -80.0f);
-	squareLeft.normal = (float3)(1.0f, 0.0f, 0.0f);
-	squareLeft.color = (float3)(0.9f, 0.1f, 0.1f);
-	squareShapeLeft.data.square = squareLeft;
-
-	struct Shape squareShapeRight;
-	squareShapeRight.type = SQUARE;
-	struct Square squareRight;
-	squareRight.pos = (float3)(0.75f, 0.0f, 0.0f);
-	squareRight.u_vec = (float3)(0.0f, 1.5f, 0.0f);
-	squareRight.v_vec =	 (float3)(0.0f, 0.0f, -80.0f);
-	squareRight.normal = (float3)(-1.0f, 0.0f, 0.0f);
-	squareRight.color = (float3)(0.1f, 0.9f, 0.1f);
-	squareShapeRight.data.square = squareRight;
-
-	struct Shape squareShapeBack;
-	squareShapeBack.type = SQUARE;
-	struct Square squareBack;
-	squareBack.pos = (float3)(0.0f, 0.0f, -60.0f);
-	squareBack.u_vec = (float3)(5.0f, 0.0f, 0.0f);
-	squareBack.v_vec = (float3)(0.0f, 1.5f, 0.0f);
-	squareBack.normal = (float3)(0.0f, 0.0f, 1.0f);
-	squareBack.color = (float3)(0.9f, 0.9f, 0.9f);
-	squareShapeBack.data.square = squareBack;
-
-	struct Shape shapes[7];
-	shapes[0] = sphereShape1;
-	shapes[1] = squareShape1;
-	shapes[2] = sphereShape2;
-	shapes[3] = squareShapeTop;
-	shapes[4] = squareShapeLeft;
-	shapes[5] = squareShapeRight;
-	shapes[6] = squareShapeBack;
-
-	// struct Shape shapes[2];
-	// shapes[0] = sphereShape1;
-	// shapes[1] = sphereShape2;
+	// Shapes are now passed from the CPU side via the shapes buffer!
+	// No need to create them here anymore
 
 	struct Light lights[1];
 	lights[0].pos = (float3)(0.0f, 0.2f, 2.5f);
