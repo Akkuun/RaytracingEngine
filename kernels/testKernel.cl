@@ -458,7 +458,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	lights[0].intensity = 1.0f;
 
 	int numLights = sizeof(lights) / sizeof(lights[0]);
-	//int numShapes = sizeof(shapes) / sizeof(shapes[0]);
+
 	int maxbounce = 10;
 	
 	// Initialize random seed based on pixel position AND frame count for temporal variation
