@@ -1,5 +1,7 @@
 #include <CL/opencl.hpp>
 #include "ObjectPanel.h"
+#include "FPSChart.h"
+#include "../RenderWidget.h"
 #include "../../core/systems/KernelManager/KernelManager.h"
 #include "../../core/systems/DeviceManager/DeviceManager.h"
 #include <QVBoxLayout>
@@ -19,7 +21,7 @@
 #include <QMessageBox>
 #include <fstream>
 #include <vector>
-ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent)
+ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr)
 {
     setupUI();
 }
@@ -227,39 +229,23 @@ void ObjectPanel::setupUI()
     refractionIndexLayout->addStretch();
     layout->addLayout(refractionIndexLayout);
 
-    // Kernel Test button
-    QPushButton *testKernelBtn = new QPushButton("Test Kernel");
-    testKernelBtn->setStyleSheet("QPushButton { background-color: #555; color: white; border: 1px solid #777; padding: 5px; }");
-    connect(testKernelBtn, &QPushButton::clicked, this, &ObjectPanel::testKernel);
-    layout->addWidget(testKernelBtn);
+    // FPS Chart
+    layout->addSpacing(15);
+    layout->addWidget(new QLabel("FPS MONITOR"));
+    fpsChart = new FPSChart();
+    fpsChart->setMaxDataPoints(60); // Show last 60 FPS values
+    layout->addWidget(fpsChart);
 
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");
 }
 
-void ObjectPanel::testKernel()
+void ObjectPanel::setRenderWidget(RenderWidget *widget)
 {
-    
-    // get hello kernel
-    cl::Kernel &kernel = KernelManager::getInstance().getKernel("hello");
-    // Get OpenCL context, device, and command queue from DeviceSystem
-    DeviceManager *deviceManager = DeviceManager::getInstance();
-    cl::Context context = deviceManager->getContext();
-    cl::Device device = deviceManager->getDevice();
-    cl::CommandQueue queue = deviceManager->getCommandQueue();
-
-    // Create buffer for output
-    cl::Buffer outputBuffer(context, CL_MEM_WRITE_ONLY, sizeof(int));
-    // Set kernel arguments
-    kernel.setArg(0, outputBuffer); 
-    // Enqueue kernel execution
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(1), cl::NullRange);
-    // Read back the result
-    int result;
-    queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, sizeof(int), &result);
-    // Print the result
-
-    qDebug() << "Kernel executed successfully! Result:" << result;
-    QMessageBox::information(this, "Kernel Test",
-                             QString("Kernel executed successfully!\nResult: %1").arg(result));
+    if (widget && fpsChart)
+    {
+        // send the signal to update the FPS chart
+        connect(widget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
+    }
 }
+

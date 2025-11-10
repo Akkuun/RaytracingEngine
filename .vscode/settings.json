@@ -85,6 +85,7 @@
         "bitset": "cpp",
         "complex": "cpp",
         "forward_list": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "qdebug": "cpp"
     }
 }
