@@ -98,3 +98,13 @@ This will:
 
 ## License
 See LICENSE.txt for details.
+
+
+## Shapes Size
+
+CPU (C++)              vs    GPU (OpenCL)        ✅
+---------------------------------------------------
+Vec3: 16 bytes         vs    float3: 16 bytes    ✅
+GPUSphere: 64 bytes    vs    Sphere: 64 bytes    ✅
+GPUSquare: 80 bytes    vs    Square: 80 bytes    ✅
+GPUShape: 96 bytes     vs    Shape: 96 bytes     ✅

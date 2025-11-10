@@ -4,6 +4,7 @@
 #include "../KernelManager/KernelManager.h"
 #include "../DeviceManager/DeviceManager.h"
 #include "../SceneManager/SceneManager.h"
+
 class RenderEngine
 {
 public:
@@ -21,6 +22,9 @@ private:
     
     cl::Buffer outputBuffer;
     cl::Buffer accumBuffer;
+    cl::Buffer shapesBuffer;
+
+
     std::vector<float> imageData;
 
     int currentWidth = 0;
@@ -33,4 +37,5 @@ private:
 
     
     void setupBuffers(int width, int height);
+    void setupShapesBuffer();
 };

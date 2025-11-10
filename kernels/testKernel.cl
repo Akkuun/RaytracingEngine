@@ -358,7 +358,7 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 // __global output -> [R,G,B,R,G,B,...]
 // __global accumBuffer -> accumulates samples over frames [R,G,B,R,G,B,...]
 // frameCount -> number of frames accumulated so far (resets when camera/scene changes)
-__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount)
+__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, int numShapes)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */
@@ -373,21 +373,21 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	struct Ray camray = createCamRay(x_coord, y_coord, width, height);
 
 	/* Cornell box uwu :3 */
-	// struct Shape sphereShape1;
-	// sphereShape1.type = SPHERE;
-	// struct Sphere sphere1;
-	// sphere1.radius = 0.15f;
-	// sphere1.pos = (float3)(0.25f, -0.2f, -1.25f);
-	// sphere1.color = (float3)(0.9f, 0.9f, 0.9f);
-	// sphereShape1.data.sphere = sphere1;
+	struct Shape sphereShape1;
+	sphereShape1.type = SPHERE;
+	struct Sphere sphere1;
+	sphere1.radius = 0.15f;
+	sphere1.pos = (float3)(0.25f, -0.2f, -1.25f);
+	sphere1.color = (float3)(0.9f, 0.9f, 0.9f);
+	sphereShape1.data.sphere = sphere1;
 
-	// struct Shape sphereShape2;
-	// sphereShape2.type = SPHERE;
-	// struct Sphere sphere2;
-	// sphere2.radius = 0.1f;
-	// sphere2.pos = (float3)(-0.25f, -0.25f, -2.25f);
-	// sphere2.color = (float3)(0.95f, 0.95f, 0.95f);
-	// sphereShape2.data.sphere = sphere2;
+	struct Shape sphereShape2;
+	sphereShape2.type = SPHERE;
+	struct Sphere sphere2;
+	sphere2.radius = 0.1f;
+	sphere2.pos = (float3)(-0.25f, -0.25f, -2.25f);
+	sphere2.color = (float3)(0.95f, 0.95f, 0.95f);
+	sphereShape2.data.sphere = sphere2;
 
 	struct Shape squareShape1;
 	squareShape1.type = SQUARE;
@@ -439,31 +439,26 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	squareBack.color = (float3)(0.9f, 0.9f, 0.9f);
 	squareShapeBack.data.square = squareBack;
 
-	// struct Shape shapes[7];
-	// shapes[0] = sphereShape1;
-	// shapes[1] = squareShape1;
-	// shapes[2] = sphereShape2;
-	// shapes[3] = squareShapeTop;
-	// shapes[4] = squareShapeLeft;
-	// shapes[5] = squareShapeRight;
-	// shapes[6] = squareShapeBack;
+	struct Shape shapes[7];
+	shapes[0] = sphereShape1;
+	shapes[1] = squareShape1;
+	shapes[2] = sphereShape2;
+	shapes[3] = squareShapeTop;
+	shapes[4] = squareShapeLeft;
+	shapes[5] = squareShapeRight;
+	shapes[6] = squareShapeBack;
 
-	struct Shape shapes[5];
-	shapes[0] = squareShape1;
-	shapes[1] = squareShapeTop;
-	shapes[2] = squareShapeLeft;
-	shapes[3] = squareShapeRight;
-	shapes[4] = squareShapeBack;
-	
+	// struct Shape shapes[2];
+	// shapes[0] = sphereShape1;
+	// shapes[1] = sphereShape2;
 
 	struct Light lights[1];
 	lights[0].pos = (float3)(0.0f, 0.2f, 2.5f);
 	lights[0].color = (float3)(1.0f, 1.0f, 1.0f);
 	lights[0].intensity = 1.0f;
 
-	int numShapes = sizeof(shapes) / sizeof(shapes[0]);
 	int numLights = sizeof(lights) / sizeof(lights[0]);
-
+	//int numShapes = sizeof(shapes) / sizeof(shapes[0]);
 	int maxbounce = 10;
 	
 	// Initialize random seed based on pixel position AND frame count for temporal variation

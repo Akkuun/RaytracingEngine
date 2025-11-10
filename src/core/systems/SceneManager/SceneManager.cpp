@@ -41,7 +41,7 @@ void SceneManager::buildScene() {
     clearShapes();
     
     // Sphere 1 - white sphere
-    addShape(new Sphere(0.15f, vec3(0.25f, -0.2f, -1.25f), vec3(0.9f, 0.9f, 0.9f)));
+   addShape(new Sphere(0.15f, vec3(0.25f, -0.2f, -1.25f), vec3(0.9f, 0.9f, 0.9f)));
     
     // Sphere 2 - white sphere
     addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -2.25f), vec3(0.95f, 0.95f, 0.95f)));
@@ -91,5 +91,14 @@ void SceneManager::buildScene() {
         vec3(0.9f, 0.9f, 0.9f)           // color
     ));
 }
+// return the array of shapes suitable for kernel code
+Shape* SceneManager::getShapesBuffer() const{
+    if (shapes.empty()) return nullptr;
 
-
+    // Allocate a contiguous buffer for all shapes
+    Shape* shapesArray = new Shape[shapes.size()];
+    for (size_t i = 0; i < shapes.size(); ++i) {
+        shapesArray[i] = *(shapes[i]);
+    }
+    return shapesArray;
+}

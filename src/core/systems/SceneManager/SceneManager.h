@@ -20,8 +20,11 @@ public:
     const std::vector<Shape*>& getShapes() const;
     void buildScene();
     
+    inline size_t getNumShapes() const { return shapes.size(); }
+    Shape* getShapesBuffer() const; // Returns a buffer suitable for GPU consumption
+
 private:
     SceneManager(); // Private constructor
     std::vector<Shape*> shapes;
-    void clearShapes();
+    void clearShapes();    
 };

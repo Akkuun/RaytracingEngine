@@ -1,6 +1,8 @@
 #include "RenderEngine.h"
 #include <iostream>
 #include <cstring>
+#include "../../defines/Defines.h"
+
 
 RenderEngine::RenderEngine()
 {
@@ -29,15 +31,20 @@ void RenderEngine::setupBuffers(int width, int height)
             outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
             accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
             
+            //setupShapesBuffer(); // Convert all the Shapes CPU side to be suitable to kernel code
+
             // Reset frame count when resolution changes
             frameCount = 0;
             lastWidth = width;
             lastHeight = height;
             
+            // Initialize buffers
+            cl::CommandQueue queue = deviceManager->getCommandQueue();
+            
             // Initialize accumulation buffer to zero
             std::vector<float> zeros(width * height * 3, 0.0f);
-            cl::CommandQueue queue = deviceManager->getCommandQueue();
             queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
+            
         }
     }
 }
@@ -51,13 +58,16 @@ void RenderEngine::render(int width, int height)
         cl::Kernel kernel = kernelManager->getKernel("render_kernel");
         cl::CommandQueue queue = deviceManager->getCommandQueue(); 
 
-       // std::cout << "Setting kernel args: width=" << width << ", height=" << height << std::endl;
         
+        // Match kernel signature: __global float* output, __global float* accumBuffer, int width, int height, int frameCount, int numShapes
+
         kernel.setArg(0, outputBuffer);
         kernel.setArg(1, accumBuffer);
         kernel.setArg(2, width);
         kernel.setArg(3, height);
         kernel.setArg(4, frameCount);
+        kernel.setArg(5, static_cast<int>(SceneManager::getInstance().getShapes().size()));  // size_t MANDATORY
+        
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
@@ -69,6 +79,8 @@ void RenderEngine::render(int width, int height)
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, 
                                    cl::NDRange(adjustedGlobalSize), 
                                    cl::NDRange(localSize)); 
+        
+
         
         // Map buffer for zero-copy read (faster than enqueueReadBuffer)
         float* mappedPtr = (float*)queue.enqueueMapBuffer(outputBuffer, CL_TRUE, CL_MAP_READ, 0,
@@ -99,4 +111,57 @@ void RenderEngine::render(int width, int height)
         std::cerr << "Unknown error occurred in render" << std::endl;
     }
 }
+
+void RenderEngine::setupShapesBuffer(){
+    SceneManager& sceneManager = SceneManager::getInstance();
+    const std::vector<Shape*>& shapes = sceneManager.getShapes();
+    cl::CommandQueue queue = deviceManager->getCommandQueue();
+    cl::Context context = deviceManager->getContext();
+
+    std::vector<GPUShape> gpu_shapes;
+
+    std::cout << "=== setupShapesBuffer ===" << std::endl;
+    std::cout << "Number of shapes to convert: " << shapes.size() << std::endl;
+
+    for (auto* shape : shapes) {
+        GPUShape gpu_shape;
+        ShapeType type = shape->getType();
+        gpu_shape.type = type;
+        
+        std::cout << "Shape type: " << type << " (SPHERE=" << SPHERE << ", SQUARE=" << SQUARE << ")" << std::endl;
+        
+        switch (type) {
+            case SPHERE: {
+                Sphere* sphere = static_cast<Sphere*>(shape);
+                gpu_shape.data.sphere = sphere->toGPU();
+                std::cout << "  -> Converted Sphere" << std::endl;
+                break;
+            }
+            case SQUARE: {
+                Square* square = static_cast<Square*>(shape);
+                gpu_shape.data.square = square->toGPU();
+                std::cout << "  -> Converted Square" << std::endl;
+                break;
+            }
+            default:
+                std::cerr << "Unknown shape type encountered in setupShapesBuffer: " << type << std::endl;
+                break;
+        }
+        
+        gpu_shapes.push_back(gpu_shape);
+    }
+    
+    std::cout << "Total GPU shapes created: " << gpu_shapes.size() << std::endl;
+    std::cout << "Buffer size: " << gpu_shapes.size() * sizeof(GPUShape) << " bytes" << std::endl;
+    
+    size_t buffer_size = gpu_shapes.size() * sizeof(GPUShape);
+    if (buffer_size > 0) {
+        shapesBuffer = cl::Buffer(context, 
+                                  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                  buffer_size, 
+                                  gpu_shapes.data());
+        std::cout << "Buffer created successfully!" << std::endl;
+    }
+}
+
 

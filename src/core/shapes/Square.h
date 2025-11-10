@@ -8,12 +8,11 @@ public:
     Square(const vec3& pos, const vec3& u, const vec3& v, const vec3& norm, const vec3& col)
         : Shape(pos), u_vec(u), v_vec(v), normal(norm), color(col) {}
     
-    ~Square() override = default;
 
     // Méthode pour convertir vers GPU
     GPUSquare toGPU() const;
 
-    inline ShapeType getType() const override { return ShapeType::SQUARE; }
+    ShapeType getType() const override { return ShapeType::SQUARE; }
     
     // Getters spécifiques à Square
     const vec3& getUVector() const { return u_vec; }
@@ -26,6 +25,8 @@ public:
     void setVVector(const vec3& v) { v_vec = v; }
     void setNormal(const vec3& n) { normal = n; }
     void setColor(const vec3& c) { color = c; }
+
+    std::string toString() const;
 
 private:
     // Attributs spécifiques à Square
