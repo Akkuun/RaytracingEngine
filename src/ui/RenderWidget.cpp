@@ -6,7 +6,7 @@
 RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false)
 {
     renderEngine = new RenderEngine();
-    sceneManager = renderEngine->getSceneManager();
+
 
     // Continuous rendering - render as fast as possible
     fpsTimer.start();

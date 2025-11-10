@@ -1,6 +1,12 @@
 #include "SceneManager.h"
 #include <algorithm>
 
+// Singleton getInstance method
+SceneManager& SceneManager::getInstance() {
+    static SceneManager instance;
+    return instance;
+}
+
 SceneManager::SceneManager(){
     buildScene(); // TODO create 2nd version with buildScene(path) to get all the shape from a single file
 }

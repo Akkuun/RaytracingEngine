@@ -13,12 +13,11 @@ public:
     void render(int width, int height);
     const std::vector<float>& getImageData() const { return imageData; }
     void resetAccumulation() { frameCount = 0; } // Call when camera/scene changes
-    inline SceneManager* getSceneManager() { return sceneManager; }
+    inline SceneManager& getSceneManager() { return SceneManager::getInstance(); }
     
 private:
     KernelManager* kernelManager;
     DeviceManager* deviceManager;
-    SceneManager* sceneManager;
     
     cl::Buffer outputBuffer;
     cl::Buffer accumBuffer;
