@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <QDebug>
-
+#include <fstream>
 RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false)
 {
     renderEngine = new RenderEngine();
@@ -90,7 +90,8 @@ void RenderWidget::updateFPS()
     frameCount++;
     if (fpsTimer.elapsed() >= 1000) // every second
     {
-        qDebug() << "FPS:" << frameCount;
+        //qDebug() << "FPS:" << frameCount;
+        emit fpsUpdated(frameCount);
         frameCount = 0;
         fpsTimer.restart();
     }

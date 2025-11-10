@@ -11,6 +11,9 @@ class RenderWidget : public QWidget
 public:
     explicit RenderWidget(QWidget *parent = nullptr);
 
+signals:
+    void fpsUpdated(int fps);
+
 protected:
     void paintEvent( QPaintEvent *event) override;
 
