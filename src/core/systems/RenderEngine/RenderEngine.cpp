@@ -20,32 +20,27 @@ void RenderEngine::setupBuffers(int width, int height)
         // Resize image data vector
         imageData.resize(width * height * 3);
 
-        // Create or recreate output buffer
+        // Create or recreate buffers
         cl::Context context = deviceManager->getContext();
         outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
         
+        // Reset frame count when resolution changes
+        frameCount = 0;
         currentWidth = width;
         currentHeight = height;
         
-        if (width != lastWidth || height != lastHeight) {
-            outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
-            accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
-            
-            setupShapesBuffer(); // Convert all the Shapes CPU side to be suitable to kernel code
-
-            // Reset frame count when resolution changes
-            frameCount = 0;
-            lastWidth = width;
-            lastHeight = height;
-            
-            // Initialize buffers
-            cl::CommandQueue queue = deviceManager->getCommandQueue();
-            
-            // Initialize accumulation buffer to zero
-            std::vector<float> zeros(width * height * 3, 0.0f);
-            queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
-            
-        }
+        // Initialize accumulation buffer to zero
+        cl::CommandQueue queue = deviceManager->getCommandQueue();
+        std::vector<float> zeros(width * height * 3, 0.0f);
+        queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
+    }
+    
+    // Setup shapes buffer only if it's dirty (shapes changed) or first time
+    if (shapesBufferDirty)
+    {
+        setupShapesBuffer();
+        shapesBufferDirty = false;
     }
 }
 

@@ -14,6 +14,7 @@ public:
     void render(int width, int height);
     const std::vector<float>& getImageData() const { return imageData; }
     void resetAccumulation() { frameCount = 0; } // Call when camera/scene changes
+    void markShapesDirty() { shapesBufferDirty = true; } // Call when shapes are added/removed/modified
     inline SceneManager& getSceneManager() { return SceneManager::getInstance(); }
     
 private:
@@ -29,11 +30,8 @@ private:
 
     int currentWidth = 0;
     int currentHeight = 0;
-    int height;
-    int width;
     int frameCount = 0;
-    int lastWidth = 0;
-    int lastHeight = 0;
+    bool shapesBufferDirty = true; // Track if shapes buffer needs update
 
     
     void setupBuffers(int width, int height);
