@@ -217,48 +217,57 @@ bool compute_shadow(const struct Shape* shapes, int numShapes, const struct Ray*
 	return false; /* not in shadow */
 }
 
-float3 raytrace_recursive(const struct Ray* ray, const struct Shape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, int remainingBounces)
+// Iterative version to avoid recursion issues with Rusticl driver
+float3 raytrace_iterative(const struct Ray* initialRay, const struct Shape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces)
 {
-	float3 color = (float3)(0.0f, 0.0f, 0.0f);
-	if (remainingBounces <= 0) return color;
+	float3 finalColor = (float3)(0.0f, 0.0f, 0.0f);
+	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // How much light passes through each bounce
+	struct Ray currentRay = *initialRay;
 	
-	struct Intersection intersection = compute_intersection(shapes, numShapes, ray);
-	if (intersection.t < EPSILON) return color; /* no intersection, return "sky" color, to change later */
+	for (int bounce = 0; bounce < maxBounces; bounce++) {
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &currentRay);
+		
+		if (intersection.t < EPSILON) {
+			// No intersection, could add sky color here
+			break;
+		}
 
-	float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
-	color += diffuse * 0.25f; /* ambient term */
+		float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
+		
+		// Ambient term
+		finalColor += throughput * diffuse * 0.25f;
 
-	for (int i = 0; i < numLights; i++){
-		float3 lightDir = normalize(lights[i].pos - intersection.hitpoint);
-		float dotLN = dot(lightDir, intersection.normal);
+		// Direct lighting
+		for (int i = 0; i < numLights; i++){
+			float3 lightDir = normalize(lights[i].pos - intersection.hitpoint);
+			float dotLN = dot(lightDir, intersection.normal);
 
-		if (dotLN > EPSILON) {
-			// light and shadow 
-			struct Ray shadowRay;
-			shadowRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f; /* proper offset */
-			shadowRay.dir = lightDir;
-			float lightDistance = length(lights[i].pos - intersection.hitpoint);
-			
-			if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON)) {
-				/* not in shadow - add full lighting */
-				color += diffuse * lights[i].color * lights[i].intensity * dotLN;
-			} else {
-				/* in shadow - add reduced lighting */
-				color += diffuse * lights[i].color * lights[i].intensity * dotLN * 0.2f;
+			if (dotLN > EPSILON) {
+				struct Ray shadowRay;
+				shadowRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
+				shadowRay.dir = lightDir;
+				float lightDistance = length(lights[i].pos - intersection.hitpoint);
+				
+				if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON)) {
+					// Not in shadow - add full lighting
+					finalColor += throughput * diffuse * lights[i].color * lights[i].intensity * dotLN;
+				} else {
+					// In shadow - add reduced lighting
+					finalColor += throughput * diffuse * lights[i].color * lights[i].intensity * dotLN * 0.2f;
+				}
 			}
+		}
+
+		// Prepare reflection ray for next bounce
+		if (bounce < maxBounces - 1) {
+			float3 reflectDir = normalize(currentRay.dir - 2.0f * dot(currentRay.dir, intersection.normal) * intersection.normal);
+			currentRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
+			currentRay.dir = reflectDir;
+			throughput *= 0.3f; // Reduce contribution of each bounce
 		}
 	}
 
-	//reflection 
-	if (remainingBounces > 1) {
-		float3 reflectDir = normalize(ray->dir - 2.0f * dot(ray->dir, intersection.normal) * intersection.normal);
-		struct Ray reflectRay;
-		reflectRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f; /* proper offset */
-		reflectRay.dir = reflectDir;
-		color += 0.3f * raytrace_recursive(&reflectRay, shapes, numShapes, lights, numLights, maxBounces, remainingBounces - 1);
-	}
-
-	return color;
+	return finalColor;
 }
 
 struct Ray createCamRay(const int x_coord, const int y_coord, const int width, const int height){
@@ -386,7 +395,7 @@ __kernel void render_kernel(__global float* output, int width, int height)
 
 	int maxbounce = 1;
 	
-	float3 outputPixelColor = raytrace_recursive(&camray, shapes, numShapes, lights, numLights, maxbounce, maxbounce);
+	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce);
 
 	/* If no intersection found, return background colour */
 	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {
