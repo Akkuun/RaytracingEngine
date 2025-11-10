@@ -1,5 +1,6 @@
 #include "RenderEngine.h"
 #include <iostream>
+#include <cstring>
 
 RenderEngine::RenderEngine()
 {
@@ -9,14 +10,36 @@ RenderEngine::RenderEngine()
 
 void RenderEngine::setupBuffers(int width, int height)
 {
-    size_t imageSize =3 * sizeof(float) * width *height; //  float * 3 for RGB * width * height 
+    // Only recreate buffers if size changed
+    if (currentWidth != width || currentHeight != height)
+    {
+        size_t imageSize = 3 * sizeof(float) * width * height; //  float * 3 for RGB * width * height 
 
-    // Resize image data vector
-    imageData.resize(width * height * 3);
+        // Resize image data vector
+        imageData.resize(width * height * 3);
 
-    // Create or recreate output buffer
-    cl::Context context = deviceManager->getContext();
-    outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        // Create or recreate output buffer
+        cl::Context context = deviceManager->getContext();
+        outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        
+        currentWidth = width;
+        currentHeight = height;
+        
+        if (width != lastWidth || height != lastHeight) {
+            outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+            accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
+            
+            // Reset frame count when resolution changes
+            frameCount = 0;
+            lastWidth = width;
+            lastHeight = height;
+            
+            // Initialize accumulation buffer to zero
+            std::vector<float> zeros(width * height * 3, 0.0f);
+            cl::CommandQueue queue = deviceManager->getCommandQueue();
+            queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
+        }
+    }
 }
 
 void RenderEngine::render(int width, int height)
@@ -31,24 +54,37 @@ void RenderEngine::render(int width, int height)
        // std::cout << "Setting kernel args: width=" << width << ", height=" << height << std::endl;
         
         kernel.setArg(0, outputBuffer);
-        kernel.setArg(1, width);
-        kernel.setArg(2, height);
+        kernel.setArg(1, accumBuffer);
+        kernel.setArg(2, width);
+        kernel.setArg(3, height);
+        kernel.setArg(4, frameCount);
 
-        cl::NDRange globalSize(width * height); // One work item per pixel
-        //std::cout << "Global size: " << width * height << std::endl;
+        // Use optimal work-group size for better GPU performance
+        size_t globalSize = width * height;
+        size_t localSize = 256; // Typical optimal size for modern GPUs
+        
+        // Round up to nearest multiple of localSize
+        size_t adjustedGlobalSize = ((globalSize + localSize - 1) / localSize) * localSize;
 
-       
-
-        queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize); 
-        queue.finish();
-
-       // std::cout << "Kernel executed successfully" << std::endl;
-
-        queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0,
-                                width * height * 3 * sizeof(float), // we allocate 3 floats per pixel (RGB)
-                                imageData.data()); // that we put in imageData , a vector of float 
+        queue.enqueueNDRangeKernel(kernel, cl::NullRange, 
+                                   cl::NDRange(adjustedGlobalSize), 
+                                   cl::NDRange(localSize)); 
+        
+        // Map buffer for zero-copy read (faster than enqueueReadBuffer)
+        float* mappedPtr = (float*)queue.enqueueMapBuffer(outputBuffer, CL_TRUE, CL_MAP_READ, 0,
+                                                          width * height * 3 * sizeof(float));
+        
+        // Copy data from mapped memory
+        std::memcpy(imageData.data(), mappedPtr, width * height * 3 * sizeof(float));
+        
+        // Unmap the buffer
+        queue.enqueueUnmapMemObject(outputBuffer, mappedPtr);
+        queue.finish(); 
 
         //std::cout << "Frame rendered: " << width << "x" << height << std::endl;
+        
+        // Increment frame count for next frame
+        frameCount++;
     }
     catch (const std::runtime_error &e)
     {

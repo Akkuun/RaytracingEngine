@@ -8,6 +8,7 @@
 #include <QEvent>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
+#include <QShortcut>
 #include "../core/systems/DeviceManager/DeviceManager.h"
 #include "../core/systems/KernelManager/KernelManager.h"
 
@@ -27,6 +28,7 @@ protected:
 private slots:
     void toggleLeftPanel();
     void toggleRightPanel();
+    void toggleBothPanels();
 
 private:
     void setupUI();
@@ -56,6 +58,9 @@ private:
     QPropertyAnimation *rightPanelAnimation;
     QPropertyAnimation *leftButtonAnimation;
     QPropertyAnimation *rightButtonAnimation;
+    
+    // Shortcuts
+    QShortcut *togglePanelsShortcut;
 
     // OpenCL Device Manager
     DeviceManager* deviceManager;

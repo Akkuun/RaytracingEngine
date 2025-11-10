@@ -3,16 +3,29 @@
 #include <QTimer>
 #include <QDebug>
 
-RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
+RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false)
 {
     renderEngine = new RenderEngine();
 
-    // main loop , each 16 ms ( ~60 FPS) we call renderFrame
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &RenderWidget::renderFrame);
-    timer->start(1); // asap
-    elapsedTimer.start();
+    // Continuous rendering - render as fast as possible
+    fpsTimer.start();
     frameCount = 0;
+    
+    // Start the rendering loop
+    QMetaObject::invokeMethod(this, "scheduleNextFrame", Qt::QueuedConnection);
+}
+
+void RenderWidget::scheduleNextFrame()
+{
+    if (!isRendering)
+    {
+        isRendering = true;
+        renderFrame();
+        isRendering = false;
+        
+        // Immediately schedule the next frame (render as fast as possible)
+        QMetaObject::invokeMethod(this, "scheduleNextFrame", Qt::QueuedConnection);
+    }
 }
 
 void RenderWidget::renderFrame()
@@ -29,7 +42,7 @@ void RenderWidget::renderFrame()
         renderEngine->render(width, height);
 
         // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1
-        std::vector<float> imageData = renderEngine->getImageData();
+        const std::vector<float>& imageData = renderEngine->getImageData();
 
         // Direct access to QImage bits for performance
         uchar *bits = renderedImage.bits();
@@ -74,10 +87,10 @@ void RenderWidget::paintEvent(QPaintEvent * /*event*/)
 void RenderWidget::updateFPS()
 {
     frameCount++;
-    if (elapsedTimer.elapsed() >= 1000) // every second
+    if (fpsTimer.elapsed() >= 1000) // every second
     {
         qDebug() << "FPS:" << frameCount;
         frameCount = 0;
-        elapsedTimer.restart();
+        fpsTimer.restart();
     }
 }
