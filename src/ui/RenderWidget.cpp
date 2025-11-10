@@ -10,7 +10,7 @@ RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent)
     // main loop , each 16 ms ( ~60 FPS) we call renderFrame
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &RenderWidget::renderFrame);
-    timer->start(1); // asap
+    timer->start(16); // Target 60 FPS (1000ms / 60 ≈ 16ms)
     elapsedTimer.start();
     frameCount = 0;
 }
@@ -29,7 +29,7 @@ void RenderWidget::renderFrame()
         renderEngine->render(width, height);
 
         // [RGB, RGB, RGB, ...] GPU <-> CPU with RGB between 0 and 1
-        std::vector<float> imageData = renderEngine->getImageData();
+        const std::vector<float>& imageData = renderEngine->getImageData();
 
         // Direct access to QImage bits for performance
         uchar *bits = renderedImage.bits();

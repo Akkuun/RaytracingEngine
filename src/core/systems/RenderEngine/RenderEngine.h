@@ -11,7 +11,7 @@ public:
     ~RenderEngine() = default;
     
     void render(int width, int height);
-    std::vector<float> getImageData() const { return imageData; }
+    const std::vector<float>& getImageData() const { return imageData; }
 
 private:
     KernelManager* kernelManager;
@@ -20,8 +20,8 @@ private:
     cl::Buffer outputBuffer;
     std::vector<float> imageData;
 
-    int height;
-    int width;
+    int currentWidth = 0;
+    int currentHeight = 0;
 
     
     void setupBuffers(int width, int height);

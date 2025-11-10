@@ -9,14 +9,21 @@ RenderEngine::RenderEngine()
 
 void RenderEngine::setupBuffers(int width, int height)
 {
-    size_t imageSize =3 * sizeof(float) * width *height; //  float * 3 for RGB * width * height 
+    // Only recreate buffers if size changed
+    if (currentWidth != width || currentHeight != height)
+    {
+        size_t imageSize = 3 * sizeof(float) * width * height; //  float * 3 for RGB * width * height 
 
-    // Resize image data vector
-    imageData.resize(width * height * 3);
+        // Resize image data vector
+        imageData.resize(width * height * 3);
 
-    // Create or recreate output buffer
-    cl::Context context = deviceManager->getContext();
-    outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        // Create or recreate output buffer
+        cl::Context context = deviceManager->getContext();
+        outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        
+        currentWidth = width;
+        currentHeight = height;
+    }
 }
 
 void RenderEngine::render(int width, int height)
@@ -34,12 +41,16 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(1, width);
         kernel.setArg(2, height);
 
-        cl::NDRange globalSize(width * height); // One work item per pixel
-        //std::cout << "Global size: " << width * height << std::endl;
+        // Use optimal work-group size for better GPU performance
+        size_t globalSize = width * height;
+        size_t localSize = 256; // Typical optimal size for modern GPUs
+        
+        // Round up to nearest multiple of localSize
+        size_t adjustedGlobalSize = ((globalSize + localSize - 1) / localSize) * localSize;
 
-       
-
-        queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize); 
+        queue.enqueueNDRangeKernel(kernel, cl::NullRange, 
+                                   cl::NDRange(adjustedGlobalSize), 
+                                   cl::NDRange(localSize)); 
         queue.finish();
 
        // std::cout << "Kernel executed successfully" << std::endl;
