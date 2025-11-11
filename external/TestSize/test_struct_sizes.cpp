@@ -1,5 +1,6 @@
 #include <iostream>
 #include "src/core/defines/Defines.h"
+#include "src/core/camera/Camera.h"
 
 int main() {
     std::cout << "=== CPU Side Structure Sizes ===" << std::endl;
@@ -10,7 +11,9 @@ int main() {
     std::cout << "sizeof(GPUShape): " << sizeof(GPUShape) << " bytes" << std::endl;
     std::cout << "sizeof(int): " << sizeof(int) << " bytes" << std::endl;
     std::cout << "sizeof(float): " << sizeof(float) << " bytes" << std::endl;
-    
+    // camera
+    std::cout << "sizeof(GPUCamera): " << sizeof(GPUCamera) << " bytes" << std::endl;
+
     std::cout << "\n=== Expected OpenCL Sizes ===" << std::endl;
     std::cout << "sizeof(float3): 16 bytes (with padding)" << std::endl;
     std::cout << "sizeof(int): 4 bytes" << std::endl;
@@ -20,6 +23,11 @@ int main() {
     std::cout << "\n=== Memory Layout ===" << std::endl;
     std::cout << "Offset of type in GPUShape: " << offsetof(GPUShape, type) << std::endl;
     std::cout << "Offset of data in GPUShape: " << offsetof(GPUShape, data) << std::endl;
-    
+    std::cout << "Offset of dat in GPUCamera" << offsetof(GPUCamera,origin) << std::endl;
+    std::cout << "Offset of dat in GPUCamera" << offsetof(GPUCamera,target) << std::endl;
+    std::cout << "Offset of dat in GPUCamera" << offsetof(GPUCamera,up) << std::endl;
+    std::cout << "Offset of dat in GPUCamera" << offsetof(GPUCamera,fov) << std::endl;
+
+
     return 0;
 }

@@ -16,7 +16,7 @@ KernelManager &KernelManager::getInstance()
 void KernelManager::preloadAllKernels()
 {
     loadKernel("hello", "kernels/hello.cl"); // <name, path>
-    loadKernel("render_kernel", "kernels/testKernel.cl");
+    loadKernel("render_kernel", "kernels/rayTrace.cl");
 }
 
 void KernelManager::loadKernel(const std::string &name, const std::string &filePath)
