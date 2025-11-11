@@ -386,7 +386,7 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 	
 	/* Calculate pixel position in camera space */
 	float px = (fx - 0.5f) * 2.0f * tan_half_fov * aspect_ratio;
-	float py = (fy - 0.5f) * 2.0f * tan_half_fov;
+	float py = -(fy - 0.5f) * 2.0f * tan_half_fov;  // INVERSION DE L'AXE Y
 	
 	/* Ray direction in world space */
 	float3 ray_dir = normalize(forward + px * right + py * up);
@@ -399,36 +399,24 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 	return ray;
 }
 
-// New function with direct camera parameters
-struct Ray createCamRayDirect(const int x_coord, const int y_coord, const int width, const int height, 
-                       float3 camera_origin, float3 camera_target, float3 camera_up, float camera_fov){
+// Ancient function : ok but with no cam parameter
+struct Ray createCamRaySimple(const int x_coord, const int y_coord, const int width, const int height){
 
 	float fx = (float)x_coord / (float)width;  /* convert int in range [0 - width] to float in range [0-1] */
 	float fy = (float)y_coord / (float)height; /* convert int in range [0 - height] to float in range [0-1] */
 
 	/* calculate aspect ratio */
 	float aspect_ratio = (float)(width) / (float)(height);
-	
-	/* Convert FOV from degrees to radians */
-	float fov_radians = camera_fov * M_PI / 180.0f;
-	float tan_half_fov = tan(fov_radians * 0.5f);
-	
-	/* Calculate camera coordinate system */
-	float3 forward = normalize(camera_target - camera_origin);
-	float3 right = normalize(cross(forward, camera_up));
-	float3 up = cross(right, forward);
-	
-	/* Calculate pixel position in camera space */
-	float px = (fx - 0.5f) * 2.0f * tan_half_fov * aspect_ratio;
-	float py = (fy - 0.5f) * 2.0f * tan_half_fov;
-	
-	/* Ray direction in world space */
-	float3 ray_dir = normalize(forward + px * right + py * up);
+	float fx2 = (fx - 0.5f) * aspect_ratio;
+	float fy2 = fy - 0.5f;
+
+	/* determine position of pixel on screen */
+	float3 pixel_pos = (float3)(fx2, -fy2, 0.0f);
 
 	/* create camera ray*/
 	struct Ray ray;
-	ray.origin = camera_origin;
-	ray.dir = ray_dir;
+	ray.origin = (float3)(0.0f, 0.0f, 40.0f); /* fixed camera position */
+	ray.dir = normalize(pixel_pos - ray.origin); /* ray direction is vector from camera to pixel */
 
 	return ray;
 }
@@ -449,8 +437,8 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	float fy = (float)y_coord / (float)height; /* convert int in range [0 - height] to float in range [0-1] */
 
 	/*create a camera ray */
-	struct Ray camray = createCamRay(x_coord, y_coord, width, height, camera);
-
+	struct Ray camray = createCamRaySimple(x_coord, y_coord, width, height); // KERNEL VERSION OK 
+	//struct Ray camray = createCamRay(x_coord, y_coord, width, height, camera);
 	// Shapes are now passed from the CPU side via the shapes buffer!
 	// No need to create them here anymore
 

@@ -2,10 +2,10 @@
 #include "../math/vec3.h"
 
 Camera::Camera()
-    : origin(vec3(0.0f, 0.0f, 5.f)), 
-      target(vec3(0.0f, 0.0f, 0)),  //  center of the scene
-      up(vec3(0.0f, 1.0f, 0.0f)),
-      fov(45.0f)
+        : origin(vec3(0.0f, 0.0f, 5.f)), 
+        target(vec3(0.0f, 0.0f, 0)),  //  center of the scene
+        up(vec3(0.0f, 1.0f, 0.0f)),
+        fov(45.0f)
 {
 }
 
