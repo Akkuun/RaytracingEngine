@@ -3,6 +3,7 @@
 #include "../../shapes/Shape.h"
 #include "../../shapes/Sphere.h"
 #include "../../shapes/Square.h"
+#include "../../shapes/Triangle.h"
 
 class SceneManager {
 public:

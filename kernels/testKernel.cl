@@ -97,6 +97,14 @@ typedef struct {
     Vec3 color;
 } GPUSquare;
 
+typedef struct {
+	Vec3 v0;
+	Vec3 v1;
+	Vec3 v2;
+	Vec3 emi;
+	Vec3 color;
+} GPUTriangle;
+
 struct Intersection {
 	float t;
 	float3 hitpoint;
@@ -112,6 +120,7 @@ typedef struct __attribute__((aligned(16))) {
     union {
         GPUSphere sphere;
         GPUSquare square;
+		GPUTriangle triangle;
     } data;
 } GPUShape;
 
@@ -236,6 +245,44 @@ struct Intersection intersect_square(__global const GPUSquare* square, const str
     return result;
 }
 
+struct Intersection intersect_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
+{
+	struct Intersection result;
+	result.t = -1.0f; /* default to no intersection */
+
+	float3 v0 = vec3_to_float3(triangle->v0);
+	float3 v1 = vec3_to_float3(triangle->v1);
+	float3 v2 = vec3_to_float3(triangle->v2);
+
+	float3 edge1 = v1 - v0;
+	float3 edge2 = v2 - v0;
+	float3 h = cross(ray->dir, edge2);
+	float a = dot(edge1, h);
+
+	if (fabs(a) < EPSILON) return result; /* ray is parallel to triangle */
+
+	float f = 1.0f / a;
+	float3 s = ray->origin - v0;
+	float u = f * dot(s, h);
+
+	if (u < 0.0f || u > 1.0f) return result;
+
+	float3 q = cross(s, edge1);
+	float v = f * dot(ray->dir, q);
+
+	if (v < 0.0f || u + v > 1.0f) return result;
+
+	*t = f * dot(edge2, q);
+
+	if (*t < EPSILON) return result; /* triangle is behind ray or too close */
+
+	result.t = *t;
+	result.hitpoint = ray->origin + ray->dir * (*t);
+	result.normal = normalize(cross(edge1, edge2));
+	result.uv = (float2)(u, v); // Barycentric coordinates as UV
+
+	return result;
+}
 
 struct Intersection intersect_shape(__global const GPUShape* shape, const struct Ray* ray, float* t)
 {

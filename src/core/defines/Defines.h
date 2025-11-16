@@ -11,8 +11,8 @@ enum ShapeType
 {
     UNDEFINED = 0,  // explicit values
     SPHERE = 1,
-    PLANE = 2,
-    SQUARE = 3,
+    SQUARE = 2,
+    TRIANGLE = 3,
 };
 
 struct GPUSphere
@@ -34,6 +34,15 @@ struct GPUSquare
     Vec3 color;
 };
 
+struct GPUTriangle
+{
+    Vec3 v0;
+    Vec3 v1;
+    Vec3 v2;
+    Vec3 emi;
+    Vec3 color;
+};
+
 // Struct GPU-compatible (for the kernel)
 typedef struct __attribute__((aligned(16))) {
     int type;           //  form type(SPHERE=1, PLANE=2, SQUARE=3, etc.)
@@ -41,6 +50,6 @@ typedef struct __attribute__((aligned(16))) {
     union {
         GPUSphere sphere;
         GPUSquare square;
-        // GPUTriangle tri;   // later
+        GPUTriangle triangle;
     } data;
 } GPUShape;

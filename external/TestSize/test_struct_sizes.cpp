@@ -8,6 +8,7 @@ int main() {
     std::cout << "sizeof(GPUSphere): " << sizeof(GPUSphere) << " bytes" << std::endl;
     std::cout << "sizeof(GPUSquare): " << sizeof(GPUSquare) << " bytes" << std::endl;
     std::cout << "sizeof(GPUShape): " << sizeof(GPUShape) << " bytes" << std::endl;
+    std::cout << "sizeof(GPUTriangle): " << sizeof(GPUTriangle) << " bytes" << std::endl;
     std::cout << "sizeof(int): " << sizeof(int) << " bytes" << std::endl;
     std::cout << "sizeof(float): " << sizeof(float) << " bytes" << std::endl;
     
