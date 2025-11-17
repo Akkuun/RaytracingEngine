@@ -81,12 +81,12 @@ public:
         }
     }
 
-    const int getUndoCommandID() const {
+    int getUndoCommandID() const {
         if (!canUndo()) return -1;
         return undoStack.top()->getID();
     }
 
-    const int getRedoCommandID() const {
+    int getRedoCommandID() const {
         if (!canRedo()) return -1;
         return redoStack.top()->getID();
     }
