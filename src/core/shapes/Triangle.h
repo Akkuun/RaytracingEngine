@@ -18,7 +18,7 @@ public:
           emission(0.0f, 0.0f, 0.0f) {}
     
     Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col)
-        : Shape((v0 + v1 + v2) * (1.0f / 3.0f)), v0(v0), v1(v1), v2(v2), color(col), emission(0.0f, 0.0f, 0.0f) {}
+        : Shape((v0 + v1 + v2) * (1.0f / 3.0f), "Triangle " + std::to_string(nextID)), v0(v0), v1(v1), v2(v2), color(col), emission(0.0f, 0.0f, 0.0f) {}
 
     Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, std::string name)
     : Shape((v0 + v1 + v2) * (1.0f / 3.0f), name), v0(v0), v1(v1), v2(v2), color(col), emission(0.0f, 0.0f, 0.0f) {}
