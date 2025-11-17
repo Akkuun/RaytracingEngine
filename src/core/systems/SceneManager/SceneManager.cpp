@@ -99,9 +99,9 @@ void SceneManager::buildScene() {
         vec3(0.9f, 0.9f, 0.1f)           // color - yellow
     ));*/
 
-    Mesh* mesh = new Mesh("../assets/pig.off");
+    Mesh* mesh = new Mesh("../assets/tripod.off");
     //mesh->scale(vec3(0.4f));
-    mesh->translate(vec3(0.3f, 0.0f, -10.0f));
+    mesh->translate(vec3(0.0f, 0.0f, -10.0f));
     mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
     mesh->generateCpuTriangles();
     addShape(mesh);

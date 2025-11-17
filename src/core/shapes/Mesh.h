@@ -69,7 +69,6 @@ public:
         recomputeNormals();
         setPosition(vec3(0.0f));
         scaleToUnit();
-        scale(vec3(1.000001f));
         generateCpuTriangles();
     }
     ShapeType getType() const override { return ShapeType::MESH; }
@@ -81,7 +80,7 @@ public:
             const vec3& v0 = vertices[tri.v[0]].position;
             const vec3& v1 = vertices[tri.v[1]].position;
             const vec3& v2 = vertices[tri.v[2]].position;
-            cpuTriangles.emplace_back(v0, v1, v2, color, emission);
+            cpuTriangles.emplace_back(v0, v1, v2, vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)), emission);
         }
     }
     const std::vector<Triangle>& getTriangles() const {
@@ -99,6 +98,7 @@ public:
     void applyTransformationMatrix(Mat3 &mat);
     AABB computeAABB();
     void scaleToUnit();
+    // broken
     void scale(const vec3& factors);
     void setPosition(const vec3& pos);
     void translate(const vec3& offset);
