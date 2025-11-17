@@ -167,7 +167,7 @@ void RenderEngine::setupShapesBuffer(){
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                   buffer_size, 
                                   gpu_shapes.data());
-        std::cout << "Buffer created successfully!" << std::endl;
+        std::cout << "Buffer created or updated successfully!" << std::endl;
     }
 }
 
