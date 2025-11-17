@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class FPSChart;
+class RenderWidget;
 
 class ObjectPanel : public QWidget
 {
@@ -9,8 +11,9 @@ class ObjectPanel : public QWidget
 
 public:
     explicit ObjectPanel(QWidget *parent = nullptr);
+    void setRenderWidget(RenderWidget *widget);
 
 private:
     void setupUI();
-    void testKernel();
+    FPSChart *fpsChart;
 };

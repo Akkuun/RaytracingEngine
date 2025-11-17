@@ -6,6 +6,16 @@ typedef struct {
     float _padding;
 } Vec3;
 
+// GPU Camera structure matching CPU side exactly (64 bytes total)
+typedef struct {
+    Vec3 origin;      // Camera position (16 bytes)
+    Vec3 target;      // What the camera is looking at (16 bytes)  
+    Vec3 up;          // Up vector (16 bytes)
+    float fov;        // Field of view in degrees (4 bytes)
+    float _padding[3]; // Padding for alignment (12 bytes)
+} GPUCamera;
+
+
 // Match CPU-side GPUSphere exactly
 typedef struct {
     float radius;

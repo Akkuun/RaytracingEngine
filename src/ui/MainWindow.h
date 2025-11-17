@@ -13,6 +13,7 @@
 #include "../core/systems/KernelManager/KernelManager.h"
 
 class RenderWidget;
+class ObjectPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -45,6 +46,9 @@ private:
     QWidget *leftPanel;
     QWidget *rightPanel;
     QScrollArea *leftScrollArea;
+    
+    // Panel references
+    ObjectPanel *objectPanel;
 
     // Render area
     RenderWidget *renderWidget;

@@ -14,6 +14,16 @@ typedef struct {
     float _padding;
 } Vec3;
 
+// GPU Camera structure matching CPU side exactly (64 bytes total)
+typedef struct {
+    Vec3 origin;      // Camera position (	/*create a camera ray */
+	struct Ray camray = createCamRayDirect(x_coord, y_coord, width, height, camera_origin, camera_target, camera_up, camera_fov); bytes)
+    Vec3 target;      // What the camera is looking at (16 bytes)  
+    Vec3 up;          // Up vector (16 bytes)
+    float fov;        // Field of view in degrees (4 bytes)
+    float _padding[3]; // Padding for alignment (12 bytes)
+} GPUCamera;
+
 // Helper function to convert Vec3 to float3
 float3 vec3_to_float3(Vec3 v) {
     return (float3)(v.x, v.y, v.z);
@@ -405,6 +415,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 	return accumulatedColor;
 }
 
+// Original simple camera that worked perfectly
 struct Ray createCamRay(const int x_coord, const int y_coord, const int width, const int height){
 
 	float fx = (float)x_coord / (float)width;  /* convert int in range [0 - width] to float in range [0-1] */
@@ -428,7 +439,9 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 // __global output -> [R,G,B,R,G,B,...]
 // __global accumBuffer -> accumulates samples over frames [R,G,B,R,G,B,...]
 // frameCount -> number of frames accumulated so far (resets when camera/scene changes)
-__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, __global GPUShape* shapes, int numShapes)
+__kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, 
+                           __global GPUShape* shapes, int numShapes,
+                           float3 camera_origin, float3 camera_target, float3 camera_up, float camera_fov)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */

@@ -9,6 +9,7 @@ RenderEngine::RenderEngine()
 {
     kernelManager = &KernelManager::getInstance();
     deviceManager = DeviceManager::getInstance();
+    sceneCamera = Camera();
 }
 
 void RenderEngine::setupBuffers(int width, int height)
@@ -21,32 +22,35 @@ void RenderEngine::setupBuffers(int width, int height)
         // Resize image data vector
         imageData.resize(width * height * 3);
 
-        // Create or recreate output buffer
+        // Create or recreate buffers
         cl::Context context = deviceManager->getContext();
         outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
+        accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
         
+        // Reset frame count when resolution changes
+        frameCount = 0;
         currentWidth = width;
         currentHeight = height;
         
-        if (width != lastWidth || height != lastHeight) {
-            outputBuffer = cl::Buffer(context, CL_MEM_WRITE_ONLY, imageSize);
-            accumBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, imageSize);
-            
-            setupShapesBuffer(); // Convert all the Shapes CPU side to be suitable to kernel code
-
-            // Reset frame count when resolution changes
-            frameCount = 0;
-            lastWidth = width;
-            lastHeight = height;
-            
-            // Initialize buffers
-            cl::CommandQueue queue = deviceManager->getCommandQueue();
-            
-            // Initialize accumulation buffer to zero
-            std::vector<float> zeros(width * height * 3, 0.0f);
-            queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
-            
-        }
+        // Initialize accumulation buffer to zero
+        cl::CommandQueue queue = deviceManager->getCommandQueue();
+        std::vector<float> zeros(width * height * 3, 0.0f);
+        queue.enqueueWriteBuffer(accumBuffer, CL_TRUE, 0, imageSize, zeros.data());
+    }
+    
+    // Setup shapes buffer only if it's dirty (shapes changed) or first time
+    if (shapesBufferDirty)
+    {
+        setupShapesBuffer();
+        shapesBufferDirty = false;
+    }
+    
+    // Camera parameters are now passed directly to kernel, no buffer needed
+    // Reset frame count if camera changed
+    if (cameraBufferDirty)
+    {
+        frameCount = 0;  // Reset accumulation when camera changes
+        cameraBufferDirty = false;
     }
 }
 
@@ -59,17 +63,23 @@ void RenderEngine::render(int width, int height)
         cl::Kernel kernel = kernelManager->getKernel("render_kernel");
         cl::CommandQueue queue = deviceManager->getCommandQueue(); 
 
-        
-        // Match kernel signature: __global float* output, __global float* accumBuffer, int width, int height, int frameCount, __global GPUShape* shapes, int numShapes
+        // Get camera parameters and create GPU buffer (for testing)
+        GPUCamera gpu_camera = sceneCamera.toGPU();
+        cl::Context context = deviceManager->getContext();
+        cameraBuffer = cl::Buffer(context, 
+                                  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                  sizeof(GPUCamera), 
+                                  &gpu_camera);
 
+        // Set kernel arguments with camera buffer (old method)
         kernel.setArg(0, outputBuffer);
         kernel.setArg(1, accumBuffer);
         kernel.setArg(2, width);
         kernel.setArg(3, height);
         kernel.setArg(4, frameCount);
-        kernel.setArg(5, shapesBuffer);  // Pass shapes buffer
-        kernel.setArg(6, static_cast<int>(SceneManager::getInstance().getShapes().size()));  // size_t MANDATORY
-        
+        kernel.setArg(5, shapesBuffer);
+        kernel.setArg(6, static_cast<int>(SceneManager::getInstance().getShapes().size()));
+        kernel.setArg(7, cameraBuffer);  // Use camera buffer instead of direct parameters , somehow it's giving better performance
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
@@ -154,8 +164,7 @@ void RenderEngine::setupShapesBuffer(){
     
     size_t buffer_size = gpu_shapes.size() * sizeof(GPUShape);
     if (buffer_size > 0) {
-        shapesBuffer = cl::Buffer(context, 
-                                  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+        shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                   buffer_size, 
                                   gpu_shapes.data());
         std::cout << "Buffer created successfully!" << std::endl;
