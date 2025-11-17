@@ -15,5 +15,10 @@ cmake ..
 # Build the project
 make
 
+# Copy assets to the build directory
+if [ -d "../assets" ]; then
+    cp -r ../assets .
+fi
+
 # Run the executable (it's now in bin/ subdirectory)
 ./bin/raytrace

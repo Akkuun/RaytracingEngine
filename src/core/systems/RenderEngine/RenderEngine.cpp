@@ -3,6 +3,7 @@
 #include <cstring>
 #include "../../defines/Defines.h"
 #include "../../shapes/Triangle.h"
+#include "../../shapes/Mesh.h"
 
 
 RenderEngine::RenderEngine()
@@ -78,7 +79,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(3, height);
         kernel.setArg(4, frameCount);
         kernel.setArg(5, shapesBuffer);
-        kernel.setArg(6, static_cast<int>(SceneManager::getInstance().getShapes().size()));
+    // Pass the actual number of GPU shapes stored in the shapes buffer
+    kernel.setArg(6, shapesCount);
         kernel.setArg(7, cameraBuffer);  // Use camera buffer instead of direct parameters , somehow it's giving better performance
 
         // Use optimal work-group size for better GPU performance
@@ -154,6 +156,19 @@ void RenderEngine::setupShapesBuffer(){
                 gpu_shape.data.triangle = triangle->toGPU();
                 break;
             }
+            case MESH: {
+                Mesh* mesh = static_cast<Mesh*>(shape);
+                int i = 0;
+                for (const auto& tri : mesh->getTriangles()) {
+                    gpu_shapes.push_back(GPUShape());
+                    GPUShape& mesh_gpu_shape = gpu_shapes.back();
+                    mesh_gpu_shape.data.triangle = tri.toGPU();
+                    mesh_gpu_shape.type = ShapeType::TRIANGLE;
+                    i++;
+                }
+                std::cout << "Mesh with " << i << " triangles added to GPU buffer." << std::endl;
+                continue;
+            }
             default:
                 std::cerr << "Unknown shape type encountered in setupShapesBuffer: " << type << std::endl;
                 break;
@@ -163,11 +178,18 @@ void RenderEngine::setupShapesBuffer(){
     }
     
     size_t buffer_size = gpu_shapes.size() * sizeof(GPUShape);
+    // Update shapesCount for kernel use
+    shapesCount = static_cast<int>(gpu_shapes.size());
+
     if (buffer_size > 0) {
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                  buffer_size, 
+                                  buffer_size,
                                   gpu_shapes.data());
-        std::cout << "Buffer created or updated successfully!" << std::endl;
+        std::cout << "Buffer created or updated successfully! (" << shapesCount << " shapes)" << std::endl;
+    } else {
+        // No shapes: ensure shapesBuffer is reset and notify
+        shapesBuffer = cl::Buffer();
+        std::cout << "No GPU shapes to upload (shapesCount=0)" << std::endl;
     }
 }
 

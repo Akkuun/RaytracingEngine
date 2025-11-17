@@ -86,6 +86,12 @@
         "complex": "cpp",
         "forward_list": "cpp",
         "source_location": "cpp",
-        "qdebug": "cpp"
+        "qdebug": "cpp",
+        "any": "cpp",
+        "coroutine": "cpp",
+        "hash_set": "cpp",
+        "shared_mutex": "cpp",
+        "stack": "cpp",
+        "typeindex": "cpp"
     }
 }
