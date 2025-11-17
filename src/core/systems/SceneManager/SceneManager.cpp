@@ -93,9 +93,9 @@ void SceneManager::buildScene() {
 
     // Triangle - blue
     addShape(new Triangle(
-        vec3(-0.2f, 0.0f, -1.5f),        // vertex A
-        vec3(0.2f, 0.0f, -1.5f),         // vertex B
-        vec3(0.0f, 0.3f, -1.5f),         // vertex C
+        vec3(-0.4f, 0.0f, -1.5f),        // vertex A
+        vec3(0.2f, 0.0f, 1.0f),         // vertex B
+        vec3(0.0f, 0.3f, 0.0f),         // vertex C
         vec3(0.1f, 0.1f, 0.9f)           // color - blue
     ));
 }
