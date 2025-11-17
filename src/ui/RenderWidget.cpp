@@ -1,4 +1,5 @@
 #include "RenderWidget.h"
+#include "../core/commands/CommandsManager.h"
 #include <QPainter>
 #include <QTimer>
 #include <QDebug>
@@ -7,6 +8,11 @@ RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false
 {
     renderEngine = new RenderEngine();
 
+    // Register callback for scene changes
+    CommandsManager::getInstance().addSceneChangedCallback([this]() {
+        // Notify render engine that scene changed
+        renderEngine->notifySceneChanged();
+    });
 
     // Continuous rendering - render as fast as possible
     fpsTimer.start();

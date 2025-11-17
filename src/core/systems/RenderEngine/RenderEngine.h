@@ -14,12 +14,15 @@ public:
     
     void render(int width, int height);
     const std::vector<float>& getImageData() const { return imageData; }
+    inline SceneManager& getSceneManager() { return SceneManager::getInstance(); }
+    Camera& getCamera() { return sceneCamera; } // Get camera reference for UI
+
+    // Call functions
     void resetAccumulation() { frameCount = 0; } // Call when camera/scene changes
     void markShapesDirty() { shapesBufferDirty = true; } // Call when shapes are added/removed/modified
     void markCameraDirty() { cameraBufferDirty = true; frameCount = 0; } // Call when camera changes
-    Camera& getCamera() { return sceneCamera; } // Get camera reference for UI
-    inline SceneManager& getSceneManager() { return SceneManager::getInstance(); }
-    
+    void notifySceneChanged() { shapesBufferDirty = true; frameCount = 0; } // MANDATORY , called when the scene has been changed (shapes added/removed/modified)
+
 private:
     KernelManager* kernelManager;
     DeviceManager* deviceManager;
@@ -27,7 +30,7 @@ private:
     cl::Buffer outputBuffer;
     cl::Buffer accumBuffer;
     cl::Buffer shapesBuffer;
-    cl::Buffer cameraBuffer; // Temporary for testing
+    cl::Buffer cameraBuffer;
 
     std::vector<float> imageData;
 
@@ -43,5 +46,4 @@ private:
     
     void setupBuffers(int width, int height);
     void setupShapesBuffer();
-    // setupCameraBuffer removed - camera params now passed directly
 };

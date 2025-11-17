@@ -185,7 +185,7 @@ void RenderEngine::setupShapesBuffer(){
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                   buffer_size,
                                   gpu_shapes.data());
-        std::cout << "Buffer created successfully! (" << shapesCount << " shapes)" << std::endl;
+        std::cout << "Buffer created or updated successfully! (" << shapesCount << " shapes)" << std::endl;
     } else {
         // No shapes: ensure shapesBuffer is reset and notify
         shapesBuffer = cl::Buffer();

@@ -5,6 +5,15 @@
 class Square : public Shape
 {
 public:
+    // Default constructor with default values (horizontal square)
+    Square()
+        : Shape(vec3(0.0f, 0.0f, -1.5f)), 
+          u_vec(0.3f, 0.0f, 0.0f), 
+          v_vec(0.0f, 0.3f, 0.0f), 
+          normal(0.0f, 0.0f, 1.0f), 
+          color(0.9f, 0.9f, 0.1f), 
+          emission(0.0f, 0.0f, 0.0f) {}
+    
     Square(const vec3& pos, const vec3& u, const vec3& v, const vec3& norm, const vec3& col)
         : Shape(pos), u_vec(u), v_vec(v), normal(norm), color(col), emission(0.0f, 0.0f, 0.0f) {}
     
