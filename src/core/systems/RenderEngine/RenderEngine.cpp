@@ -3,6 +3,7 @@
 #include <cstring>
 #include "../../defines/Defines.h"
 #include "../../shapes/Triangle.h"
+#include "../../shapes/Mesh.h"
 
 
 RenderEngine::RenderEngine()
@@ -153,6 +154,19 @@ void RenderEngine::setupShapesBuffer(){
                 Triangle* triangle = static_cast<Triangle*>(shape);
                 gpu_shape.data.triangle = triangle->toGPU();
                 break;
+            }
+            case MESH: {
+                Mesh* mesh = static_cast<Mesh*>(shape);
+                int i = 0;
+                for (const auto& tri : mesh->getTriangles()) {
+                    gpu_shapes.push_back(GPUShape());
+                    GPUShape& mesh_gpu_shape = gpu_shapes.back();
+                    mesh_gpu_shape.data.triangle = tri.toGPU();
+                    mesh_gpu_shape.type = ShapeType::TRIANGLE;
+                    i++;
+                }
+                std::cout << "Mesh with " << i << " triangles added to GPU buffer." << std::endl;
+                continue;
             }
             default:
                 std::cerr << "Unknown shape type encountered in setupShapesBuffer: " << type << std::endl;

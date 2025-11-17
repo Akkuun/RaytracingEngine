@@ -4,6 +4,7 @@
 #include "../../shapes/Sphere.h"
 #include "../../shapes/Square.h"
 #include "../../shapes/Triangle.h"
+#include "../../shapes/Mesh.h"
 
 class SceneManager {
 public:

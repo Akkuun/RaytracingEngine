@@ -56,7 +56,7 @@ void SceneManager::buildScene() {
     ));
     
     // Ceiling - white
-    addShape(new Square(
+    /*addShape(new Square(
         vec3(0.0f, 0.35f, 3.0f),         // pos
         vec3(1.5f, 0.0f, 0.0f),          // u_vec
         vec3(0.0f, 0.0f, -80.0f),        // v_vec
@@ -89,15 +89,20 @@ void SceneManager::buildScene() {
         vec3(0.0f, 1.5f, 0.0f),          // v_vec
         vec3(0.0f, 0.0f, 1.0f),          // normal
         vec3(0.9f, 0.9f, 0.9f)           // color
-    ));
+    ));*/
 
     // Triangle - blue
-    addShape(new Triangle(
-        vec3(-0.4f, 0.0f, -1.5f),        // vertex A
-        vec3(0.2f, 0.0f, 1.0f),         // vertex B
-        vec3(0.0f, 0.3f, 0.0f),         // vertex C
-        vec3(0.1f, 0.1f, 0.9f)           // color - blue
-    ));
+    // addShape(new Triangle(
+    //     vec3(-0.4f, 0.0f, -1.5f),        // vertex A
+    //     vec3(0.2f, 0.0f, 1.0f),         // vertex B
+    //     vec3(0.0f, 0.3f, 0.0f),         // vertex C
+    //     vec3(0.1f, 0.1f, 0.9f)           // color - blue
+    // ));
+
+    Mesh* mesh = new Mesh("../assets/tripod.off");
+    mesh->translate(vec3(0.0f, 0.0f, -10.0f));
+    mesh->generateCpuTriangles();
+    addShape(mesh);
 }
 // return the array of shapes suitable for kernel code
 Shape* SceneManager::getShapesBuffer() const{
