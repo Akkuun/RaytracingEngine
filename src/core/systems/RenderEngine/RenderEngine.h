@@ -36,6 +36,7 @@ private:
     int frameCount = 0;
     bool shapesBufferDirty = true; // Track if shapes buffer needs update
     bool cameraBufferDirty = true; // Track if camera buffer needs update
+    int shapesCount = 0; // Number of GPU shapes stored in shapesBuffer
 
     Camera sceneCamera;
 

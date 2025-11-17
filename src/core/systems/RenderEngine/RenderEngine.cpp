@@ -79,7 +79,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(3, height);
         kernel.setArg(4, frameCount);
         kernel.setArg(5, shapesBuffer);
-        kernel.setArg(6, static_cast<int>(SceneManager::getInstance().getShapes().size()));
+    // Pass the actual number of GPU shapes stored in the shapes buffer
+    kernel.setArg(6, shapesCount);
         kernel.setArg(7, cameraBuffer);  // Use camera buffer instead of direct parameters , somehow it's giving better performance
 
         // Use optimal work-group size for better GPU performance
@@ -177,11 +178,18 @@ void RenderEngine::setupShapesBuffer(){
     }
     
     size_t buffer_size = gpu_shapes.size() * sizeof(GPUShape);
+    // Update shapesCount for kernel use
+    shapesCount = static_cast<int>(gpu_shapes.size());
+
     if (buffer_size > 0) {
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                  buffer_size, 
+                                  buffer_size,
                                   gpu_shapes.data());
-        std::cout << "Buffer created successfully!" << std::endl;
+        std::cout << "Buffer created successfully! (" << shapesCount << " shapes)" << std::endl;
+    } else {
+        // No shapes: ensure shapesBuffer is reset and notify
+        shapesBuffer = cl::Buffer();
+        std::cout << "No GPU shapes to upload (shapesCount=0)" << std::endl;
     }
 }
 
