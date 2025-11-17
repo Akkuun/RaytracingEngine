@@ -177,16 +177,16 @@ void SceneTreeWidget::updateSceneTree()
         
         switch (type) {
             case ShapeType::SPHERE:
-                shapeLabel = QString("⚪ Sphere #%1").arg(shape->getID());
+                shapeLabel = QString("● Sphere #%1").arg(shape->getID());
                 break;
             case ShapeType::SQUARE:
-                shapeLabel = QString("⬜ Square #%1").arg(shape->getID());
+                shapeLabel = QString("■ Square #%1").arg(shape->getID());
                 break;
             case ShapeType::TRIANGLE:
-                shapeLabel = QString("🔺 Triangle #%1").arg(shape->getID());
+                shapeLabel = QString("▲ Triangle #%1").arg(shape->getID());
                 break;
-            default:
-                shapeLabel = QString("❓ Shape #%1").arg(shape->getID());
+            default: // it's a mesh that contains triangles
+                shapeLabel = QString("Mesh #%1").arg(shape->getID());
                 break;
         }
         

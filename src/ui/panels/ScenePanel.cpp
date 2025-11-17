@@ -71,19 +71,19 @@ void ScenePanel::setupUI()
         "}";
 
     // Sphere button
-    addSphereBtn = new QPushButton("⚪ Sphere", this);
+    addSphereBtn = new QPushButton("● Sphere", this);
     addSphereBtn->setStyleSheet(buttonStyle);
     addSphereBtn->setCursor(Qt::PointingHandCursor);
     addShapesLayout->addWidget(addSphereBtn);
 
     // Square button
-    addSquareBtn = new QPushButton("⬜ Square", this);
+    addSquareBtn = new QPushButton("■ Square", this);
     addSquareBtn->setStyleSheet(buttonStyle);
     addSquareBtn->setCursor(Qt::PointingHandCursor);
     addShapesLayout->addWidget(addSquareBtn);
 
     // Triangle button
-    addTriangleBtn = new QPushButton("🔺 Triangle", this);
+    addTriangleBtn = new QPushButton("▲ Triangle", this);
     addTriangleBtn->setStyleSheet(buttonStyle);
     addTriangleBtn->setCursor(Qt::PointingHandCursor);
     addShapesLayout->addWidget(addTriangleBtn);
