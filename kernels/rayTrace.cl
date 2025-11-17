@@ -139,6 +139,8 @@ float3 get_shape_color(__global const GPUShape* shape)
 		return vec3_to_float3(shape->data.sphere.color);
 	} else if (shape->type == SQUARE) {
 		return vec3_to_float3(shape->data.square.color);
+	} else if (shape->type == TRIANGLE) {
+		return vec3_to_float3(shape->data.triangle.color);
 	}
 	return (float3)(0.0f, 0.0f, 0.0f); /* default color */
 }
@@ -265,10 +267,12 @@ struct Intersection intersect_triangle(__global const GPUTriangle* triangle, con
 
 	float3 edge1 = v1 - v0;
 	float3 edge2 = v2 - v0;
-	float3 h = cross(ray->dir, edge2);
-	float a = dot(edge1, h);
+	 float3 h = cross(ray->dir, edge2);
+	 float a = dot(edge1, h);
 
-	if (fabs(a) < EPSILON) return result; /* ray is parallel to triangle */
+	 /* Backface culling: reject triangles whose normal faces away from the ray
+		 (also rejects near-parallel cases when a is very small) */
+	 if (a < EPSILON) return result;
 
 	float f = 1.0f / a;
 	float3 s = ray->origin - v0;

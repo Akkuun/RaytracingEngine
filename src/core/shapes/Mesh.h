@@ -3,15 +3,16 @@
 #include "../defines/Defines.h"
 
 #include <vector>
-#include "../math/vec3.h"
 #include "Triangle.h"
 
 #include "../math/aabb.h"
+#include "../math/vec3.h"
+#include "../math/mat3.h"
 
 
 struct MeshVertex {
     inline MeshVertex () {}
-    inline MeshVertex (const vec3 & _p, const vec3 & _n) : position (_p), /*normal (_n) ,*/ u(0) , v(0) {}
+    inline MeshVertex (const vec3 & _p) : position (_p), /*normal (_n) ,*/ u(0) , v(0) {}
     inline MeshVertex (const MeshVertex & vertex) : position (vertex.position), /*normal (vertex.normal) ,*/ u(vertex.u) , v(vertex.v) {}
     inline virtual ~MeshVertex () {}
     inline MeshVertex & operator = (const MeshVertex & vertex) {
@@ -87,9 +88,19 @@ public:
         return cpuTriangles;
     }
 
+    vec3 getCenterPos() const {
+        vec3 center(0.0f, 0.0f, 0.0f);
+        for (const auto& vertex : vertices) {
+            center += vertex.position;
+        }
+        center /= static_cast<float>(vertices.size());
+        return center;
+    }
+    void applyTransformationMatrix(Mat3 &mat);
     AABB computeAABB();
     void scaleToUnit();
     void scale(const vec3& factors);
     void setPosition(const vec3& pos);
     void translate(const vec3& offset);
+    void rotate(const vec3& angles);
 };

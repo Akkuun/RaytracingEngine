@@ -41,7 +41,7 @@ void SceneManager::buildScene() {
     clearShapes();
     
     // Sphere 1 - white sphere
-   addShape(new Sphere(0.15f, vec3(0.25f, -0.2f, -1.25f), vec3(0.9f, 0.9f, 0.9f)));
+    addShape(new Sphere(0.15f, vec3(0.25f, -0.2f, -1.25f), vec3(0.9f, 0.9f, 0.9f)));
     
     // Sphere 2 - white sphere
     addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -2.25f), vec3(0.95f, 0.95f, 0.95f)));
@@ -92,15 +92,17 @@ void SceneManager::buildScene() {
     ));
 
     // Triangle - blue
-    addShape(new Triangle(
+    /*addShape(new Triangle(
         vec3(-0.4f, 0.0f, -1.5f),        // vertex A
         vec3(0.2f, 0.0f, 1.0f),         // vertex B
         vec3(0.0f, 0.3f, 0.0f),         // vertex C
         vec3(0.9f, 0.9f, 0.1f)           // color - yellow
-    ));
+    ));*/
 
-    Mesh* mesh = new Mesh("../assets/tripod.off");
-    mesh->translate(vec3(0.0f, -0.5f, -10.0f));
+    Mesh* mesh = new Mesh("../assets/pig.off");
+    //mesh->scale(vec3(0.4f));
+    mesh->translate(vec3(0.3f, 0.0f, -10.0f));
+    mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
     mesh->generateCpuTriangles();
     addShape(mesh);
 }

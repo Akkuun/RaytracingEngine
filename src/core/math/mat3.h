@@ -37,10 +37,10 @@ public:
 
     // Multiplication de matrice avec un Vec3 : m.p
     //--> application d'un matrice de rotation à un point ou un vecteur
-    Vec3 operator*(const Vec3 &p)
+    vec3 operator*(const vec3 &p)
     {
         // Pour acceder a un element de la matrice (*this)(i,j) et du point p[i]
-        Vec3 res = Vec3(
+        vec3 res = vec3(
             (*this)(0, 0) * p[0] + (*this)(0, 1) * p[1] + (*this)(0, 2) * p[2],
             (*this)(1, 0) * p[0] + (*this)(1, 1) * p[1] + (*this)(1, 2) * p[2],
             (*this)(2, 0) * p[0] + (*this)(2, 1) * p[1] + (*this)(2, 2) * p[2]);
@@ -163,6 +163,33 @@ public:
         return Mat3(-vals[0], -vals[1], -vals[2], -vals[3], -vals[4], -vals[5], -vals[6], -vals[7], -vals[8]);
     }
 
+    inline static Mat3 rotationX(float angle)
+    {
+        float c = cos(angle);
+        float s = sin(angle);
+        return Mat3(1, 0, 0,
+                    0, c, -s,
+                    0, s, c);
+    }
+
+    inline static Mat3 rotationY(float angle)
+    {
+        float c = cos(angle);
+        float s = sin(angle);
+        return Mat3(c, 0, s,
+                    0, 1, 0,
+                    -s, 0, c);
+    }
+
+    inline static Mat3 rotationZ(float angle)
+    {
+        float c = cos(angle);
+        float s = sin(angle);
+        return Mat3(c, -s, 0,
+                    s, c, 0,
+                    0, 0, 1);
+    }
+
 private:
     float vals[9];
     // will be noted as :
@@ -185,3 +212,4 @@ inline static std::ostream &operator<<(std::ostream &s, Mat3 const &m)
       << m(2, 0) << " \t" << m(2, 1) << " \t" << m(2, 2) << std::endl;
     return s;
 }
+
