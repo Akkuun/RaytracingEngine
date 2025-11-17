@@ -399,27 +399,6 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 	return ray;
 }
 
-// Ancient function : ok but with no cam parameter
-struct Ray createCamRaySimple(const int x_coord, const int y_coord, const int width, const int height){
-
-	float fx = (float)x_coord / (float)width;  /* convert int in range [0 - width] to float in range [0-1] */
-	float fy = (float)y_coord / (float)height; /* convert int in range [0 - height] to float in range [0-1] */
-
-	/* calculate aspect ratio */
-	float aspect_ratio = (float)(width) / (float)(height);
-	float fx2 = (fx - 0.5f) * aspect_ratio;
-	float fy2 = fy - 0.5f;
-
-	/* determine position of pixel on screen */
-	float3 pixel_pos = (float3)(fx2, -fy2, 0.0f);
-
-	/* create camera ray*/
-	struct Ray ray;
-	ray.origin = (float3)(0.0f, 0.0f, 40.0f); /* fixed camera position */
-	ray.dir = normalize(pixel_pos - ray.origin); /* ray direction is vector from camera to pixel */
-
-	return ray;
-}
 // __global output -> [R,G,B,R,G,B,...]
 // __global accumBuffer -> accumulates samples over frames [R,G,B,R,G,B,...]
 // frameCount -> number of frames accumulated so far (resets when camera/scene changes)
@@ -437,10 +416,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	float fy = (float)y_coord / (float)height; /* convert int in range [0 - height] to float in range [0-1] */
 
 	/*create a camera ray */
-	//struct Ray camray = createCamRaySimple(x_coord, y_coord, width, height); // KERNEL VERSION OK 
 	struct Ray camray = createCamRay(x_coord, y_coord, width, height, camera);
-	// Shapes are now passed from the CPU side via the shapes buffer!
-	// No need to create them here anymore
 
 	struct Light lights[1];
 	lights[0].pos = (float3)(0.0f, 0.2f, 2.5f);

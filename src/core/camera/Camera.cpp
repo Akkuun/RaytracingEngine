@@ -5,7 +5,7 @@ Camera::Camera()
         : origin(vec3(0.0f, 0.0f, 40.0f)), 
         target(vec3(0.0f, 0.0f, 0.0f)),  //  center of the scene
         up(vec3(0.0f, 1.0f, 0.0f)),
-        fov(1.432320f) 
+        fov(1.432320f) // TODO replace magic value
 {
 }
 
