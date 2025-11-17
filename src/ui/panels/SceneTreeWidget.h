@@ -28,6 +28,8 @@ private slots:
     void onDelete();
     void onItemSelectionChanged();
 
+    int getSelectedShapeID() const;
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 };

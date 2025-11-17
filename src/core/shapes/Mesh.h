@@ -64,7 +64,7 @@ private:
 
 public:
     Mesh() : Shape() {}
-    Mesh(const std::string& filename) : Shape() {
+    Mesh(const std::string& filename) : Shape(extractFilename(filename)) {
         loadOFF(filename);
         recomputeNormals();
         setPosition(vec3(0.0f));
@@ -72,6 +72,21 @@ public:
         generateCpuTriangles();
     }
     ShapeType getType() const override { return ShapeType::MESH; }
+    
+    // Extract filename from path (removes path and extension)
+    static std::string extractFilename(const std::string& filepath) {
+        // Find last '/' or '\' (for cross-platform compatibility)
+        size_t lastSlash = filepath.find_last_of("/\\");
+        std::string filename = (lastSlash == std::string::npos) ? filepath : filepath.substr(lastSlash + 1);
+        
+        // Remove extension (.off, .obj, etc.)
+        size_t lastDot = filename.find_last_of('.');
+        if (lastDot != std::string::npos) {
+            filename = filename.substr(0, lastDot);
+        }
+        
+        return filename;
+    }
     void loadOFF(const std::string& filename);
     void recomputeNormals();
     void generateCpuTriangles() {
