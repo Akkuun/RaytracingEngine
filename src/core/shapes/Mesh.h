@@ -102,5 +102,6 @@ public:
     void scale(const vec3& factors);
     void setPosition(const vec3& pos);
     void translate(const vec3& offset);
+    // Uses angles in radians
     void rotate(const vec3& angles);
 };
