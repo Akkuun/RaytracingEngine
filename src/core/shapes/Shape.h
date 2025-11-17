@@ -19,10 +19,16 @@ public:
     inline void setPosition(const vec3& pos) { position = pos; }
     inline void setScale(const vec3& s) { scale = s; }
     inline void setRotation(const vec3& rot) { rotation = rot; }
+    
     Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)) {}
     Shape(const vec3& pos, const std::string& name) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name) {}
     Shape(const vec3& pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)) {}
     Shape(std::string name) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name) {}
+    
+    // Don't increment ID when we add triangles that are part of a mesh
+    Shape(const vec3& pos, bool incrementID) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(-1), shapeName("") {
+        (void)incrementID; // unused, just for signature differentiation
+    }
 
     std::string toString() const {
         return "Position: (" + std::to_string(position.x) + ", " + std::to_string(position.y) + ", " + std::to_string(position.z) + ")\n" +

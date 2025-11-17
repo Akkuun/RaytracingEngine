@@ -64,7 +64,7 @@ private:
 
 public:
     Mesh() : Shape() {}
-    Mesh(const std::string& filename) : Shape(extractFilename(filename)) {
+    Mesh(const std::string& filename) : Shape(extractFilename(filename) + " " + std::to_string(nextID)) {
         loadOFF(filename);
         recomputeNormals();
         setPosition(vec3(0.0f));
@@ -95,7 +95,8 @@ public:
             const vec3& v0 = vertices[tri.v[0]].position;
             const vec3& v1 = vertices[tri.v[1]].position;
             const vec3& v2 = vertices[tri.v[2]].position;
-            cpuTriangles.emplace_back(v0, v1, v2, vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)), emission);
+            // don´t increment ID for mesh triangles
+            cpuTriangles.emplace_back(v0, v1, v2, vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)), emission, true);
         }
     }
     const std::vector<Triangle>& getTriangles() const {

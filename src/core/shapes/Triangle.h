@@ -29,6 +29,12 @@ public:
     Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, const vec3& emi, std::string name)
     : Shape((v0 + v1 + v2) * (1.0f / 3.0f), name), v0(v0), v1(v1), v2(v2), color(col), emission(emi) {}
 
+    // Special constructor for mesh triangles (doesn't increment ID)
+    Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, const vec3& emi, bool isPartOfMesh)
+    : Shape((v0 + v1 + v2) * (1.0f / 3.0f), false), v0(v0), v1(v1), v2(v2), color(col), emission(emi) {
+        (void)isPartOfMesh; // unused, just for signature differentiation
+    }
+
     // Convert to GPU-friendly struct
     GPUTriangle toGPU() const;
 
