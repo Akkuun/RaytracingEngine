@@ -437,8 +437,8 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	float fy = (float)y_coord / (float)height; /* convert int in range [0 - height] to float in range [0-1] */
 
 	/*create a camera ray */
-	struct Ray camray = createCamRaySimple(x_coord, y_coord, width, height); // KERNEL VERSION OK 
-	//struct Ray camray = createCamRay(x_coord, y_coord, width, height, camera);
+	//struct Ray camray = createCamRaySimple(x_coord, y_coord, width, height); // KERNEL VERSION OK 
+	struct Ray camray = createCamRay(x_coord, y_coord, width, height, camera);
 	// Shapes are now passed from the CPU side via the shapes buffer!
 	// No need to create them here anymore
 
