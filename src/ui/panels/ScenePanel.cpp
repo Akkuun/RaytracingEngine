@@ -1,5 +1,6 @@
 #include "ScenePanel.h"
-#include "../../core/commands/ShapeCommands.h"
+#include "../../core/commands/actionsCommands/AddShapeCommand.h"
+#include "../../core/commands/actionsCommands/DeleteShapeCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -100,7 +101,7 @@ void ScenePanel::setupUI()
     
     mainLayout->addWidget(topToolbar);
 
-    // === SCENE TREE ===
+    // Scene Tree
     sceneTree = new QTreeWidget(this);
     sceneTree->setHeaderHidden(true);
     sceneTree->setIndentation(20);
@@ -124,46 +125,9 @@ void ScenePanel::setupUI()
         "}"
     );
 
-    // Create root items with checkboxes
-    QTreeWidgetItem *environmentRoot = new QTreeWidgetItem(sceneTree);
-    environmentRoot->setText(0, "🌍 Environment");
-    environmentRoot->setFlags(environmentRoot->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsAutoTristate);
-    environmentRoot->setCheckState(0, Qt::Checked);
-    environmentRoot->setExpanded(true);
-
-    QTreeWidgetItem *objectsRoot = new QTreeWidgetItem(sceneTree);
-    objectsRoot->setText(0, "📦 Objects");
-    objectsRoot->setFlags(objectsRoot->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsAutoTristate);
-    objectsRoot->setCheckState(0, Qt::Checked);
-    objectsRoot->setExpanded(true);
-
-    // Environment children
-    QStringList envItems = {"☁️ BG SKY", "🌐 WORLD", "🧱 WALLS", "▭ FLOOR", "💡 LIGHT"};
-    for (const QString &item : envItems)
-    {
-        QTreeWidgetItem *child = new QTreeWidgetItem(environmentRoot);
-        child->setText(0, item);
-        child->setFlags(child->flags() | Qt::ItemIsUserCheckable);
-        child->setCheckState(0, Qt::Checked);
-    }
-
-    // Walls subcategory
-    QTreeWidgetItem *wallsItem = environmentRoot->child(2);
-    wallsItem->setFlags(wallsItem->flags() | Qt::ItemIsAutoTristate);
-    wallsItem->setExpanded(true);
-
-    QStringList wallItems = {"WALL 1", "WALL 2", "WALL BG"};
-    for (const QString &wall : wallItems)
-    {
-        QTreeWidgetItem *wallChild = new QTreeWidgetItem(wallsItem);
-        wallChild->setText(0, wall);
-        wallChild->setFlags(wallChild->flags() | Qt::ItemIsUserCheckable);
-        wallChild->setCheckState(0, Qt::Checked);
-    }
-
     mainLayout->addWidget(sceneTree);
 
-    // === ADD SHAPES TOOLBAR ===
+    // Add Shapes buttons
     QFrame *addShapesFrame = new QFrame(this);
     addShapesFrame->setStyleSheet(
         "QFrame {"
@@ -243,30 +207,19 @@ void ScenePanel::setupUI()
 
 void ScenePanel::onAddSphere()
 {
-    Shape *sphere = new Sphere(0.15f, vec3(0.0f, 0.0f, -1.5f), vec3(0.9f, 0.9f, 0.9f));
+    Shape *sphere = new Sphere(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(sphere));
 }
 
 void ScenePanel::onAddSquare()
 {
-    Shape *square = new Square(
-        vec3(0.0f, 0.0f, -1.5f),    // pos
-        vec3(0.3f, 0.0f, 0.0f),     // u_vec
-        vec3(0.0f, 0.3f, 0.0f),     // v_vec
-        vec3(0.0f, 0.0f, 1.0f),     // normal
-        vec3(0.9f, 0.9f, 0.1f)      // color
-    );
+    Shape *square = new Square(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(square));
 }
 
 void ScenePanel::onAddTriangle()
 {
-    Shape *triangle = new Triangle(
-        vec3(-0.2f, 0.0f, -1.5f),
-        vec3(0.2f, 0.0f, -1.5f),
-        vec3(0.0f, 0.3f, -1.5f),
-        vec3(0.9f, 0.1f, 0.9f)
-    );
+    Shape *triangle = new Triangle(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(triangle));
 }
 
@@ -303,24 +256,18 @@ void ScenePanel::onItemSelectionChanged()
 
 void ScenePanel::updateSceneTree()
 {
-    // Find the Objects root item (second top-level item)
-    QTreeWidgetItem *objectsRoot = sceneTree->topLevelItem(1);
-    if (!objectsRoot) return;
-    
-    // Clear all children from Objects section
-    while (objectsRoot->childCount() > 0) {
-        delete objectsRoot->takeChild(0);
-    }
+    // Clear all items from the tree
+    sceneTree->clear();
     
     // Get shapes from SceneManager
     const std::vector<Shape*>& shapes = SceneManager::getInstance().getShapes();
     
-    // Add each shape to the tree
+    // Add each shape directly to the tree (no hierarchy)
     for (size_t i = 0; i < shapes.size(); ++i) {
         Shape* shape = shapes[i];
         
         // Create item with appropriate icon based on shape type
-        QTreeWidgetItem *shapeItem = new QTreeWidgetItem(objectsRoot);
+        QTreeWidgetItem *shapeItem = new QTreeWidgetItem(sceneTree);
         
         // Determine shape type and create appropriate label
         QString shapeLabel;
@@ -348,9 +295,6 @@ void ScenePanel::updateSceneTree()
         // Store shape pointer as user data for later retrieval
         shapeItem->setData(0, Qt::UserRole, QVariant::fromValue(reinterpret_cast<quintptr>(shape)));
     }
-    
-    // Update Objects count in the root label
-    objectsRoot->setText(0, QString("📦 Objects (%1)").arg(shapes.size()));
 }
 
 void ScenePanel::updateUndoRedoButtons()
