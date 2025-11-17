@@ -1,5 +1,5 @@
 #define SPHERE 1
-#define SQUARE 3
+#define SQUARE 2
 #define TRIANGLE 3
 
 #define EPSILON 0.001f
@@ -130,6 +130,8 @@ float3 get_shape_color(__global const GPUShape* shape)
 		return vec3_to_float3(shape->data.sphere.color);
 	} else if (shape->type == SQUARE) {
 		return vec3_to_float3(shape->data.square.color);
+	} else if (shape->type == TRIANGLE) {
+		return vec3_to_float3(shape->data.triangle.color);
 	}
 	return (float3)(0.0f, 0.0f, 0.0f); /* default color */
 }
@@ -245,6 +247,7 @@ struct Intersection intersect_square(__global const GPUSquare* square, const str
     return result;
 }
 
+
 struct Intersection intersect_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
 {
 	struct Intersection result;
@@ -290,6 +293,8 @@ struct Intersection intersect_shape(__global const GPUShape* shape, const struct
 		return intersect_sphere(&shape->data.sphere, ray, t);
 	} else if (shape->type == SQUARE) {
 		return intersect_square(&shape->data.square, ray, t);
+	} else if (shape->type == TRIANGLE) {
+		return intersect_triangle(&shape->data.triangle, ray, t);
 	}
 	struct Intersection result;
 	result.t = -1.0f; /* default to no intersection */

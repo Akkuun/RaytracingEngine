@@ -109,12 +109,14 @@ CPU Side:
 - GPUSphere:  64 bytes ✓
 - GPUSquare:  96 bytes ✓
 - GPUShape:  112 bytes ✓
+- GPUTriangle:  80 bytes ✓
 
 GPU Side:
 - Vec3:       16 bytes ✓
 - GPUSphere:  64 bytes ✓
 - GPUSquare:  96 bytes ✓
 - GPUShape:  112 bytes ✓
+- GPUTriangle:  80 bytes ?
 ```
 
 ### GPUShape Memory Layout:
