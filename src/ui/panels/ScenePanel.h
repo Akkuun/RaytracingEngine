@@ -19,6 +19,7 @@ private:
     QPushButton *addSphereBtn;
     QPushButton *addSquareBtn;
     QPushButton *addTriangleBtn;
+    QPushButton *addMeshBtn;
 
 public:
     explicit ScenePanel(QWidget *parent = nullptr);
@@ -28,4 +29,5 @@ private slots:
     void onAddSphere();
     void onAddSquare();
     void onAddTriangle();
+    void onAddMesh();
 };

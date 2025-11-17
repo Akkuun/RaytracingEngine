@@ -2,10 +2,12 @@
 #include "SceneTreeWidget.h"
 #include "../../core/commands/actionsCommands/AddShapeCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
+#include "../../core/shapes/Mesh.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QLabel>
+#include <QFileDialog>
 
 ScenePanel::ScenePanel(QWidget *parent) 
     : QWidget(parent)
@@ -88,12 +90,19 @@ void ScenePanel::setupUI()
     addTriangleBtn->setCursor(Qt::PointingHandCursor);
     addShapesLayout->addWidget(addTriangleBtn);
 
+    // Mesh button
+    addMeshBtn = new QPushButton("≡ Mesh", this);
+    addMeshBtn->setStyleSheet(buttonStyle);
+    addMeshBtn->setCursor(Qt::PointingHandCursor);
+    addShapesLayout->addWidget(addMeshBtn);
+
     mainLayout->addWidget(addShapesFrame);
 
     // Connect signals
     connect(addSphereBtn, &QPushButton::clicked, this, &ScenePanel::onAddSphere);
     connect(addSquareBtn, &QPushButton::clicked, this, &ScenePanel::onAddSquare);
     connect(addTriangleBtn, &QPushButton::clicked, this, &ScenePanel::onAddTriangle);
+    connect(addMeshBtn, &QPushButton::clicked, this, &ScenePanel::onAddMesh);
 }
 
 void ScenePanel::onAddSphere()
@@ -112,4 +121,13 @@ void ScenePanel::onAddTriangle()
 {
     Shape *triangle = new Triangle(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(triangle));
+}
+
+void ScenePanel::onAddMesh()
+{
+    // open file dialog to select mesh file (.off only)
+    QString filePath = QFileDialog::getOpenFileName(this, "Select Mesh File", "", "Mesh Files (*.off)");
+    if (!filePath.isEmpty()) {
+        commandManager.executeCommand(new AddShapeCommand(new Mesh(filePath.toStdString())));
+    }
 }
