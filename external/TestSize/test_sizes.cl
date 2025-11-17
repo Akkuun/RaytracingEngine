@@ -35,6 +35,14 @@ typedef struct {
     Vec3 color;
 } GPUSquare;
 
+typedef struct {
+	Vec3 v0;
+	Vec3 v1;
+	Vec3 v2;
+	Vec3 emi;
+	Vec3 color;
+} GPUTriangle;
+
 // Match CPU-side GPUShape exactly
 typedef struct __attribute__((aligned(16))) {
     int type;           // form type(SPHERE=1, PLANE=2, SQUARE=3, etc.)
@@ -56,5 +64,6 @@ __kernel void test_sizes()
         printf("sizeof(GPUSphere): %zu bytes\n", sizeof(GPUSphere));
         printf("sizeof(GPUSquare): %zu bytes\n", sizeof(GPUSquare));
         printf("sizeof(GPUShape): %zu bytes\n", sizeof(GPUShape));
+        printf("sizeof(GPUTriangle): %zu bytes\n", sizeof(GPUTriangle));
     }
 }

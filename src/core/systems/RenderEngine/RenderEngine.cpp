@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include "../../defines/Defines.h"
+#include "../../shapes/Triangle.h"
 
 
 RenderEngine::RenderEngine()
@@ -146,6 +147,11 @@ void RenderEngine::setupShapesBuffer(){
             case SQUARE: {
                 Square* square = static_cast<Square*>(shape);
                 gpu_shape.data.square = square->toGPU();
+                break;
+            }
+            case TRIANGLE: {
+                Triangle* triangle = static_cast<Triangle*>(shape);
+                gpu_shape.data.triangle = triangle->toGPU();
                 break;
             }
             default:
