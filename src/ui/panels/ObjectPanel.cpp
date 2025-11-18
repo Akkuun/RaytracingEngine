@@ -21,6 +21,7 @@
 #include <QMessageBox>
 #include <fstream>
 #include <vector>
+#include "../../core/commands/actionsCommands/MoveShapeCommand.h"
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(-1), commandManager(CommandsManager::getInstance())
 {
     setupUI();
@@ -239,10 +240,45 @@ void ObjectPanel::setupUI()
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");
 
-    // detect when XPosition is changed
+    // Connect position spin boxes changes to execute the correct command (Move command)
     connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
-        //commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, newX, posY->value(), posZ->value()));
+        commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, newX, posY->value(), posZ->value()));
     });
+
+    connect(posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
+        commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), newY, posZ->value()));
+    });
+
+    connect(posZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
+        commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), posY->value(), newZ));
+    });
+
+    // // Connection rotation spin boxes changes
+    // connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
+    //     commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value()));
+    // });
+
+    // connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
+    //     commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value()));
+    // });
+
+    // connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
+    //     commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ));
+    // });
+
+    // // Connection scale spin boxes changes
+    // connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
+    //     commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
+    // });
+
+    // connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
+    //     commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
+    // });
+
+    // connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
+    //     commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
+    // });
+
 }
 
 void ObjectPanel::setRenderWidget(RenderWidget *widget)
@@ -253,7 +289,7 @@ void ObjectPanel::setRenderWidget(RenderWidget *widget)
         connect(widget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
     }
 }
-
+// function to update the current selected shape properties in the panel
 void ObjectPanel::onShapeSelectionChanged(int shapeID)
 {   
     // If no shape is selected (shapeID == -1), do nothing
@@ -274,6 +310,17 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     // Update current selected shape ID
     currentSelectedShapeID = shapeID;
 
+    // Block signals to avoid triggering valueChanged while updating from code
+    posX->blockSignals(true);
+    posY->blockSignals(true);
+    posZ->blockSignals(true);
+    rotX->blockSignals(true);
+    rotY->blockSignals(true);
+    rotZ->blockSignals(true);
+    scaleX->blockSignals(true);
+    scaleY->blockSignals(true);
+    scaleZ->blockSignals(true);
+
     // Set the current selected shape position
     posX->setValue(shape->getPosition().x);
     posY->setValue(shape->getPosition().y);
@@ -288,5 +335,17 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     scaleX->setValue(shape->getScale().x);
     scaleY->setValue(shape->getScale().y);
     scaleZ->setValue(shape->getScale().z);
+
+    // Unblock signals
+    posX->blockSignals(false);
+    posY->blockSignals(false);
+    posZ->blockSignals(false);
+    rotX->blockSignals(false);
+    rotY->blockSignals(false);
+    rotZ->blockSignals(false);
+    scaleX->blockSignals(false);
+    scaleY->blockSignals(false);
+    scaleZ->blockSignals(false);
 }
+
 
