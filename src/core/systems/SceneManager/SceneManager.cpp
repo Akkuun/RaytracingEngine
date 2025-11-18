@@ -123,3 +123,10 @@ Shape* SceneManager::getShapesBuffer() const{
     }
     return shapesArray;
 }
+
+Shape* SceneManager::getShapeByID(const int &shapeID) const {
+    if (shapeID < 0 || static_cast<size_t>(shapeID) >= shapes.size()) {
+        return nullptr; // Invalid ID
+    }
+    return shapes[shapeID];
+}

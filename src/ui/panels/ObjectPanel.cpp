@@ -21,7 +21,7 @@
 #include <QMessageBox>
 #include <fstream>
 #include <vector>
-ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr)
+ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(-1), commandManager(CommandsManager::getInstance())
 {
     setupUI();
 }
@@ -34,9 +34,9 @@ void ObjectPanel::setupUI()
     // Position
     layout->addWidget(new QLabel("POSITION"));
     QHBoxLayout *posLayout = new QHBoxLayout();
-    QDoubleSpinBox *posX = new QDoubleSpinBox();
-    QDoubleSpinBox *posY = new QDoubleSpinBox();
-    QDoubleSpinBox *posZ = new QDoubleSpinBox();
+    posX = new QDoubleSpinBox();
+    posY = new QDoubleSpinBox();
+    posZ = new QDoubleSpinBox();
     posX->setPrefix("X: ");
     posY->setPrefix("Y: ");
     posZ->setPrefix("Z: ");
@@ -54,9 +54,9 @@ void ObjectPanel::setupUI()
     // Rotation
     layout->addWidget(new QLabel("ROTATION"));
     QHBoxLayout *rotLayout = new QHBoxLayout();
-    QDoubleSpinBox *rotX = new QDoubleSpinBox();
-    QDoubleSpinBox *rotY = new QDoubleSpinBox();
-    QDoubleSpinBox *rotZ = new QDoubleSpinBox();
+    rotX = new QDoubleSpinBox();
+    rotY = new QDoubleSpinBox();
+    rotZ = new QDoubleSpinBox();
     rotX->setPrefix("X: ");
     rotY->setPrefix("Y: ");
     rotZ->setPrefix("Z: ");
@@ -74,9 +74,9 @@ void ObjectPanel::setupUI()
     // Scale
     layout->addWidget(new QLabel("SCALE"));
     QHBoxLayout *scaleLayout = new QHBoxLayout();
-    QDoubleSpinBox *scaleX = new QDoubleSpinBox();
-    QDoubleSpinBox *scaleY = new QDoubleSpinBox();
-    QDoubleSpinBox *scaleZ = new QDoubleSpinBox();
+    scaleX = new QDoubleSpinBox();
+    scaleY = new QDoubleSpinBox();
+    scaleZ = new QDoubleSpinBox();
     scaleX->setPrefix("X: ");
     scaleY->setPrefix("Y: ");
     scaleZ->setPrefix("Z: ");
@@ -238,6 +238,11 @@ void ObjectPanel::setupUI()
 
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");
+
+    // detect when XPosition is changed
+    connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
+        //commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, newX, posY->value(), posZ->value()));
+    });
 }
 
 void ObjectPanel::setRenderWidget(RenderWidget *widget)
@@ -247,5 +252,41 @@ void ObjectPanel::setRenderWidget(RenderWidget *widget)
         // send the signal to update the FPS chart
         connect(widget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
     }
+}
+
+void ObjectPanel::onShapeSelectionChanged(int shapeID)
+{   
+    // If no shape is selected (shapeID == -1), do nothing
+    if (shapeID == -1)
+    {
+        return;
+    }
+    
+    // Get the shape from SceneManager
+    Shape* shape = SceneManager::getInstance().getShapeByID(shapeID);
+    
+    // Check if the shape still exists (it might have been deleted)
+    if (shape == nullptr)
+    {
+        return;
+    }
+    
+    // Update current selected shape ID
+    currentSelectedShapeID = shapeID;
+
+    // Set the current selected shape position
+    posX->setValue(shape->getPosition().x);
+    posY->setValue(shape->getPosition().y);
+    posZ->setValue(shape->getPosition().z);
+    
+    // Set the current selected shape rotation
+    rotX->setValue(shape->getRotation().x);
+    rotY->setValue(shape->getRotation().y);
+    rotZ->setValue(shape->getRotation().z);
+    
+    // Set the current selected shape scale
+    scaleX->setValue(shape->getScale().x);
+    scaleY->setValue(shape->getScale().y);
+    scaleZ->setValue(shape->getScale().z);
 }
 

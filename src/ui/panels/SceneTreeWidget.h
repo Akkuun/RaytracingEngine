@@ -22,6 +22,8 @@ public:
     void updateSceneTree();
     void updateUndoRedoButtons();
 
+signals:
+    void shapeSelectionChanged(int shapeID);    
 private slots:
     void onUndo();
     void onRedo();

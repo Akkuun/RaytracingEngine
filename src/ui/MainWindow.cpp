@@ -84,9 +84,10 @@ void MainWindow::setupLeftPanel()
     leftLayout->setSpacing(5);
 
     // Scene Panel
-    CollapsiblePanel *scenePanel = new CollapsiblePanel("▼ SCENE");
-    scenePanel->setContent(new ScenePanel());
-    leftLayout->addWidget(scenePanel);
+    CollapsiblePanel *scenePanelCollapsible = new CollapsiblePanel("▼ SCENE");
+    ScenePanel *scenePanel = new ScenePanel();
+    scenePanelCollapsible->setContent(scenePanel);
+    leftLayout->addWidget(scenePanelCollapsible);
 
     // Object Panel
     CollapsiblePanel *objectPanelCollapsible = new CollapsiblePanel("▼ OBJECT");
@@ -96,6 +97,10 @@ void MainWindow::setupLeftPanel()
     
     // Connect ObjectPanel to RenderWidget for FPS updates
     objectPanel->setRenderWidget(renderWidget);
+    
+    // Connect ScenePanel shape selection to ObjectPanel
+    connect(scenePanel, &ScenePanel::shapeSelectionChanged,
+            objectPanel, &ObjectPanel::onShapeSelectionChanged);
 
     leftLayout->addStretch();
 

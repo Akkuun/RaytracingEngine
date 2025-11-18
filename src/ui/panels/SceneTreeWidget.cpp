@@ -154,6 +154,7 @@ void SceneTreeWidget::onDelete()
 void SceneTreeWidget::onItemSelectionChanged()
 {
     deleteBtn->setEnabled(sceneTree->currentItem() != nullptr);
+    emit shapeSelectionChanged(getSelectedShapeID());
 }
 
 void SceneTreeWidget::updateSceneTree()

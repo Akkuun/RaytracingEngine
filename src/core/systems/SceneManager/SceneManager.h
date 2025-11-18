@@ -24,6 +24,7 @@ public:
     
     inline size_t getNumShapes() const { return shapes.size(); }
     Shape* getShapesBuffer() const; // Returns a buffer suitable for GPU consumption
+    Shape* getShapeByID(const int &shapeID) const;
 
 private:
     SceneManager(); // Private constructor
