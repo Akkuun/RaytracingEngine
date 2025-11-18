@@ -1,8 +1,20 @@
 #include "Square.h"
+#include "../math/transformUtils.h"
 
 GPUSquare Square::toGPU() const
 {
     GPUSquare gpuSquare;
+
+    // rotation deg to rad
+    vec3 rotationRad = TransformUtils::degToRad(rotation);
+
+    // apply rotation and scale to U and V
+    vec3 transformedU = TransformUtils::applyRotationAndScale(u_vec, rotationRad, scale);
+    vec3 transformedV = TransformUtils::applyRotationAndScale(v_vec, rotationRad, scale);
+    
+    // Transform the normal: for normals, we need to apply only rotation 
+    vec3 transformedNormal = TransformUtils::applyRotation(normal, rotationRad);
+    transformedNormal.normalize();
     
     // Position
     gpuSquare.pos.x = static_cast<float>(position.x);
@@ -11,21 +23,21 @@ GPUSquare Square::toGPU() const
     gpuSquare.pos._padding = 0.0f;
     
     // U vector
-    gpuSquare.u_vec.x = static_cast<float>(u_vec.x);
-    gpuSquare.u_vec.y = static_cast<float>(u_vec.y);
-    gpuSquare.u_vec.z = static_cast<float>(u_vec.z);
+    gpuSquare.u_vec.x = static_cast<float>(transformedU.x);
+    gpuSquare.u_vec.y = static_cast<float>(transformedU.y);
+    gpuSquare.u_vec.z = static_cast<float>(transformedU.z);
     gpuSquare.u_vec._padding = 0.0f;
     
     // V vector
-    gpuSquare.v_vec.x = static_cast<float>(v_vec.x);
-    gpuSquare.v_vec.y = static_cast<float>(v_vec.y);
-    gpuSquare.v_vec.z = static_cast<float>(v_vec.z);
+    gpuSquare.v_vec.x = static_cast<float>(transformedV.x);
+    gpuSquare.v_vec.y = static_cast<float>(transformedV.y);
+    gpuSquare.v_vec.z = static_cast<float>(transformedV.z);
     gpuSquare.v_vec._padding = 0.0f;
     
     // Normal
-    gpuSquare.normal.x = static_cast<float>(normal.x);
-    gpuSquare.normal.y = static_cast<float>(normal.y);
-    gpuSquare.normal.z = static_cast<float>(normal.z);
+    gpuSquare.normal.x = static_cast<float>(transformedNormal.x);
+    gpuSquare.normal.y = static_cast<float>(transformedNormal.y);
+    gpuSquare.normal.z = static_cast<float>(transformedNormal.z);
     gpuSquare.normal._padding = 0.0f;
     
     // Emission
