@@ -205,17 +205,7 @@ void SceneTreeWidget::updateUndoRedoButtons()
 
 void SceneTreeWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Z) {
-        if (commandManager.canUndo()) {
-            commandManager.undo();
-        }
-    }
-    else if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier) && event->key() == Qt::Key_Z) {
-        if (commandManager.canRedo()) {
-            commandManager.redo();
-        }
-    }
-    else if (event->key() == Qt::Key_Delete) {
+    if (event->key() == Qt::Key_Delete) {
         onDelete();
     }
     else {

@@ -11,6 +11,7 @@
 #include <QShortcut>
 #include "../core/systems/DeviceManager/DeviceManager.h"
 #include "../core/systems/KernelManager/KernelManager.h"
+#include "../core/commands/CommandsManager.h"
 
 class RenderWidget;
 class ObjectPanel;
@@ -30,6 +31,8 @@ private slots:
     void toggleLeftPanel();
     void toggleRightPanel();
     void toggleBothPanels();
+    void onUndo();
+    void onRedo();
 
 private:
     void setupUI();
@@ -65,12 +68,17 @@ private:
     
     // Shortcuts
     QShortcut *togglePanelsShortcut;
+    QShortcut *undoShortcut;
+    QShortcut *redoShortcut;
 
     // OpenCL Device Manager
     DeviceManager* deviceManager;
 
     // Kernel Manager
     KernelManager* kernelManager;
+    
+    // Commands Manager
+    CommandsManager& commandManager;
 
     bool leftPanelVisible;
     bool rightPanelVisible;

@@ -11,7 +11,10 @@
 #include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), leftPanelVisible(true), rightPanelVisible(true)
+    : QMainWindow(parent), 
+      commandManager(CommandsManager::getInstance()),
+      leftPanelVisible(true), 
+      rightPanelVisible(true)
 {
     // Initialize animations
     leftPanelAnimation = new QPropertyAnimation(this);
@@ -25,9 +28,16 @@ MainWindow::MainWindow(QWidget *parent)
     kernelManager = &KernelManager::getInstance();
     setupUI();
     
-    // Setup keyboard shortcut to toggle both panels with F key
+    // Setup keyboard shortcuts
     togglePanelsShortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     connect(togglePanelsShortcut, &QShortcut::activated, this, &MainWindow::toggleBothPanels);
+    
+    // Setup Undo/Redo shortcuts
+    undoShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z), this);
+    connect(undoShortcut, &QShortcut::activated, this, &MainWindow::onUndo);
+    
+    redoShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z), this);
+    connect(redoShortcut, &QShortcut::activated, this, &MainWindow::onRedo);
 }
 
 MainWindow::~MainWindow() {}
@@ -352,5 +362,19 @@ void MainWindow::toggleBothPanels()
         rightPanelVisible = true;
         rightToggleBtn->setText("▶");
         animateRightPanel(true);
+    }
+}
+
+void MainWindow::onUndo()
+{
+    if (commandManager.canUndo()) {
+        commandManager.undo();
+    }
+}
+
+void MainWindow::onRedo()
+{
+    if (commandManager.canRedo()) {
+        commandManager.redo();
     }
 }
