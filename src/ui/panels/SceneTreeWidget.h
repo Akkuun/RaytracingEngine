@@ -22,11 +22,15 @@ public:
     void updateSceneTree();
     void updateUndoRedoButtons();
 
+signals:
+    void shapeSelectionChanged(int shapeID);    
 private slots:
     void onUndo();
     void onRedo();
     void onDelete();
     void onItemSelectionChanged();
+
+    int getSelectedShapeID() const;
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

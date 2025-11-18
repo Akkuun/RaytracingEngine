@@ -1,10 +1,16 @@
 #include "Sphere.h"
+#include "../math/transformUtils.h"
+#include <algorithm>
 
 GPUSphere Sphere::toGPU() const
 {
     GPUSphere gpuSphere;
-    // radius (first float in the struct)
-    gpuSphere.radius = radius;
+    
+    // use the maximum scale component to scale the radius (uniform scaling)
+    float maxScale = std::max(std::max(scale.x, scale.y), scale.z);
+    float scaledRadius = radius * maxScale;
+    
+    gpuSphere.radius = scaledRadius;
     // padding is automatically zero-initialized
     gpuSphere._padding1[0] = 0.0f;
     gpuSphere._padding1[1] = 0.0f;

@@ -64,7 +64,7 @@ private:
 
 public:
     Mesh() : Shape() {}
-    Mesh(const std::string& filename) : Shape() {
+    Mesh(const std::string& filename) : Shape(extractFilename(filename) + " " + std::to_string(nextID)) {
         loadOFF(filename);
         recomputeNormals();
         setPosition(vec3(0.0f));
@@ -72,6 +72,21 @@ public:
         generateCpuTriangles();
     }
     ShapeType getType() const override { return ShapeType::MESH; }
+    
+    // Extract filename from path (removes path and extension)
+    static std::string extractFilename(const std::string& filepath) {
+        // Find last '/' or '\' (for cross-platform compatibility)
+        size_t lastSlash = filepath.find_last_of("/\\");
+        std::string filename = (lastSlash == std::string::npos) ? filepath : filepath.substr(lastSlash + 1);
+        
+        // Remove extension (.off, .obj, etc.)
+        size_t lastDot = filename.find_last_of('.');
+        if (lastDot != std::string::npos) {
+            filename = filename.substr(0, lastDot);
+        }
+        
+        return filename;
+    }
     void loadOFF(const std::string& filename);
     void recomputeNormals();
     void generateCpuTriangles() {
@@ -80,7 +95,8 @@ public:
             const vec3& v0 = vertices[tri.v[0]].position;
             const vec3& v1 = vertices[tri.v[1]].position;
             const vec3& v2 = vertices[tri.v[2]].position;
-            cpuTriangles.emplace_back(v0, v1, v2, vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)), emission);
+            // don´t increment ID for mesh triangles
+            cpuTriangles.emplace_back(v0, v1, v2, vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)), emission, true);
         }
     }
     const std::vector<Triangle>& getTriangles() const {

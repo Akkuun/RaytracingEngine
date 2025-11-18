@@ -9,7 +9,8 @@ class Triangle : public Shape
 public:
     // Default constructor with default values (upward-pointing triangle)
     Triangle()
-        : Shape(vec3(0.0f, 0.0f, -1.5f)),
+        : Shape(vec3(0.0f, 0.0f, -1.5f),
+          std::string("Triangle " + std::to_string(nextID))),
           v0(-0.2f, -0.15f, -1.5f),
           v1(0.2f, -0.15f, -1.5f),
           v2(0.0f, 0.15f, -1.5f),
@@ -17,10 +18,22 @@ public:
           emission(0.0f, 0.0f, 0.0f) {}
     
     Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col)
-        : Shape((v0 + v1 + v2) * (1.0f / 3.0f)), v0(v0), v1(v1), v2(v2), color(col), emission(0.0f, 0.0f, 0.0f) {}
+        : Shape((v0 + v1 + v2) * (1.0f / 3.0f), "Triangle " + std::to_string(nextID)), v0(v0), v1(v1), v2(v2), color(col), emission(0.0f, 0.0f, 0.0f) {}
+
+    Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, std::string name)
+    : Shape((v0 + v1 + v2) * (1.0f / 3.0f), name), v0(v0), v1(v1), v2(v2), color(col), emission(0.0f, 0.0f, 0.0f) {}
 
     Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, const vec3& emi)
         : Shape((v0 + v1 + v2) * (1.0f / 3.0f)), v0(v0), v1(v1), v2(v2), color(col), emission(emi) {}
+
+    Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, const vec3& emi, std::string name)
+    : Shape((v0 + v1 + v2) * (1.0f / 3.0f), name), v0(v0), v1(v1), v2(v2), color(col), emission(emi) {}
+
+    // Special constructor for mesh triangles (doesn't increment ID)
+    Triangle(const vec3& v0, const vec3& v1, const vec3& v2, const vec3& col, const vec3& emi, bool isPartOfMesh)
+    : Shape((v0 + v1 + v2) * (1.0f / 3.0f), false), v0(v0), v1(v1), v2(v2), color(col), emission(emi) {
+        (void)isPartOfMesh; // unused, just for signature differentiation
+    }
 
     // Convert to GPU-friendly struct
     GPUTriangle toGPU() const;

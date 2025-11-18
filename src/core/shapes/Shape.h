@@ -13,12 +13,22 @@ public:
     inline const vec3& getScale() const { return scale; }
     inline const vec3& getRotation() const { return rotation; }
     inline int getID() const { return id; }
+    inline const std::string& getName() const { return shapeName; }
+
     // Setters
     inline void setPosition(const vec3& pos) { position = pos; }
     inline void setScale(const vec3& s) { scale = s; }
     inline void setRotation(const vec3& rot) { rotation = rot; }
-    Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++) {}
-    Shape(const vec3& pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++) {}
+    
+    Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)) {}
+    Shape(const vec3& pos, const std::string& name) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name) {}
+    Shape(const vec3& pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)) {}
+    Shape(std::string name) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name) {}
+    
+    // Don't increment ID when we add triangles that are part of a mesh
+    Shape(const vec3& pos, bool incrementID) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(-1), shapeName("") {
+        (void)incrementID; // unused, just for signature differentiation
+    }
 
     std::string toString() const {
         return "Position: (" + std::to_string(position.x) + ", " + std::to_string(position.y) + ", " + std::to_string(position.z) + ")\n" +
@@ -33,4 +43,5 @@ protected:
     vec3 rotation; // Rotation of the shape (Euler angles)
     int id;        // Unique identifier for the shape
     inline static int nextID = 0; // Header definition to allow a static variable trackable across all Shape instances
+    std::string shapeName;
 };

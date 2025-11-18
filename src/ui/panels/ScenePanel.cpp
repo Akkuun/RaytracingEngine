@@ -103,6 +103,10 @@ void ScenePanel::setupUI()
     connect(addSquareBtn, &QPushButton::clicked, this, &ScenePanel::onAddSquare);
     connect(addTriangleBtn, &QPushButton::clicked, this, &ScenePanel::onAddTriangle);
     connect(addMeshBtn, &QPushButton::clicked, this, &ScenePanel::onAddMesh);
+    
+    // Forward the shape selection signal from SceneTreeWidget
+    connect(sceneTreeWidget, &SceneTreeWidget::shapeSelectionChanged, 
+            this, &ScenePanel::shapeSelectionChanged);
 }
 
 void ScenePanel::onAddSphere()

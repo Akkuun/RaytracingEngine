@@ -41,27 +41,29 @@ void SceneManager::buildScene() {
     clearShapes();
     
     // Sphere 1 - white sphere
-    addShape(new Sphere(0.15f, vec3(0.25f, -0.2f, -1.25f), vec3(0.9f, 0.9f, 0.9f)));
-    
+    addShape(new Sphere(0.15f, vec3(0.25f, -0.2f, -1.25f), vec3(0.9f, 0.9f, 0.9f),"Boule 1"));
+
     // Sphere 2 - white sphere
-    addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -2.25f), vec3(0.95f, 0.95f, 0.95f)));
-    
+    addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -2.25f), vec3(0.95f, 0.95f, 0.95f), "Boule 2"));
+
     // Floor - white
     addShape(new Square(
         vec3(0.0f, -0.5f, 0.0f),        // pos
         vec3(1.5f, 0.0f, 0.0f),          // u_vec
         vec3(0.0f, 0.0f, -80.0f),        // v_vec
         vec3(0.0f, 1.0f, 0.0f),          // normal
-        vec3(0.9f, 0.9f, 0.9f)           // color
+        vec3(0.9f, 0.9f, 0.9f),          // color
+        "Floor"                          // name
     ));
     
-    // Ceiling - white
+    // Ceiling - white (no name)
     addShape(new Square(
         vec3(0.0f, 0.35f, 3.0f),         // pos
         vec3(1.5f, 0.0f, 0.0f),          // u_vec
         vec3(0.0f, 0.0f, -80.0f),        // v_vec
         vec3(0.0f, -1.0f, 0.0f),         // normal
-        vec3(0.9f, 0.9f, 0.9f)           // color
+        vec3(0.9f, 0.9f, 0.9f),          // color
+        "Ceiling"                        // name
     ));
     
     // Left wall - red
@@ -70,25 +72,28 @@ void SceneManager::buildScene() {
         vec3(0.0f, 1.5f, 0.0f),          // u_vec
         vec3(0.0f, 0.0f, -80.0f),        // v_vec
         vec3(1.0f, 0.0f, 0.0f),          // normal
-        vec3(0.9f, 0.1f, 0.1f)           // color - red
+        vec3(0.9f, 0.1f, 0.1f),          // color - red
+        "Left Wall"                     // name
     ));
-    
+
     // Right wall - green
     addShape(new Square(
         vec3(0.75f, 0.0f, 0.0f),         // pos
         vec3(0.0f, 1.5f, 0.0f),          // u_vec
         vec3(0.0f, 0.0f, -80.0f),        // v_vec
         vec3(-1.0f, 0.0f, 0.0f),         // normal
-        vec3(0.1f, 0.9f, 0.1f)           // color - green
+        vec3(0.1f, 0.9f, 0.1f),          // color - green
+       "Right Wall"                     // name
     ));
-    
+
     // Back wall - white
     addShape(new Square(
         vec3(0.0f, 0.0f, -60.0f),        // pos
         vec3(5.0f, 0.0f, 0.0f),          // u_vec
         vec3(0.0f, 1.5f, 0.0f),          // v_vec
         vec3(0.0f, 0.0f, 1.0f),          // normal
-        vec3(0.9f, 0.9f, 0.9f)           // color
+        vec3(0.9f, 0.9f, 0.9f),          // color
+       "Back Wall"                     // name
     ));
 
     // Triangle - blue
@@ -96,7 +101,8 @@ void SceneManager::buildScene() {
         vec3(-0.4f, 0.0f, -1.5f),        // vertex A
         vec3(0.2f, 0.0f, 1.0f),         // vertex B
         vec3(0.0f, 0.3f, 0.0f),         // vertex C
-        vec3(0.9f, 0.9f, 0.1f)           // color - yellow
+        vec3(0.9f, 0.9f, 0.1f),         // color - yellow
+        "Triangle"                     // name
     ));
 
     Mesh* mesh = new Mesh("../assets/tripod.off");
@@ -116,4 +122,11 @@ Shape* SceneManager::getShapesBuffer() const{
         shapesArray[i] = *(shapes[i]);
     }
     return shapesArray;
+}
+
+Shape* SceneManager::getShapeByID(const int &shapeID) const {
+    if (shapeID < 0 || static_cast<size_t>(shapeID) >= shapes.size()) {
+        return nullptr; // Invalid ID
+    }
+    return shapes[shapeID];
 }

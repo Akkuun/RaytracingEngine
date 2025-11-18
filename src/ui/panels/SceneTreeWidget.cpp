@@ -154,6 +154,7 @@ void SceneTreeWidget::onDelete()
 void SceneTreeWidget::onItemSelectionChanged()
 {
     deleteBtn->setEnabled(sceneTree->currentItem() != nullptr);
+    emit shapeSelectionChanged(getSelectedShapeID());
 }
 
 void SceneTreeWidget::updateSceneTree()
@@ -172,24 +173,8 @@ void SceneTreeWidget::updateSceneTree()
         QTreeWidgetItem *shapeItem = new QTreeWidgetItem(sceneTree);
         
         // Determine shape type and create appropriate label
-        QString shapeLabel;
-        ShapeType type = shape->getType();
-        
-        switch (type) {
-            case ShapeType::SPHERE:
-                shapeLabel = QString("● Sphere #%1").arg(shape->getID());
-                break;
-            case ShapeType::SQUARE:
-                shapeLabel = QString("■ Square #%1").arg(shape->getID());
-                break;
-            case ShapeType::TRIANGLE:
-                shapeLabel = QString("▲ Triangle #%1").arg(shape->getID());
-                break;
-            default: // it's a mesh that contains triangles
-                shapeLabel = QString("Mesh #%1").arg(shape->getID());
-                break;
-        }
-        
+        QString shapeLabel = QString(shape->getName().c_str()); // get the name of the shape
+
         shapeItem->setText(0, shapeLabel);
         shapeItem->setFlags(shapeItem->flags() | Qt::ItemIsUserCheckable);
         shapeItem->setCheckState(0, Qt::Checked);
@@ -220,20 +205,25 @@ void SceneTreeWidget::updateUndoRedoButtons()
 
 void SceneTreeWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Z) {
-        if (commandManager.canUndo()) {
-            commandManager.undo();
-        }
-    }
-    else if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier) && event->key() == Qt::Key_Z) {
-        if (commandManager.canRedo()) {
-            commandManager.redo();
-        }
-    }
-    else if (event->key() == Qt::Key_Delete) {
+    if (event->key() == Qt::Key_Delete) {
         onDelete();
     }
     else {
         QWidget::keyPressEvent(event);
     }
+}
+
+int SceneTreeWidget::getSelectedShapeID() const
+{
+    QTreeWidgetItem *selected = sceneTree->currentItem();
+    if (!selected) return -1;
+
+    QVariant shapeData = selected->data(0, Qt::UserRole);
+    if (!shapeData.isValid()) return -1;
+
+    Shape* shape = reinterpret_cast<Shape*>(shapeData.value<quintptr>());
+    if (shape) {
+        return shape->getID();
+    }
+    return -1;
 }

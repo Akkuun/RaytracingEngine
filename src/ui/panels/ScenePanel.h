@@ -11,6 +11,9 @@ class ScenePanel : public QWidget
 {
     Q_OBJECT
 
+signals:
+    void shapeSelectionChanged(int shapeID);
+
 private:
     SceneTreeWidget *sceneTreeWidget;
     CommandsManager &commandManager;
@@ -24,6 +27,7 @@ private:
 public:
     explicit ScenePanel(QWidget *parent = nullptr);
     void setupUI();
+    SceneTreeWidget* getSceneTreeWidget() const { return sceneTreeWidget; }
 
 private slots:
     void onAddSphere();
