@@ -22,6 +22,8 @@
 #include <fstream>
 #include <vector>
 #include "../../core/commands/actionsCommands/MoveShapeCommand.h"
+#include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
+#include "../../core/commands/actionsCommands/RotateShapeCommand.h"
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(-1), commandManager(CommandsManager::getInstance())
 {
     setupUI();
@@ -44,6 +46,9 @@ void ObjectPanel::setupUI()
     posX->setRange(-1000, 1000);
     posY->setRange(-1000, 1000);
     posZ->setRange(-1000, 1000);
+    posX->setSingleStep(0.1);
+    posY->setSingleStep(0.1);
+    posZ->setSingleStep(0.1);
     posX->setMaximumWidth(90);
     posY->setMaximumWidth(90);
     posZ->setMaximumWidth(90);
@@ -64,6 +69,9 @@ void ObjectPanel::setupUI()
     rotX->setRange(-360, 360);
     rotY->setRange(-360, 360);
     rotZ->setRange(-360, 360);
+    rotX->setSingleStep(0.1);
+    rotY->setSingleStep(0.1);
+    rotZ->setSingleStep(0.1);
     rotX->setMaximumWidth(90);
     rotY->setMaximumWidth(90);
     rotZ->setMaximumWidth(90);
@@ -84,6 +92,9 @@ void ObjectPanel::setupUI()
     scaleX->setRange(0.01, 100);
     scaleY->setRange(0.01, 100);
     scaleZ->setRange(0.01, 100);
+    scaleX->setSingleStep(0.1);
+    scaleY->setSingleStep(0.1);
+    scaleZ->setSingleStep(0.1);
     scaleX->setValue(1);
     scaleY->setValue(1);
     scaleZ->setValue(1);
@@ -253,31 +264,31 @@ void ObjectPanel::setupUI()
         commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), posY->value(), newZ));
     });
 
-    // // Connection rotation spin boxes changes
-    // connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
-    //     commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value()));
-    // });
+    // Connection rotation spin boxes changes
+    connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
+        commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value()));
+    });
 
-    // connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
-    //     commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value()));
-    // });
+    connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
+        commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value()));
+    });
 
-    // connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
-    //     commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ));
-    // });
+    connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
+        commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ));
+    });
 
-    // // Connection scale spin boxes changes
-    // connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
-    //     commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
-    // });
+    // Connection scale spin boxes changes
+    connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
+        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
+    });
 
-    // connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
-    //     commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
-    // });
+    connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
+        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
+    });
 
-    // connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
-    //     commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
-    // });
+    connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
+        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
+    });
 
 }
 
