@@ -85,6 +85,7 @@ target_include_directories(raytrace PRIVATE
     ${OpenCL_INCLUDE_DIRS}
     ${OpenCL_HPP_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/external/OpenCL-CLHPP/include
+    ${CMAKE_SOURCE_DIR}/external/glm-0.9.7.1
 )
 
 # Link
