@@ -20,6 +20,10 @@ typedef struct {
 class Camera
 {
 public:
+    static Camera& getInstance() {
+        static Camera instance;
+        return instance;
+    }
     Camera();
     ~Camera();
 
@@ -28,12 +32,35 @@ public:
     inline vec3 getTarget() const { return target; }
     inline vec3 getUp() const { return up; }
     inline float getFOV() const { return fov; }
+    inline vec3 getRotation() const {
+        vec3 dir = target - origin;
+        dir.normalize();
+        float pitch = asinf(dir.y) * (180.0f / 3.14159265f);
+        float yaw = atan2f(dir.z, dir.x) * (180.0f / 3.14159265f);
+        return vec3(pitch, yaw, 0.0f);
+    }
+    inline vec3 getPosition() const { return origin; }
 
     // setters
     inline void setOrigin(const vec3 &o) { origin = o; }
     inline void setTarget(const vec3 &t) { target = t; }
     inline void setUp(const vec3 &u) { up = u; }
     inline void setFOV(float f) { fov = f; }
+    inline void setPosition(const vec3 &pos) {
+        vec3 dir = target - origin;
+        target = pos + dir;
+        origin = pos;
+    }
+    inline void setRotation(const vec3 &rot) {
+        float pitch = rot.x * (3.14159265f / 180.0f);
+        float yaw = rot.y * (3.14159265f / 180.0f);
+        vec3 dir;
+        dir.x = cosf(pitch) * cosf(yaw);
+        dir.y = sinf(pitch);
+        dir.z = cosf(pitch) * sinf(yaw);
+        dir.normalize();
+        target = origin + dir;
+    }
     
     // Utility methods
     vec3 getForward() const { 

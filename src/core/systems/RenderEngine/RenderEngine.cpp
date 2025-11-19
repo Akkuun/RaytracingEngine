@@ -10,7 +10,6 @@ RenderEngine::RenderEngine()
 {
     kernelManager = &KernelManager::getInstance();
     deviceManager = DeviceManager::getInstance();
-    sceneCamera = Camera();
 }
 
 void RenderEngine::setupBuffers(int width, int height)
@@ -65,7 +64,7 @@ void RenderEngine::render(int width, int height)
         cl::CommandQueue queue = deviceManager->getCommandQueue(); 
 
         // Get camera parameters and create GPU buffer (for testing)
-        GPUCamera gpu_camera = sceneCamera.toGPU();
+        GPUCamera gpu_camera = Camera::getInstance().toGPU();
         cl::Context context = deviceManager->getContext();
         cameraBuffer = cl::Buffer(context, 
                                   CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -118,7 +117,6 @@ void RenderEngine::render(int width, int height)
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Exception: " << e.what() << std::endl;
     }
     catch (...)
     {

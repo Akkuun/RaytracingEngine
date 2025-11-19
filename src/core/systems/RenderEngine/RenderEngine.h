@@ -43,7 +43,6 @@ private:
 
     Camera sceneCamera;
 
-    
     void setupBuffers(int width, int height);
     void setupShapesBuffer();
 };
