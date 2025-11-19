@@ -2,19 +2,20 @@
 #include "../ICommand.h"
 #include "../../systems/SceneManager/SceneManager.h"
 #include "../../camera/Camera.h"
+#include <glm/glm.hpp>
 
 class CameraRotationCommand : public ICommand {
 private:
     Camera& camera;
-    vec3 previousRotation;
-    vec3 newRotation;
+    glm::vec3 previousRotation;
+    glm::vec3 newRotation;
     int commandID;
     inline static int nextCommandID = 0;
 public:
     CameraRotationCommand(Camera& cam, float newX, float newY, float newZ)
         : camera(cam), commandID(nextCommandID++) {
-        previousRotation = camera.getRotation();
-        newRotation = vec3(newX, newY, newZ);
+        previousRotation = camera.getRotationEuler();
+        newRotation = glm::vec3(newX, newY, newZ);
     }
     void execute() override {
         camera.setRotation(newRotation);

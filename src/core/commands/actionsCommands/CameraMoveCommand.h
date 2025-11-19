@@ -2,19 +2,20 @@
 #include "../ICommand.h"
 #include "../../systems/SceneManager/SceneManager.h"
 #include "../../camera/Camera.h"
+#include <glm/glm.hpp>
 
 class CameraMoveCommand : public ICommand {
 private:
     Camera& camera;
-    vec3 previousPosition;
-    vec3 newPosition;
+    glm::vec3 previousPosition;
+    glm::vec3 newPosition;
     int commandID;
     inline static int nextCommandID = 0;
 public:
     CameraMoveCommand(Camera& cam, float newX, float newY, float newZ)
         : camera(cam), commandID(nextCommandID++) {
         previousPosition = camera.getPosition();
-        newPosition = vec3(newX, newY, newZ);
+        newPosition = glm::vec3(newX, newY, newZ);
     }
     void execute() override {
         camera.setPosition(newPosition);

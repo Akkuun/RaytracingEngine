@@ -15,7 +15,14 @@ signals:
     void fpsUpdated(int fps);
 
 protected:
-    void paintEvent( QPaintEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
 
 private slots:
     void scheduleNextFrame();
@@ -35,4 +42,8 @@ private:
     int frameCount;
     bool isRendering;
     
+    // Mouse tracking for camera
+    QPoint lastMousePos;
+    bool mousePressed;
+    float deltaTime;
 };

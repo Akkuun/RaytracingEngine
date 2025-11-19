@@ -1,10 +1,16 @@
 #include "RenderWidget.h"
 #include "../core/commands/CommandsManager.h"
+#include "../core/camera/Camera.h"
 #include <QPainter>
 #include <QTimer>
 #include <QDebug>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QWheelEvent>
 #include <fstream>
-RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false)
+
+RenderWidget::RenderWidget(QWidget *parent) 
+    : QWidget(parent), isRendering(false), mousePressed(false), deltaTime(0.016f)
 {
     renderEngine = new RenderEngine();
 
@@ -14,8 +20,13 @@ RenderWidget::RenderWidget(QWidget *parent) : QWidget(parent), isRendering(false
         renderEngine->notifySceneChanged();
     });
 
+    // Enable mouse tracking for camera control
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
+
     // Continuous rendering - render as fast as possible
     fpsTimer.start();
+    elapsedTimer.start();
     frameCount = 0;
     
     // Start the rendering loop
@@ -27,6 +38,14 @@ void RenderWidget::scheduleNextFrame()
     if (!isRendering)
     {
         isRendering = true;
+        
+        // Calculate delta time
+        deltaTime = elapsedTimer.elapsed() / 1000.0f;
+        elapsedTimer.restart();
+        
+        // Update camera with delta time
+        Camera::getInstance().update(deltaTime);
+        
         renderFrame();
         isRendering = false;
         
@@ -101,4 +120,73 @@ void RenderWidget::updateFPS()
         frameCount = 0;
         fpsTimer.restart();
     }
+}
+
+void RenderWidget::keyPressEvent(QKeyEvent *event)
+{
+    Camera::getInstance().handleKeyPress(event->key(), true);
+    QWidget::keyPressEvent(event);
+}
+
+void RenderWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    Camera::getInstance().handleKeyPress(event->key(), false);
+    QWidget::keyReleaseEvent(event);
+}
+
+void RenderWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (mousePressed || Camera::getInstance().isFPS())
+    {
+        QPoint currentPos = event->pos();
+        if (!lastMousePos.isNull())
+        {
+            float deltaX = currentPos.x() - lastMousePos.x();
+            float deltaY = currentPos.y() - lastMousePos.y();
+            Camera::getInstance().handleMouseMove(deltaX, deltaY);
+        }
+        lastMousePos = currentPos;
+        
+        // Keep mouse centered in FPS mode for continuous rotation
+        if (Camera::getInstance().isFPS())
+        {
+            QPoint center(width / 2, height / 2);
+            if ((currentPos - center).manhattanLength() > 100)
+            {
+                cursor().setPos(mapToGlobal(center));
+                lastMousePos = center;
+            }
+        }
+    }
+    QWidget::mouseMoveEvent(event);
+}
+
+void RenderWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        mousePressed = true;
+        lastMousePos = event->pos();
+        setCursor(Qt::BlankCursor);
+    }
+    QWidget::mousePressEvent(event);
+}
+
+void RenderWidget::wheelEvent(QWheelEvent *event)
+{
+    float delta = event->angleDelta().y() / 120.0f; // Standard wheel delta
+    Camera::getInstance().handleMouseScroll(delta);
+    QWidget::wheelEvent(event);
+}
+
+void RenderWidget::focusInEvent(QFocusEvent *event)
+{
+    QWidget::focusInEvent(event);
+}
+
+void RenderWidget::focusOutEvent(QFocusEvent *event)
+{
+    mousePressed = false;
+    setCursor(Qt::ArrowCursor);
+    QWidget::focusOutEvent(event);
 }
