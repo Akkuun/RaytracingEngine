@@ -68,11 +68,11 @@ void CameraPanel::setupUI()
     QDoubleSpinBox *rotY = new QDoubleSpinBox();
     QDoubleSpinBox *rotZ = new QDoubleSpinBox();
     rotX->setPrefix("X: ");
-    rotX->setSingleStep(0.1);
+    rotX->setSingleStep(1.0);
     rotY->setPrefix("Y: ");
-    rotY->setSingleStep(0.1);
+    rotY->setSingleStep(1.0);
     rotZ->setPrefix("Z: ");
-    rotZ->setSingleStep(0.1);
+    rotZ->setSingleStep(1.0);
     rotX->setRange(-360, 360);
     rotY->setRange(-360, 360);
     rotZ->setRange(-360, 360);
