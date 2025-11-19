@@ -44,7 +44,14 @@ void RenderWidget::scheduleNextFrame()
         elapsedTimer.restart();
         
         // Update camera with delta time
-        Camera::getInstance().update(deltaTime);
+        Camera& camera = Camera::getInstance();
+        camera.update(deltaTime);
+        
+        // Check if camera moved and reset TAA accumulation if needed
+        if (camera.hasMoved() && renderEngine) {
+            renderEngine->markCameraDirty();
+            camera.clearMovedFlag();
+        }
         
         renderFrame();
         isRendering = false;

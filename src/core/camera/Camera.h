@@ -7,6 +7,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
+#include <map>
 
 class QKeyEvent;
 class QMouseEvent;
@@ -96,6 +97,10 @@ public:
     // Convert to GPU format
     GPUCamera toGPU() const;
 
+    // Check if camera has changed (for TAA accumulation reset)
+    bool hasMoved() const { return m_hasMoved; }
+    void clearMovedFlag() { m_hasMoved = false; }
+
 private:
     // Camera parameters
     float m_fovDegree{DEFAULT_FOV};
@@ -153,5 +158,8 @@ private:
     inline glm::vec3 getTarget() const { return m_targetPrev; }
 
     // Key state tracking for Qt
-    bool m_keysPressed[512] = {false};
+    std::map<int, bool> m_keysPressed;
+    
+    // Movement tracking for TAA reset
+    bool m_hasMoved = false;
 };

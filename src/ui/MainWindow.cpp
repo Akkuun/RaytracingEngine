@@ -9,6 +9,7 @@
 #include <QPropertyAnimation>
 #include <QEasingCurve>
 #include <QShortcut>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), 
@@ -31,6 +32,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Setup keyboard shortcuts
     togglePanelsShortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     connect(togglePanelsShortcut, &QShortcut::activated, this, &MainWindow::toggleBothPanels);
+
+    // Note: QShortcut doesn't support key release events well, so we'll handle this via eventFilter instead
+    // For now, keys will remain "pressed" until explicitly released
     
     // Setup Undo/Redo shortcuts
     undoShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z), this);
@@ -377,4 +381,38 @@ void MainWindow::onRedo()
     if (commandManager.canRedo()) {
         commandManager.redo();
     }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    // Handle WASD keys for camera movement
+    if (event->key() == Qt::Key_W || 
+        event->key() == Qt::Key_S || 
+        event->key() == Qt::Key_A || 
+        event->key() == Qt::Key_D)
+    {
+        Camera::getInstance().handleKeyPress(event->key(), true);
+        event->accept();
+        return;
+    }
+    
+    // Let the base class handle other keys
+    QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    // Handle WASD keys for camera movement
+    if (event->key() == Qt::Key_W || 
+        event->key() == Qt::Key_S || 
+        event->key() == Qt::Key_A || 
+        event->key() == Qt::Key_D)
+    {
+        Camera::getInstance().handleKeyPress(event->key(), false);
+        event->accept();
+        return;
+    }
+    
+    // Let the base class handle other keys
+    QMainWindow::keyReleaseEvent(event);
 }

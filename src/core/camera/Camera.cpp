@@ -36,13 +36,12 @@ void Camera::init()
     m_eulerAngle = DEFAULT_EULER_ANGLE;
     m_rotation = glm::quat(m_eulerAngle);
     m_fovDegree = DEFAULT_FOV;
+    m_hasMoved = false;
 }
 
 void Camera::handleKeyPress(int key, bool pressed)
 {
-    if (key >= 0 && key < 512) {
-        m_keysPressed[key] = pressed;
-    }
+    m_keysPressed[key] = pressed;
 
     // Toggle camera mode on F key press
     if (pressed && key == Qt::Key_F) {
@@ -74,12 +73,14 @@ void Camera::handleMouseMove(float deltaX, float deltaY)
         m_eulerAngle.y = Camera_Helper::clipAnglePI(
             m_eulerAngle.y - deltaX * M_PI / 180.0 * m_rotation_speed * invertX
         );
+        m_hasMoved = true;
     }
     if (deltaY != 0) {
         m_eulerAngle.x = Camera_Helper::clamp(
             Camera_Helper::clipAnglePI(m_eulerAngle.x - deltaY * M_PI / 180.0 * m_rotation_speed * invertY),
             -M_PI_2 + 0.1f, M_PI_2 - 0.1f
         );
+        m_hasMoved = true;
     }
 }
 
@@ -87,6 +88,7 @@ void Camera::handleMouseScroll(float delta)
 {
     if (m_attached) {
         m_distance = Camera_Helper::clamp(m_distance - delta * m_distance_speed, 1.0f, 50.0f);
+        m_hasMoved = true;
     }
 }
 
@@ -121,23 +123,58 @@ void Camera::update(float deltaTime)
             m_eulerAngle.y = Camera_Helper::clipAnglePI(
                 m_eulerAngle.y + m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection
             );
+            m_hasMoved = true;
         }
         if (m_keysPressed[Qt::Key_Right]) {
             m_eulerAngle.y = Camera_Helper::clipAnglePI(
                 m_eulerAngle.y - m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection
             );
+            m_hasMoved = true;
         }
         if (m_keysPressed[Qt::Key_Up]) {
             m_eulerAngle.x = Camera_Helper::clamp(
                 Camera_Helper::clipAnglePI(m_eulerAngle.x - m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection),
                 -M_PI_2 + 0.1f, M_PI_2 - 0.1f
             );
+            m_hasMoved = true;
         }
         if (m_keysPressed[Qt::Key_Down]) {
             m_eulerAngle.x = Camera_Helper::clamp(
                 Camera_Helper::clipAnglePI(m_eulerAngle.x + m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection),
                 -M_PI_2 + 0.1f, M_PI_2 - 0.1f
             );
+            m_hasMoved = true;
+        }
+    }
+    
+    // Handle WASD movement (free camera mode)
+    if (!m_resetting && !m_attached) {
+        glm::vec3 front = glm::rotate(m_rotation, VEC_FRONT);
+        glm::vec3 right = glm::rotate(m_rotation, VEC_RIGHT);
+        
+        if (m_keysPressed[Qt::Key_W]) {
+            m_position += front * m_translation_speed;
+            m_hasMoved = true;
+        }
+        if (m_keysPressed[Qt::Key_S]) {
+            m_position -= front * m_translation_speed;
+            m_hasMoved = true;
+        }
+        if (m_keysPressed[Qt::Key_A]) {
+            m_position -= right * m_translation_speed;
+            m_hasMoved = true;
+        }
+        if (m_keysPressed[Qt::Key_D]) {
+            m_position += right * m_translation_speed;
+            m_hasMoved = true;
+        }
+        if (m_keysPressed[Qt::Key_Space]) {
+            m_position += VEC_UP * m_translation_speed;
+            m_hasMoved = true;
+        }
+        if (m_keysPressed[Qt::Key_Shift]) {
+            m_position -= VEC_UP * m_translation_speed;
+            m_hasMoved = true;
         }
     }
 
