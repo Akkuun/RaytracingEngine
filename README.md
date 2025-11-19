@@ -36,7 +36,6 @@ git submodule update --init --recursive
 cd external/OpenCL-CLHPP
 mkdir build && cd build
 cmake -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ..
-sudo make install
 ```
 
 ### 2b. Install Qt6 (required for GUI)
