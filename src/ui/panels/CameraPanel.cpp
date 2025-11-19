@@ -7,6 +7,7 @@
 #include <QCheckBox>
 #include "../../core/commands/actionsCommands/CameraMoveCommand.h"
 #include "../../core/commands/actionsCommands/CameraRotationCommand.h"
+#include "../../core/commands/actionsCommands/CameraFOVCommand.h"
 #include "../../core/systems/RenderEngine/RenderEngine.h"
 #include "../../core/camera/Camera.h"
 #include "../../core/commands/CommandsManager.h"
@@ -40,6 +41,11 @@ void CameraPanel::setupUI()
     posX->setRange(-1000, 1000);
     posY->setRange(-1000, 1000);
     posZ->setRange(-1000, 1000);
+    // Set initial values from camera
+    auto pos = camera.getPosition();
+    posX->setValue(pos.x);
+    posY->setValue(pos.y);
+    posZ->setValue(pos.z);
     posLayout->addWidget(posX);
     posLayout->addWidget(posY);
     posLayout->addWidget(posZ);
@@ -70,19 +76,27 @@ void CameraPanel::setupUI()
     rotX->setRange(-360, 360);
     rotY->setRange(-360, 360);
     rotZ->setRange(-360, 360);
+    // Set initial values from camera (in degrees)
+    auto rot = camera.getRotationEuler();
+    rotX->setValue(glm::degrees(rot.x));
+    rotY->setValue(glm::degrees(rot.y));
+    rotZ->setValue(glm::degrees(rot.z));
     rotLayout->addWidget(rotX);
     rotLayout->addWidget(rotY);
     rotLayout->addWidget(rotZ);
     layout->addLayout(rotLayout);
 
     connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, rotY, rotZ](double newX){
-        commandManager.executeCommand(new CameraRotationCommand(camera, newX, rotY->value(), rotZ->value()));
+        // Convert degrees to radians for camera
+        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(newX), glm::radians(rotY->value()), glm::radians(rotZ->value())));
     });
     connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, rotX, rotZ](double newY){
-        commandManager.executeCommand(new CameraRotationCommand(camera, rotX->value(), newY, rotZ->value()));
+        // Convert degrees to radians for camera
+        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(rotX->value()), glm::radians(newY), glm::radians(rotZ->value())));
     });
     connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, rotX, rotY](double newZ){
-        commandManager.executeCommand(new CameraRotationCommand(camera, rotX->value(), rotY->value(), newZ));
+        // Convert degrees to radians for camera
+        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(rotX->value()), glm::radians(rotY->value()), glm::radians(newZ)));
     });
 
     // FOV
@@ -90,11 +104,15 @@ void CameraPanel::setupUI()
     QHBoxLayout *fovLayout = new QHBoxLayout();
     QSpinBox *fovSpin = new QSpinBox();
     fovSpin->setRange(1, 180);
-    fovSpin->setValue(60);
+    fovSpin->setValue(camera.getFOV()); // Set initial value from camera
     QCheckBox *focusCheck = new QCheckBox("FOCUS");
     fovLayout->addWidget(fovSpin);
     fovLayout->addWidget(focusCheck);
     layout->addLayout(fovLayout);
+    
+    connect(fovSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newFOV){
+        commandManager.executeCommand(new CameraFOVCommand(camera, static_cast<float>(newFOV)));
+    });
 
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");

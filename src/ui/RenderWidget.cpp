@@ -136,6 +136,9 @@ void RenderWidget::keyReleaseEvent(QKeyEvent *event)
 
 void RenderWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    // DISABLED: Mouse rotation temporarily disabled
+    // TODO: Re-enable mouse rotation when needed
+    /*
     if (mousePressed || Camera::getInstance().isFPS())
     {
         QPoint currentPos = event->pos();
@@ -158,6 +161,7 @@ void RenderWidget::mouseMoveEvent(QMouseEvent *event)
             }
         }
     }
+    */
     QWidget::mouseMoveEvent(event);
 }
 
