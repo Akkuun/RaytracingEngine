@@ -1,6 +1,6 @@
 #include "Camera.h"
 #include "Camera_Helper.h"
-#include "../input/Keybinds.hpp"
+#include "../input/Keybinds.h"
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <Qt>

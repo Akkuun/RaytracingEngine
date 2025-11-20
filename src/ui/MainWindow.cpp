@@ -5,7 +5,7 @@
 #include "./panels/ObjectPanel.h"
 #include "./panels/CameraPanel.h"
 #include "./panels/ParametersPanel.h"
-#include "../core/input/Keybinds.hpp"
+#include "../core/input/Keybinds.h"
 #include "../core/commands/CommandsManager.h"
 #include "../core/commands/actionsCommands/CameraResetCommand.h"
 #include <QVBoxLayout>
