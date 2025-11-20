@@ -22,17 +22,11 @@ GPUSphere Sphere::toGPU() const
     gpuSphere.pos.z = static_cast<float>(position.z);
     gpuSphere.pos._padding = 0.0f;
     
-    // emission
-    gpuSphere.emi.x = static_cast<float>(emission.x);
-    gpuSphere.emi.y = static_cast<float>(emission.y);
-    gpuSphere.emi.z = static_cast<float>(emission.z);
-    gpuSphere.emi._padding = 0.0f;
-    
-    // color
-    gpuSphere.color.x = static_cast<float>(color.x);
-    gpuSphere.color.y = static_cast<float>(color.y);
-    gpuSphere.color.z = static_cast<float>(color.z);
-    gpuSphere.color._padding = 0.0f;
+    // Material index
+    gpuSphere.materialIndex = (material != nullptr) ? material->getMaterialId() : -1;
+    gpuSphere._padding2[0] = 0.0f;
+    gpuSphere._padding2[1] = 0.0f;
+    gpuSphere._padding2[2] = 0.0f;
 
     return gpuSphere;
 }

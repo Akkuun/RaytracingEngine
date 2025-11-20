@@ -89,6 +89,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(7, cameraBuffer);   // Use camera buffer instead of direct parameters , somehow it's giving better performance
         kernel.setArg(8, materialBuffer); // Buffer containing all the material data
         kernel.setArg(9, materialCount);  // Number of materials in the scene
+        kernel.setArg(10, textureBuffer); // Buffer containing all texture data
+
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
@@ -202,9 +204,14 @@ void RenderEngine::setupShapesBuffer()
     }
     else
     {
-        // No shapes: ensure shapesBuffer is reset and notify
-        shapesBuffer = cl::Buffer();
-        std::cout << "No GPU shapes to upload (shapesCount=0)" << std::endl;
+        // Create a dummy shape buffer to avoid null buffer issues
+        GPUShape dummyShape = {};
+        dummyShape.type = UNDEFINED;
+        shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                  sizeof(GPUShape),
+                                  &dummyShape);
+        shapesCount = 0;
+        std::cout << "No GPU shapes - created dummy buffer" << std::endl;
     }
 }
 
@@ -225,6 +232,9 @@ void RenderEngine::setupMaterialBuffer()
         gpu_materials.push_back(gpu_material);
     }
 
+    // Setup texture buffer and update texture offsets in gpu_materials
+    setupTextureBuffer(gpu_materials);
+
     size_t buffer_size = gpu_materials.size() * sizeof(GPUMaterial);
     // Update materialCount for kernel use
     materialCount = static_cast<int>(gpu_materials.size());
@@ -234,12 +244,108 @@ void RenderEngine::setupMaterialBuffer()
         materialBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                     buffer_size,
                                     gpu_materials.data());
-        std::cout << "Buffer created or updated successfully! (" << materialCount << " materials)" << std::endl;
+        std::cout << "Material buffer created or updated successfully! (" << materialCount << " materials)" << std::endl;
     }
     else
     {
-        // No materials: ensure materialBuffer is reset and notify
-        materialBuffer = cl::Buffer();
-        std::cout << "No GPU materials to upload (materialCount=0)" << std::endl;
+        // Create a dummy material buffer to avoid null buffer issues
+        GPUMaterial dummyMaterial = {};
+        dummyMaterial.material_id = -1;
+        materialBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(GPUMaterial),
+                                    &dummyMaterial);
+        materialCount = 0;
+        std::cout << "No GPU materials - created dummy buffer" << std::endl;
+    }
+}
+
+// Setup texture buffer containing all texture image data
+void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials)
+{
+    SceneManager &sceneManager = SceneManager::getInstance();
+    const std::vector<Material *> &materials = sceneManager.getMaterials();
+    cl::Context context = deviceManager->getContext();
+
+    // Collect all texture data into a single buffer
+    std::vector<unsigned char> allTextureData;
+    int currentOffset = 0;
+
+    for (size_t i = 0; i < materials.size(); i++)
+    {
+        Material* material = materials[i];
+        if (!material) {
+            std::cerr << "Warning: Null material at index " << i << std::endl;
+            gpu_materials[i].texture_offset = -1;
+            gpu_materials[i].normal_map_offset = -1;
+            continue;
+        }
+        
+        try {
+            const ppmLoader::ImageRGB& image = material->getImage();
+            const ppmLoader::ImageRGB& normals = material->getNormals();
+
+            // Add texture data if exists
+            if (!image.data.empty() && image.w > 0 && image.h > 0)
+            {
+                gpu_materials[i].texture_offset = currentOffset;
+                
+                // Copy RGB data (3 bytes per pixel)
+                for (const auto& pixel : image.data)
+                {
+                    allTextureData.push_back(pixel.r);
+                    allTextureData.push_back(pixel.g);
+                    allTextureData.push_back(pixel.b);
+                }
+                
+                currentOffset += image.data.size() * 3; // 3 bytes per pixel (RGB)
+            }
+            else
+            {
+                gpu_materials[i].texture_offset = -1; // No texture
+            }
+
+            // Add normal map data if exists
+            if (material->hasNormalMap() && !normals.data.empty() && normals.w > 0 && normals.h > 0)
+            {
+                gpu_materials[i].normal_map_offset = currentOffset;
+                
+                // Copy RGB data for normal map
+                for (const auto& pixel : normals.data)
+                {
+                    allTextureData.push_back(pixel.r);
+                    allTextureData.push_back(pixel.g);
+                    allTextureData.push_back(pixel.b);
+                }
+                
+                currentOffset += normals.data.size() * 3; // 3 bytes per pixel (RGB)
+            }
+            else
+            {
+                gpu_materials[i].normal_map_offset = -1; // No normal map
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error processing material " << i << ": " << e.what() << std::endl;
+            gpu_materials[i].texture_offset = -1;
+            gpu_materials[i].normal_map_offset = -1;
+        }
+    }
+
+    // Create texture buffer - always create a buffer even if empty (OpenCL requires valid buffer)
+    if (!allTextureData.empty())
+    {
+        size_t buffer_size = allTextureData.size() * sizeof(unsigned char);
+        textureBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                   buffer_size,
+                                   allTextureData.data());
+        std::cout << "Texture buffer created successfully! (" << allTextureData.size() << " bytes)" << std::endl;
+    }
+    else
+    {
+        // Create a dummy 1-byte buffer to avoid null buffer issues
+        unsigned char dummyData[1] = {0};
+        textureBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                   sizeof(dummyData),
+                                   dummyData);
+        std::cout << "No texture data - created dummy buffer" << std::endl;
     }
 }

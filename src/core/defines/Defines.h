@@ -16,33 +16,33 @@ enum ShapeType
     MESH = 4
 };
 
-struct GPUSphere
+struct __attribute__((aligned(16))) GPUSphere
 {
-    float radius;
-    float _padding1[3];  // Padding to align next Vec3
-    Vec3 pos;
-    Vec3 emi;
-    Vec3 color;
-};
+    float radius;           // 4 bytes (offset 0)
+    float _padding1[3];     // 12 bytes (offset 4)
+    Vec3 pos;               // 16 bytes (offset 16)
+    int materialIndex;      // 4 bytes (offset 32)
+    float _padding2[3];     // 12 bytes (offset 36)
+};  // Total: 48 bytes
 
-struct GPUSquare
+struct __attribute__((aligned(16))) GPUSquare
 {
-    Vec3 pos;
-    Vec3 u_vec;
-    Vec3 v_vec;
-    Vec3 normal;
-    Vec3 emi;
-    Vec3 color;
-};
+    Vec3 pos;               // 16 bytes (offset 0)
+    Vec3 u_vec;             // 16 bytes (offset 16)
+    Vec3 v_vec;             // 16 bytes (offset 32)
+    Vec3 normal;            // 16 bytes (offset 48)
+    int materialIndex;      // 4 bytes (offset 64)
+    float _padding[3];      // 12 bytes (offset 68)
+};  // Total: 80 bytes
 
-struct GPUTriangle
+struct __attribute__((aligned(16))) GPUTriangle
 {
-    Vec3 v0;
-    Vec3 v1;
-    Vec3 v2;
-    Vec3 emi;
-    Vec3 color;
-};
+    Vec3 v0;                // 16 bytes (offset 0)
+    Vec3 v1;                // 16 bytes (offset 16)
+    Vec3 v2;                // 16 bytes (offset 32)
+    int materialIndex;      // 4 bytes (offset 48)
+    float _padding[3];      // 12 bytes (offset 52)
+};  // Total: 64 bytes
 
 // Struct GPU-compatible (for the kernel)
 typedef struct __attribute__((aligned(16))) {
@@ -62,6 +62,29 @@ enum TextureType {
     Texture_Image = 1
 };
 
-struct GPUMaterial {
-    Vec3 diffuse;
-};
+struct __attribute__((aligned(16))) GPUMaterial {
+    Vec3 ambient;              // 16 bytes (offset 0)
+    Vec3 diffuse;              // 16 bytes (offset 16)
+    Vec3 specular;             // 16 bytes (offset 32)
+    
+    float shininess;           // 4 bytes (offset 48)
+    float index_medium;        // 4 bytes (offset 52)
+    float transparency;        // 4 bytes (offset 56)
+    float texture_scale_x;     // 4 bytes (offset 60)
+    
+    float texture_scale_y;     // 4 bytes (offset 64)
+    int emissive;              // 4 bytes (offset 68)
+    float _padding1[2];        // 8 bytes (offset 72)
+    
+    Vec3 light_color;          // 16 bytes (offset 80)
+    
+    float light_intensity;     // 4 bytes (offset 96)
+    int has_texture;           // 4 bytes (offset 100)
+    int has_normal_map;        // 4 bytes (offset 104)
+    int texture_width;         // 4 bytes (offset 108)
+    
+    int texture_height;        // 4 bytes (offset 112)
+    int texture_offset;        // 4 bytes (offset 116)
+    int normal_map_offset;     // 4 bytes (offset 120)
+    int material_id;           // 4 bytes (offset 124)
+};  // Total: 128 bytes

@@ -42,6 +42,7 @@ public:
     inline bool hasNormalMap() const { return has_normal_map; }
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
+    inline int getMaterialId() const { return material_id; }
 
     // Setters
     inline void setAmbient(const vec3 &v) { ambient_material = v; }

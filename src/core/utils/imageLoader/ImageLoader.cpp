@@ -1,4 +1,5 @@
 #include "ImageLoader.h"
+#include <unistd.h>
 
 // Source courtesy of J. Manson
 // http://josiahmanson.com/prose/optimize_ppm/
@@ -19,6 +20,11 @@ void eat_comment(ifstream &f)
 
 void load_ppm(ImageRGB &img, const string &name)
 {
+    // Initialize to safe defaults in case loading fails
+    img.w = 0;
+    img.h = 0;
+    img.data.clear();
+    
     ifstream f(name.c_str(), ios::binary);
     if (f.fail())
     {

@@ -40,17 +40,11 @@ GPUSquare Square::toGPU() const
     gpuSquare.normal.z = static_cast<float>(transformedNormal.z);
     gpuSquare.normal._padding = 0.0f;
     
-    // Emission
-    gpuSquare.emi.x = static_cast<float>(emission.x);
-    gpuSquare.emi.y = static_cast<float>(emission.y);
-    gpuSquare.emi.z = static_cast<float>(emission.z);
-    gpuSquare.emi._padding = 0.0f;
-    
-    // Color
-    gpuSquare.color.x = static_cast<float>(color.x);
-    gpuSquare.color.y = static_cast<float>(color.y);
-    gpuSquare.color.z = static_cast<float>(color.z);
-    gpuSquare.color._padding = 0.0f;
+    // Material index
+    gpuSquare.materialIndex = (material != nullptr) ? material->getMaterialId() : -1;
+    gpuSquare._padding[0] = 0.0f;
+    gpuSquare._padding[1] = 0.0f;
+    gpuSquare._padding[2] = 0.0f;
 
     return gpuSquare;
 }

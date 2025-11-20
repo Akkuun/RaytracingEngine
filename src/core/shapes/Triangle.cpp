@@ -41,18 +41,12 @@ GPUTriangle Triangle::toGPU() const
     gpuTri.v2.y = static_cast<float>(transformedV2.y);
     gpuTri.v2.z = static_cast<float>(transformedV2.z);
     gpuTri.v2._padding = 0.0f;
-
-    // emission
-    gpuTri.emi.x = static_cast<float>(emission.x);
-    gpuTri.emi.y = static_cast<float>(emission.y);
-    gpuTri.emi.z = static_cast<float>(emission.z);
-    gpuTri.emi._padding = 0.0f;
-
-    // color
-    gpuTri.color.x = static_cast<float>(color.x);
-    gpuTri.color.y = static_cast<float>(color.y);
-    gpuTri.color.z = static_cast<float>(color.z);
-    gpuTri.color._padding = 0.0f;
+    
+    // Material index
+    gpuTri.materialIndex = (material != nullptr) ? material->getMaterialId() : -1;
+    gpuTri._padding[0] = 0.0f;
+    gpuTri._padding[1] = 0.0f;
+    gpuTri._padding[2] = 0.0f;
 
     return gpuTri;
 }
