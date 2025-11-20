@@ -252,44 +252,67 @@ void ObjectPanel::setupUI()
     setStyleSheet("QLabel { color: white; }");
 
     // Connect position spin boxes changes to execute the correct command (Move command)
-    connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
-        commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, newX, posY->value(), posZ->value()));
-    });
+    connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX)
+            { commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, newX, posY->value(), posZ->value())); });
 
-    connect(posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
-        commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), newY, posZ->value()));
-    });
+    connect(posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY)
+            { commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), newY, posZ->value())); });
 
-    connect(posZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
-        commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), posY->value(), newZ));
-    });
+    connect(posZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ)
+            { commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), posY->value(), newZ)); });
 
     // Connection rotation spin boxes changes
-    connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
-        commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value()));
-    });
+    connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX)
+            { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value())); });
 
-    connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
-        commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value()));
-    });
+    connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY)
+            { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value())); });
 
-    connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
-        commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ));
-    });
+    connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ)
+            { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ)); });
+
+    // Lambda function to synchronize scale for all axis for sphere shapes ONLY
+    auto syncSphereScale = [this](double value)
+    {
+        scaleX->blockSignals(true);
+        scaleY->blockSignals(true);
+        scaleZ->blockSignals(true);
+        scaleX->setValue(value);
+        scaleY->setValue(value);
+        scaleZ->setValue(value);
+        scaleX->blockSignals(false);
+        scaleY->blockSignals(false);
+        scaleZ->blockSignals(false);
+        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, value, value, value));
+    };
 
     // Connection scale spin boxes changes
-    connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX){
-        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
-    });
+    connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, syncSphereScale](double newX)
+            {
+            Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+            if (shape && shape->getType() == ShapeType::SPHERE) {
+                syncSphereScale(newX);
+            } else {
+                commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
+            } });
 
-    connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY){
-        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
-    });
+    connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, syncSphereScale](double newY)
+            {
+            Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+            if (shape && shape->getType() == ShapeType::SPHERE) {
+                syncSphereScale(newY);
+            } else {
+                commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
+            } });
 
-    connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ){
-        commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
-    });
-
+    connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, syncSphereScale](double newZ)
+            {
+            Shape* shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+            if (shape && shape->getType() == ShapeType::SPHERE) {
+                syncSphereScale(newZ);
+            } else {
+                commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
+            } });
 }
 
 void ObjectPanel::setRenderWidget(RenderWidget *widget)
@@ -302,22 +325,22 @@ void ObjectPanel::setRenderWidget(RenderWidget *widget)
 }
 // function to update the current selected shape properties in the panel
 void ObjectPanel::onShapeSelectionChanged(int shapeID)
-{   
+{
     // If no shape is selected (shapeID == -1), do nothing
     if (shapeID == -1)
     {
         return;
     }
-    
+
     // Get the shape from SceneManager
-    Shape* shape = SceneManager::getInstance().getShapeByID(shapeID);
-    
+    Shape *shape = SceneManager::getInstance().getShapeByID(shapeID);
+
     // Check if the shape still exists (it might have been deleted)
     if (shape == nullptr)
     {
         return;
     }
-    
+
     // Update current selected shape ID
     currentSelectedShapeID = shapeID;
 
@@ -336,12 +359,12 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     posX->setValue(shape->getPosition().x);
     posY->setValue(shape->getPosition().y);
     posZ->setValue(shape->getPosition().z);
-    
+
     // Set the current selected shape rotation
     rotX->setValue(shape->getRotation().x);
     rotY->setValue(shape->getRotation().y);
     rotZ->setValue(shape->getRotation().z);
-    
+
     // Set the current selected shape scale
     scaleX->setValue(shape->getScale().x);
     scaleY->setValue(shape->getScale().y);
@@ -358,5 +381,3 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     scaleY->blockSignals(false);
     scaleZ->blockSignals(false);
 }
-
-
