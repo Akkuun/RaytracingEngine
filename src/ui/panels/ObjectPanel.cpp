@@ -24,6 +24,8 @@
 #include "../../core/commands/actionsCommands/MoveShapeCommand.h"
 #include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
 #include "../../core/commands/actionsCommands/RotateShapeCommand.h"
+#include <QKeyEvent>
+
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(-1), commandManager(CommandsManager::getInstance())
 {
     setupUI();
@@ -272,7 +274,7 @@ void ObjectPanel::setupUI()
             { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ)); });
 
     // Lambda function to synchronize scale for all axis for sphere shapes ONLY
-    auto syncSphereScale = [this](double value)
+    auto applyUniformScalling = [this](double value)
     {
         scaleX->blockSignals(true);
         scaleY->blockSignals(true);
@@ -286,33 +288,33 @@ void ObjectPanel::setupUI()
         commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, value, value, value));
     };
 
-    // Connection scale spin boxes changes
-    connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, syncSphereScale](double newX)
+    // Connection scale spin boxes changes, IF shape is SPHERE or CTRL is pressed we apply uniform scaling
+    connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newX)
             {
-            Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
-            if (shape && shape->getType() == ShapeType::SPHERE) {
-                syncSphereScale(newX);
-            } else {
-                commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
-            } });
+        Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape && shape->getType() == ShapeType::SPHERE || isShortcutPressed()) {
+            applyUniformScalling(newX);
+        } else {
+            commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
+        } });
 
-    connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, syncSphereScale](double newY)
+    connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newY)
             {
-            Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
-            if (shape && shape->getType() == ShapeType::SPHERE) {
-                syncSphereScale(newY);
-            } else {
-                commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
-            } });
+        Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape && shape->getType() == ShapeType::SPHERE || isShortcutPressed()) {
+            applyUniformScalling(newY);
+        } else {
+            commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
+        } });
 
-    connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, syncSphereScale](double newZ)
+    connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newZ)
             {
-            Shape* shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
-            if (shape && shape->getType() == ShapeType::SPHERE) {
-                syncSphereScale(newZ);
-            } else {
-                commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
-            } });
+        Shape* shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape && shape->getType() == ShapeType::SPHERE || isShortcutPressed()) {
+            applyUniformScalling(newZ);
+        } else {
+            commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
+        } });
 }
 
 void ObjectPanel::setRenderWidget(RenderWidget *widget)
@@ -380,4 +382,21 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     scaleX->blockSignals(false);
     scaleY->blockSignals(false);
     scaleZ->blockSignals(false);
+}
+
+// apply the scale on all axis
+void ObjectPanel::setApplyOnAllAxis(bool apply)
+{
+    applyOnAllAxis = apply;
+}
+
+// set true if the key is actually pressed
+void ObjectPanel::handleKeyPress(int key, bool pressed)
+{
+    keysPressed[key] = pressed;
+}
+// true when pressed
+bool ObjectPanel::isShortcutPressed() const
+{
+    return keysPressed[Qt::Key_Control];
 }

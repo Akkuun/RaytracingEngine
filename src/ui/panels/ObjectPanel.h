@@ -3,6 +3,7 @@
 #include <QWidget>
 #include "../../core/commands/CommandsManager.h"
 #include <QDoubleSpinBox>
+#include <QMap>
 class FPSChart;
 class RenderWidget;
 
@@ -13,6 +14,8 @@ class ObjectPanel : public QWidget
 public:
     explicit ObjectPanel(QWidget *parent = nullptr);
     void setRenderWidget(RenderWidget *widget);
+    void setApplyOnAllAxis(bool apply);
+    void handleKeyPress(int key, bool pressed);
 
 public slots:
     void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget)
@@ -24,7 +27,6 @@ signals:
     void shapeYPositionChanged(int shapeID, float newY);
     // detect when shape Z position change
     void shapeZPositionChanged(int shapeID, float newZ);
-
 
 private:
     void setupUI();
@@ -44,4 +46,8 @@ private:
     QDoubleSpinBox *scaleX;
     QDoubleSpinBox *scaleY;
     QDoubleSpinBox *scaleZ;
+
+    bool applyOnAllAxis = false;
+    QMap<int, bool> keysPressed;
+    bool isShortcutPressed() const;
 };

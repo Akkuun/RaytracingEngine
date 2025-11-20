@@ -37,6 +37,7 @@ private slots:
     void onUndo();
     void onRedo();
     void onResetCamera();
+    void ApplyUniformScaling();
 
 private:
     void setupUI();
@@ -53,7 +54,7 @@ private:
     QWidget *leftPanel;
     QWidget *rightPanel;
     QScrollArea *leftScrollArea;
-    
+
     // Panel references
     ObjectPanel *objectPanel;
 
@@ -69,21 +70,22 @@ private:
     QPropertyAnimation *rightPanelAnimation;
     QPropertyAnimation *leftButtonAnimation;
     QPropertyAnimation *rightButtonAnimation;
-    
+
     // Shortcuts
     QShortcut *togglePanelsShortcut;
     QShortcut *undoShortcut;
     QShortcut *redoShortcut;
     QShortcut *resetCameraShortcut;
+    QShortcut *applyOnAllAxisShortcut;
 
     // OpenCL Device Manager
-    DeviceManager* deviceManager;
+    DeviceManager *deviceManager;
 
     // Kernel Manager
-    KernelManager* kernelManager;
-    
+    KernelManager *kernelManager;
+
     // Commands Manager
-    CommandsManager& commandManager;
+    CommandsManager &commandManager;
 
     bool leftPanelVisible;
     bool rightPanelVisible;

@@ -16,9 +16,9 @@
 #include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), 
+    : QMainWindow(parent),
       commandManager(CommandsManager::getInstance()),
-      leftPanelVisible(true), 
+      leftPanelVisible(true),
       rightPanelVisible(true)
 {
     // Initialize animations
@@ -28,23 +28,25 @@ MainWindow::MainWindow(QWidget *parent)
     rightButtonAnimation = new QPropertyAnimation(this);
 
     deviceManager = DeviceManager::getInstance();
-    
 
     kernelManager = &KernelManager::getInstance();
     setupUI();
-    
+
     // Setup keyboard shortcuts from Keybinds singleton
-    Keybinds& keybinds = Keybinds::getInstance();
-    
+    Keybinds &keybinds = Keybinds::getInstance();
+
     togglePanelsShortcut = new QShortcut(keybinds.getKeybind(KB_TOGGLE_PANELS), this);
     connect(togglePanelsShortcut, &QShortcut::activated, this, &MainWindow::toggleBothPanels);
-    
+
+    applyOnAllAxisShortcut = new QShortcut(keybinds.getKeybind(KB_APPLY_ON_ALL_AXIS), this);
+    connect(applyOnAllAxisShortcut, &QShortcut::activated, this, &MainWindow::ApplyUniformScaling);
+
     undoShortcut = new QShortcut(keybinds.getKeybind(KB_UNDO), this);
     connect(undoShortcut, &QShortcut::activated, this, &MainWindow::onUndo);
-    
+
     redoShortcut = new QShortcut(keybinds.getKeybind(KB_REDO), this);
     connect(redoShortcut, &QShortcut::activated, this, &MainWindow::onRedo);
-    
+
     resetCameraShortcut = new QShortcut(keybinds.getKeybind(KB_RESET_CAMERA), this);
     connect(resetCameraShortcut, &QShortcut::activated, this, &MainWindow::onResetCamera);
 }
@@ -113,10 +115,10 @@ void MainWindow::setupLeftPanel()
     objectPanel = new ObjectPanel();
     objectPanelCollapsible->setContent(objectPanel);
     leftLayout->addWidget(objectPanelCollapsible);
-    
+
     // Connect ObjectPanel to RenderWidget for FPS updates
     objectPanel->setRenderWidget(renderWidget);
-    
+
     // Connect ScenePanel shape selection to ObjectPanel
     connect(scenePanel, &ScenePanel::shapeSelectionChanged,
             objectPanel, &ObjectPanel::onShapeSelectionChanged);
@@ -344,7 +346,7 @@ void MainWindow::toggleBothPanels()
 {
     // Hide both panels if either one is visible, otherwise show both
     bool shouldHide = leftPanelVisible || rightPanelVisible;
-    
+
     if (shouldHide)
     {
         // Hide both panels
@@ -367,7 +369,7 @@ void MainWindow::toggleBothPanels()
         leftPanelVisible = true;
         leftToggleBtn->setText("◀");
         animateLeftPanel(true);
-        
+
         rightPanelVisible = true;
         rightToggleBtn->setText("▶");
         animateRightPanel(true);
@@ -376,14 +378,16 @@ void MainWindow::toggleBothPanels()
 
 void MainWindow::onUndo()
 {
-    if (commandManager.canUndo()) {
+    if (commandManager.canUndo())
+    {
         commandManager.undo();
     }
 }
 
 void MainWindow::onRedo()
 {
-    if (commandManager.canRedo()) {
+    if (commandManager.canRedo())
+    {
         commandManager.redo();
     }
 }
@@ -398,16 +402,25 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     // Forward key events to Camera for simple key tracking
     Camera::getInstance().handleKeyPress(event->key(), true);
-    
+    // Forward key events to ObjectPanel for shortcut tracking
+    if (objectPanel)
+        objectPanel->handleKeyPress(event->key(), true);
     // Let the base class handle other keys (and trigger shortcuts)
     QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    // Forward key events to Camera for simple key tracking  
+    // Forward key events to Camera for simple key tracking
     Camera::getInstance().handleKeyPress(event->key(), false);
-    
+    // Forward key events to ObjectPanel for shortcut tracking
+    if (objectPanel)
+        objectPanel->handleKeyPress(event->key(), false);
     // Let the base class handle other keys
     QMainWindow::keyReleaseEvent(event);
+}
+
+void MainWindow::ApplyUniformScaling()
+{
+    objectPanel->setApplyOnAllAxis(true);
 }
