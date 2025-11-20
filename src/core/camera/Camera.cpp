@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Camera_Helper.h"
+#include "../input/Keybinds.hpp"
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <Qt>
@@ -42,24 +43,6 @@ void Camera::init()
 void Camera::handleKeyPress(int key, bool pressed)
 {
     m_keysPressed[key] = pressed;
-
-    // Toggle camera mode on F key press
-    if (pressed && key == Qt::Key_F) {
-        m_mode = (m_mode + 1) % 2;
-    }
-
-    // Toggle attached/detached mode on F5 key press
-    if (pressed && key == Qt::Key_F5) {
-        if (m_attached) {
-            setPosition(m_targetPrev + m_targetDeltaPos + m_relativePos);
-        }
-        m_attached = !m_attached;
-    }
-
-    // Reset camera on R key press
-    if (pressed && key == Qt::Key_R) {
-        reset();
-    }
 }
 
 void Camera::handleMouseMove(float deltaX, float deltaY)
@@ -99,6 +82,17 @@ void Camera::setControlMode(int mode)
 
 void Camera::update(float deltaTime)
 {
+    // Keybinds reference
+    Keybinds& keybinds = Keybinds::getInstance();
+    
+    // Helper lambda to check if a keybind is currently pressed
+    // Note: For single-key binds only. Multi-key combinations should use QShortcut
+    auto isKeyPressed = [this](const QKeySequence& seq) -> bool {
+        if (seq.isEmpty()) return false;
+        int key = seq[0] & ~Qt::KeyboardModifierMask; // Extract key without modifiers
+        return m_keysPressed[key];
+    };
+    
     if (m_resetting) {
         double ratio = Camera_Helper::interpolation(
             Camera_Helper::clamp(m_resetTime / m_resetDuration, 0., 1.), 
@@ -119,26 +113,26 @@ void Camera::update(float deltaTime)
 
     // Handle keyboard rotation in mode 1
     if (!m_resetting && m_mode == 1) {
-        if (m_keysPressed[Qt::Key_Left]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_LEFT))) {
             m_eulerAngle.y = Camera_Helper::clipAnglePI(
                 m_eulerAngle.y + m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection
             );
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_Right]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_RIGHT))) {
             m_eulerAngle.y = Camera_Helper::clipAnglePI(
                 m_eulerAngle.y - m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection
             );
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_Up]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_UP))) {
             m_eulerAngle.x = Camera_Helper::clamp(
                 Camera_Helper::clipAnglePI(m_eulerAngle.x - m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection),
                 -M_PI_2 + 0.1f, M_PI_2 - 0.1f
             );
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_Down]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_DOWN))) {
             m_eulerAngle.x = Camera_Helper::clamp(
                 Camera_Helper::clipAnglePI(m_eulerAngle.x + m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection),
                 -M_PI_2 + 0.1f, M_PI_2 - 0.1f
@@ -152,27 +146,27 @@ void Camera::update(float deltaTime)
         glm::vec3 front = glm::rotate(m_rotation, VEC_FRONT);
         glm::vec3 right = glm::rotate(m_rotation, VEC_RIGHT);
         
-        if (m_keysPressed[Qt::Key_W]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_MOVE_FORWARD))) {
             m_position += front * m_translation_speed;
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_S]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_MOVE_BACKWARD))) {
             m_position -= front * m_translation_speed;
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_A]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_MOVE_LEFT))) {
             m_position -= right * m_translation_speed;
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_D]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_MOVE_RIGHT))) {
             m_position += right * m_translation_speed;
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_Space]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_MOVE_UP))) {
             m_position += VEC_UP * m_translation_speed;
             m_hasMoved = true;
         }
-        if (m_keysPressed[Qt::Key_Shift]) {
+        if (isKeyPressed(keybinds.getKeybind(KB_MOVE_DOWN))) {
             m_position -= VEC_UP * m_translation_speed;
             m_hasMoved = true;
         }

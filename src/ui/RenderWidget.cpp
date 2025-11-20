@@ -131,12 +131,14 @@ void RenderWidget::updateFPS()
 
 void RenderWidget::keyPressEvent(QKeyEvent *event)
 {
+    // Forward key events to Camera for simple key tracking
     Camera::getInstance().handleKeyPress(event->key(), true);
     QWidget::keyPressEvent(event);
 }
 
 void RenderWidget::keyReleaseEvent(QKeyEvent *event)
 {
+    // Forward key events to Camera for simple key tracking
     Camera::getInstance().handleKeyPress(event->key(), false);
     QWidget::keyReleaseEvent(event);
 }

@@ -5,12 +5,15 @@
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QCheckBox>
+#include <QPushButton>
 #include "../../core/commands/actionsCommands/CameraMoveCommand.h"
 #include "../../core/commands/actionsCommands/CameraRotationCommand.h"
 #include "../../core/commands/actionsCommands/CameraFOVCommand.h"
+#include "../../core/commands/actionsCommands/CameraResetCommand.h"
 #include "../../core/systems/RenderEngine/RenderEngine.h"
 #include "../../core/camera/Camera.h"
 #include "../../core/commands/CommandsManager.h"
+#include "../../core/input/Keybinds.hpp"
 
 CameraPanel::CameraPanel(QWidget *parent) : QWidget(parent)
 {
@@ -113,6 +116,15 @@ void CameraPanel::setupUI()
     connect(fovSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newFOV){
         commandManager.executeCommand(new CameraFOVCommand(camera, static_cast<float>(newFOV)));
     });
+
+    // Reset Button
+    QPushButton *resetButton = new QPushButton("Reset Camera");
+    Keybinds& keybinds = Keybinds::getInstance();
+    resetButton->setToolTip(QString("Reset camera to default position (%1)").arg(keybinds.getKeybind(KB_RESET_CAMERA).toString()));
+    connect(resetButton, &QPushButton::clicked, [&camera, &commandManager](){
+        commandManager.executeCommand(new CameraResetCommand(camera));
+    });
+    layout->addWidget(resetButton);
 
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");

@@ -1,6 +1,7 @@
 #include "SceneTreeWidget.h"
 #include "../../core/commands/actionsCommands/DeleteShapeCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
+#include "../../core/input/Keybinds.hpp"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -28,16 +29,19 @@ SceneTreeWidget::SceneTreeWidget(QWidget *parent)
     topToolbarLayout->setSpacing(4);
     topToolbarLayout->setContentsMargins(4, 4, 4, 4);
 
+    // Get keybinds for tooltips
+    Keybinds& keybinds = Keybinds::getInstance();
+
     // Undo button
     undoBtn = new QToolButton(this);
     undoBtn->setText("↶");
-    undoBtn->setToolTip("Undo (Ctrl+Z)");
+    undoBtn->setToolTip(QString("Undo (%1)").arg(keybinds.getKeybind(KB_UNDO).toString()));
     undoBtn->setFixedSize(32, 32);
     
     // Redo button
     redoBtn = new QToolButton(this);
     redoBtn->setText("↷");
-    redoBtn->setToolTip("Redo (Ctrl+Shift+Z)");
+    redoBtn->setToolTip(QString("Redo (%1)").arg(keybinds.getKeybind(KB_REDO).toString()));
     redoBtn->setFixedSize(32, 32);
     
     // Delete button
@@ -186,20 +190,25 @@ void SceneTreeWidget::updateSceneTree()
 
 void SceneTreeWidget::updateUndoRedoButtons()
 {
+    Keybinds& keybinds = Keybinds::getInstance();
+    
     undoBtn->setEnabled(commandManager.canUndo());
     redoBtn->setEnabled(commandManager.canRedo());
     
     // Update tooltips with command names
+    QString undoKeyStr = keybinds.getKeybind(KB_UNDO).toString();
+    QString redoKeyStr = keybinds.getKeybind(KB_REDO).toString();
+    
     if (commandManager.canUndo()) {
-        undoBtn->setToolTip(QString("Undo: %1 (Ctrl+Z)").arg(commandManager.getUndoCommandName()));
+        undoBtn->setToolTip(QString("Undo: %1 (%2)").arg(commandManager.getUndoCommandName()).arg(undoKeyStr));
     } else {
-        undoBtn->setToolTip("Undo (Ctrl+Z)");
+        undoBtn->setToolTip(QString("Undo (%1)").arg(undoKeyStr));
     }
     
     if (commandManager.canRedo()) {
-        redoBtn->setToolTip(QString("Redo: %1 (Ctrl+Shift+Z)").arg(commandManager.getRedoCommandName()));
+        redoBtn->setToolTip(QString("Redo: %1 (%2)").arg(commandManager.getRedoCommandName()).arg(redoKeyStr));
     } else {
-        redoBtn->setToolTip("Redo (Ctrl+Shift+Z)");
+        redoBtn->setToolTip(QString("Redo (%1)").arg(redoKeyStr));
     }
 }
 

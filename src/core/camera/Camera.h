@@ -8,6 +8,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
 #include <map>
+#include <memory>
 
 class QKeyEvent;
 class QMouseEvent;
@@ -157,7 +158,7 @@ private:
 
     inline glm::vec3 getTarget() const { return m_targetPrev; }
 
-    // Key state tracking for Qt
+    // Simple key state tracking for camera control
     std::map<int, bool> m_keysPressed;
     
     // Movement tracking for TAA reset

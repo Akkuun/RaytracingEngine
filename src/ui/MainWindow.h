@@ -36,6 +36,7 @@ private slots:
     void toggleBothPanels();
     void onUndo();
     void onRedo();
+    void onResetCamera();
 
 private:
     void setupUI();
@@ -73,6 +74,7 @@ private:
     QShortcut *togglePanelsShortcut;
     QShortcut *undoShortcut;
     QShortcut *redoShortcut;
+    QShortcut *resetCameraShortcut;
 
     // OpenCL Device Manager
     DeviceManager* deviceManager;
