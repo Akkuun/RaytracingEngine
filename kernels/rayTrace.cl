@@ -88,31 +88,58 @@ struct Light {
 };
 
 // Match CPU-side GPUSphere exactly
-typedef struct {
-    float radius;
-    float _padding1[3];  // Padding to align next Vec3
-    Vec3 pos;
-    Vec3 emi;
-    Vec3 color;
-} GPUSphere;
+typedef struct __attribute__((aligned(16))) {
+    float radius;           // 4 bytes (offset 0)
+    float _padding1[3];     // 12 bytes (offset 4)
+    Vec3 pos;               // 16 bytes (offset 16)
+	int materialIndex;      // 4 bytes (offset 32)
+	float _padding2[3];     // 12 bytes (offset 36)
+} GPUSphere;  // Total: 48 bytes
 
 // Match CPU-side GPUSquare exactly
-typedef struct {
-    Vec3 pos;
-    Vec3 u_vec;
-    Vec3 v_vec;
-    Vec3 normal;
-    Vec3 emi;
-    Vec3 color;
-} GPUSquare;
+typedef struct __attribute__((aligned(16))) {
+    Vec3 pos;               // 16 bytes (offset 0)
+    Vec3 u_vec;             // 16 bytes (offset 16)
+    Vec3 v_vec;             // 16 bytes (offset 32)
+    Vec3 normal;            // 16 bytes (offset 48)
+	int materialIndex;      // 4 bytes (offset 64)
+	float _padding[3];      // 12 bytes (offset 68)
+} GPUSquare;  // Total: 80 bytes
 
-typedef struct {
-	Vec3 v0;
-	Vec3 v1;
-	Vec3 v2;
-	Vec3 emi;
-	Vec3 color;
-} GPUTriangle;
+typedef struct __attribute__((aligned(16))) {
+	Vec3 v0;                // 16 bytes (offset 0)
+	Vec3 v1;                // 16 bytes (offset 16)
+	Vec3 v2;                // 16 bytes (offset 32)
+	int materialIndex;      // 4 bytes (offset 48)
+	float _padding[3];      // 12 bytes (offset 52)
+} GPUTriangle;  // Total: 64 bytes
+
+typedef struct __attribute__((aligned(16))) {
+	Vec3 ambient;              // 16 bytes (offset 0)
+	Vec3 diffuse;              // 16 bytes (offset 16)
+	Vec3 specular;             // 16 bytes (offset 32)
+	
+	float shininess;           // 4 bytes (offset 48)
+	float index_medium;        // 4 bytes (offset 52)
+	float transparency;        // 4 bytes (offset 56)
+	float texture_scale_x;     // 4 bytes (offset 60)
+	
+	float texture_scale_y;     // 4 bytes (offset 64)
+	int emissive;              // 4 bytes (offset 68)
+	float _padding1[2];        // 8 bytes (offset 72)
+	
+	Vec3 light_color;          // 16 bytes (offset 80)
+	
+	float light_intensity;     // 4 bytes (offset 96)
+	int has_texture;           // 4 bytes (offset 100)
+	int has_normal_map;        // 4 bytes (offset 104)
+	int texture_width;         // 4 bytes (offset 108)
+	
+	int texture_height;        // 4 bytes (offset 112)
+	int texture_offset;        // 4 bytes (offset 116)
+	int normal_map_offset;     // 4 bytes (offset 120)
+	int material_id;           // 4 bytes (offset 124)
+} GPUMaterial;  // Total: 128 bytes
 
 struct Intersection {
 	float t;
@@ -131,20 +158,91 @@ typedef struct __attribute__((aligned(16))) {
         GPUSquare square;
 		GPUTriangle triangle;
     } data;
+	// int materialID;
 } GPUShape;
 
-float3 get_shape_color(__global const GPUShape* shape)
+// Sample texture at UV coordinates
+float3 sample_texture(__global const unsigned char* textureData, int offset, int width, int height, float2 uv)
 {
-	if (shape->type == SPHERE) {
-		return vec3_to_float3(shape->data.sphere.color);
-	} else if (shape->type == SQUARE) {
-		return vec3_to_float3(shape->data.square.color);
-	} else if (shape->type == TRIANGLE) {
-		return vec3_to_float3(shape->data.triangle.color);
+	if (offset < 0 || width <= 0 || height <= 0) {
+		return (float3)(1.0f, 1.0f, 1.0f); // White default if no texture
 	}
-	return (float3)(0.0f, 0.0f, 0.0f); /* default color */
+	
+	// Wrap UV coordinates to [0,1]
+	uv.x = uv.x - floor(uv.x);
+	uv.y = uv.y - floor(uv.y);
+	
+	// Convert UV to pixel coordinates
+	int x = (int)(uv.x * width) % width;
+	int y = (int)(uv.y * height) % height;
+	
+	// Calculate pixel index in texture buffer (RGB = 3 bytes per pixel)
+	int pixelIndex = offset + (y * width + x) * 3;
+	
+	// Read RGB values and normalize to [0,1]
+	float r = (float)textureData[pixelIndex + 0] / 255.0f;
+	float g = (float)textureData[pixelIndex + 1] / 255.0f;
+	float b = (float)textureData[pixelIndex + 2] / 255.0f;
+	
+	return (float3)(r, g, b);
 }
 
+// Get material by materialIndex, searching through materials array by material_id
+__global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* materials, int numMaterials)
+{
+	if (materialIndex < 0) return NULL;
+	
+	for (int i = 0; i < numMaterials; i++) {
+		if (materials[i].material_id == materialIndex) {
+			return &materials[i];
+		}
+	}
+	return NULL;
+}
+
+float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale)
+{
+	int checkX = (int)(floor(uv.x * scale));
+	int checkY = (int)(floor(uv.y * scale));
+	
+	if ((checkX + checkY) % 2 == 0) {
+		return color1;
+	} else {
+		return color2;
+	}
+}
+
+float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 
+                       __global const unsigned char* textureData, float2 uv)
+{
+	int materialIndex = -1;
+	
+	// Get materialIndex from shape
+	if (shape->type == SPHERE) {
+		materialIndex = shape->data.sphere.materialIndex;
+	} else if (shape->type == SQUARE) {
+		materialIndex = shape->data.square.materialIndex;
+	} else if (shape->type == TRIANGLE) {
+		materialIndex = shape->data.triangle.materialIndex;
+	}
+	
+	// Get material - if not found, use white as default
+	__global const GPUMaterial* material = get_material_by_index(materialIndex, materials, numMaterials);
+	
+	if (material == NULL) {
+		// No material found, return white
+		return checkerboard_texture(uv, (float3)(0.502f, 0.502f, 0.502f), (float3)(0.627f, 0.627f, 0.643f), 10.0f);
+	}
+	
+	// Check if material has texture
+	if (material->has_texture) {
+		return sample_texture(textureData, material->texture_offset, 
+		                     material->texture_width, material->texture_height, uv);
+	}
+	
+	// No texture, use material diffuse color
+	return vec3_to_float3(material->diffuse);
+}
 struct Intersection intersect_sphere(__global const GPUSphere* sphere, const struct Ray* ray, float* t)
 {
 	float3 sphere_pos = vec3_to_float3(sphere->pos);
@@ -195,7 +293,8 @@ struct Intersection intersect_sphere(__global const GPUSphere* sphere, const str
 		result.normal = -result.normal;
 	}
 	
-	result.uv = (float2)(0.0f, 0.0f); // Placeholder for UV coordinates TODO spheric uv mapping
+	result.uv = (float2)(0.5f + (atan2(result.normal.z, result.normal.x) / (2.0f * M_PI)),
+	                      0.5f - (asin(result.normal.y) / M_PI)); // Spherical UV mapping
 	return result;
 }
 
@@ -351,7 +450,7 @@ bool compute_shadow(__global const GPUShape* shapes, int numShapes, const struct
 
 // Iterative version to avoid recursion issues with Rusticl driver
 // Uses hemisphere sampling for diffuse materials
-float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed)
+float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed, __global const GPUMaterial* materials, int numMaterials, __global const unsigned char* textureData)
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
@@ -365,7 +464,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 			break;
 		}
 
-		float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
+		float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex], materials, numMaterials, textureData, intersection.uv);
 		
 		// Direct lighting contribution
 		float3 directLight = (float3)(0.0f, 0.0f, 0.0f);
@@ -457,7 +556,8 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 // frameCount -> number of frames accumulated so far (resets when camera/scene changes)
 __kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, 
                            __global GPUShape* shapes, int numShapes,
-                           __global GPUCamera* camera)
+                           __global GPUCamera* camera, __global GPUMaterial* materials, int numMaterials,
+                           __global unsigned char* textureData)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */
@@ -483,7 +583,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	// Initialize random seed based on pixel position AND frame count for temporal variation
 	uint seed = (x_coord * 1973 + y_coord * 9277 + frameCount * 26699) | 1;
 	
-	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed);
+	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData);
 
 	/* If no intersection found, return background colour */
 	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {

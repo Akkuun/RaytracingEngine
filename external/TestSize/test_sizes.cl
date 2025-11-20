@@ -17,31 +17,58 @@ typedef struct {
 
 
 // Match CPU-side GPUSphere exactly
-typedef struct {
-    float radius;
-    float _padding1[3];  // Padding to align next Vec3
-    Vec3 pos;
-    Vec3 emi;
-    Vec3 color;
-} GPUSphere;
+typedef struct __attribute__((aligned(16))) {
+    float radius;           // 4 bytes (offset 0)
+    float _padding1[3];     // 12 bytes (offset 4)
+    Vec3 pos;               // 16 bytes (offset 16)
+	int materialIndex;      // 4 bytes (offset 32)
+	float _padding2[3];     // 12 bytes (offset 36)
+} GPUSphere;  // Total: 48 bytes
 
 // Match CPU-side GPUSquare exactly
-typedef struct {
-    Vec3 pos;
-    Vec3 u_vec;
-    Vec3 v_vec;
-    Vec3 normal;
-    Vec3 emi;
-    Vec3 color;
-} GPUSquare;
+typedef struct __attribute__((aligned(16))) {
+    Vec3 pos;               // 16 bytes (offset 0)
+    Vec3 u_vec;             // 16 bytes (offset 16)
+    Vec3 v_vec;             // 16 bytes (offset 32)
+    Vec3 normal;            // 16 bytes (offset 48)
+	int materialIndex;      // 4 bytes (offset 64)
+	float _padding[3];      // 12 bytes (offset 68)
+} GPUSquare;  // Total: 80 bytes
 
-typedef struct {
-	Vec3 v0;
-	Vec3 v1;
-	Vec3 v2;
-	Vec3 emi;
-	Vec3 color;
-} GPUTriangle;
+typedef struct __attribute__((aligned(16))) {
+	Vec3 v0;                // 16 bytes (offset 0)
+	Vec3 v1;                // 16 bytes (offset 16)
+	Vec3 v2;                // 16 bytes (offset 32)
+	int materialIndex;      // 4 bytes (offset 48)
+	float _padding[3];      // 12 bytes (offset 52)
+} GPUTriangle;  // Total: 64 bytes
+
+typedef struct __attribute__((aligned(16))) {
+	Vec3 ambient;              // 16 bytes (offset 0)
+	Vec3 diffuse;              // 16 bytes (offset 16)
+	Vec3 specular;             // 16 bytes (offset 32)
+	
+	float shininess;           // 4 bytes (offset 48)
+	float index_medium;        // 4 bytes (offset 52)
+	float transparency;        // 4 bytes (offset 56)
+	float texture_scale_x;     // 4 bytes (offset 60)
+	
+	float texture_scale_y;     // 4 bytes (offset 64)
+	int emissive;              // 4 bytes (offset 68)
+	float _padding1[2];        // 8 bytes (offset 72)
+	
+	Vec3 light_color;          // 16 bytes (offset 80)
+	
+	float light_intensity;     // 4 bytes (offset 96)
+	int has_texture;           // 4 bytes (offset 100)
+	int has_normal_map;        // 4 bytes (offset 104)
+	int texture_width;         // 4 bytes (offset 108)
+	
+	int texture_height;        // 4 bytes (offset 112)
+	int texture_offset;        // 4 bytes (offset 116)
+	int normal_map_offset;     // 4 bytes (offset 120)
+	int material_id;           // 4 bytes (offset 124)
+} GPUMaterial;  // Total: 128 bytes
 
 // Match CPU-side GPUShape exactly
 typedef struct __attribute__((aligned(16))) {
@@ -57,13 +84,14 @@ __kernel void test_sizes()
 {
     if (get_global_id(0) == 0) {
         printf("=== OpenCL Side Structure Sizes ===\n");
-        printf("sizeof(int): %zu bytes\n", sizeof(int));
-        printf("sizeof(float): %zu bytes\n", sizeof(float));
-        printf("sizeof(float3): %zu bytes\n", sizeof(float3));
-        printf("sizeof(Vec3): %zu bytes\n", sizeof(Vec3));
-        printf("sizeof(GPUSphere): %zu bytes\n", sizeof(GPUSphere));
-        printf("sizeof(GPUSquare): %zu bytes\n", sizeof(GPUSquare));
-        printf("sizeof(GPUShape): %zu bytes\n", sizeof(GPUShape));
-        printf("sizeof(GPUTriangle): %zu bytes\n", sizeof(GPUTriangle));
+        printf("sizeof(int): %d bytes\n", (int)sizeof(int));
+        printf("sizeof(float): %d bytes\n", (int)sizeof(float));
+        printf("sizeof(float3): %d bytes\n", (int)sizeof(float3));
+        printf("sizeof(Vec3): %d bytes\n", (int)sizeof(Vec3));
+        printf("sizeof(GPUSphere): %d bytes (expected: 48)\n", (int)sizeof(GPUSphere));
+        printf("sizeof(GPUSquare): %d bytes (expected: 80)\n", (int)sizeof(GPUSquare));
+        printf("sizeof(GPUTriangle): %d bytes (expected: 64)\n", (int)sizeof(GPUTriangle));
+        printf("sizeof(GPUMaterial): %d bytes (expected: 128)\n", (int)sizeof(GPUMaterial));
+        printf("sizeof(GPUShape): %d bytes\n", (int)sizeof(GPUShape));
     }
 }

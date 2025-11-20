@@ -31,6 +31,8 @@ private:
     cl::Buffer accumBuffer;
     cl::Buffer shapesBuffer;
     cl::Buffer cameraBuffer;
+    cl::Buffer materialBuffer;
+    cl::Buffer textureBuffer;  // Buffer containing all texture data (RGB pixels)
 
     std::vector<float> imageData;
 
@@ -40,9 +42,14 @@ private:
     bool shapesBufferDirty = true; // Track if shapes buffer needs update
     bool cameraBufferDirty = true; // Track if camera buffer needs update
     int shapesCount = 0; // Number of GPU shapes stored in shapesBuffer
+    bool materialBufferDirty = true;
+    int materialCount =0; // Number of GPU material stored in materialBuffer
+    bool textureBufferDirty = true; // Track if texture buffer needs update
 
     Camera sceneCamera;
 
     void setupBuffers(int width, int height);
     void setupShapesBuffer();
+    void setupMaterialBuffer();
+    void setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials);
 };
