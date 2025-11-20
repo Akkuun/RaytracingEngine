@@ -54,7 +54,7 @@ void SceneManager::buildScene()
            "Boule 1",
             new Material(vec3(1.f, 0.3f, 1.f))));
     // Sphere 2 - Teexture Material
-    // addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -2.25f), vec3(0.95f, 0.95f, 0.95f), "Boule 2", new Material("../assets/earth.ppm")));
+    addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -2.25f), vec3(0.95f, 0.95f, 0.95f), "Boule 2", new Material("../assets/textures/earth.ppm")));
 
     // Floor - white
     addShape(new Square(
