@@ -32,9 +32,9 @@ void CameraPanel::setupUI()
     // Position
     layout->addWidget(new QLabel("POSITION"));
     QHBoxLayout *posLayout = new QHBoxLayout();
-    QDoubleSpinBox *posX = new QDoubleSpinBox();
-    QDoubleSpinBox *posY = new QDoubleSpinBox();
-    QDoubleSpinBox *posZ = new QDoubleSpinBox();
+    posX = new QDoubleSpinBox();
+    posY = new QDoubleSpinBox();
+    posZ = new QDoubleSpinBox();
     posX->setPrefix("X: ");
     posX->setSingleStep(0.1);
     posY->setPrefix("Y: ");
@@ -54,22 +54,22 @@ void CameraPanel::setupUI()
     posLayout->addWidget(posZ);
     layout->addLayout(posLayout);
 
-    connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, posY, posZ](double newX){
-        commandManager.executeCommand(new CameraMoveCommand(camera, newX, posY->value(), posZ->value()));
+    connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager](double newX){
+        commandManager.executeCommand(new CameraMoveCommand(camera, newX, this->posY->value(), this->posZ->value()));
     });
-    connect(posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, posX, posZ](double newY){
-        commandManager.executeCommand(new CameraMoveCommand(camera, posX->value(), newY, posZ->value()));
+    connect(posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager](double newY){
+        commandManager.executeCommand(new CameraMoveCommand(camera, this->posX->value(), newY, this->posZ->value()));
     });
-    connect(posZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, posX, posY](double newZ){
-        commandManager.executeCommand(new CameraMoveCommand(camera, posX->value(), posY->value(), newZ));
+    connect(posZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager](double newZ){
+        commandManager.executeCommand(new CameraMoveCommand(camera, this->posX->value(), this->posY->value(), newZ));
     });
 
     // Rotation
     layout->addWidget(new QLabel("ROTATION"));
     QHBoxLayout *rotLayout = new QHBoxLayout();
-    QDoubleSpinBox *rotX = new QDoubleSpinBox();
-    QDoubleSpinBox *rotY = new QDoubleSpinBox();
-    QDoubleSpinBox *rotZ = new QDoubleSpinBox();
+    rotX = new QDoubleSpinBox();
+    rotY = new QDoubleSpinBox();
+    rotZ = new QDoubleSpinBox();
     rotX->setPrefix("X: ");
     rotX->setSingleStep(1.0);
     rotY->setPrefix("Y: ");
@@ -89,23 +89,23 @@ void CameraPanel::setupUI()
     rotLayout->addWidget(rotZ);
     layout->addLayout(rotLayout);
 
-    connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, rotY, rotZ](double newX){
+    connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager](double newX){
         // Convert degrees to radians for camera
-        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(newX), glm::radians(rotY->value()), glm::radians(rotZ->value())));
+        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(newX), glm::radians(this->rotY->value()), glm::radians(this->rotZ->value())));
     });
-    connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, rotX, rotZ](double newY){
+    connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager](double newY){
         // Convert degrees to radians for camera
-        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(rotX->value()), glm::radians(newY), glm::radians(rotZ->value())));
+        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(this->rotX->value()), glm::radians(newY), glm::radians(this->rotZ->value())));
     });
-    connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager, rotX, rotY](double newZ){
+    connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &camera, &commandManager](double newZ){
         // Convert degrees to radians for camera
-        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(rotX->value()), glm::radians(rotY->value()), glm::radians(newZ)));
+        commandManager.executeCommand(new CameraRotationCommand(camera, glm::radians(this->rotX->value()), glm::radians(this->rotY->value()), glm::radians(newZ)));
     });
 
     // FOV
     layout->addWidget(new QLabel("FOV"));
     QHBoxLayout *fovLayout = new QHBoxLayout();
-    QSpinBox *fovSpin = new QSpinBox();
+    fovSpin = new QSpinBox();
     fovSpin->setRange(1, 180);
     fovSpin->setValue(camera.getFOV()); // Set initial value from camera
     QCheckBox *focusCheck = new QCheckBox("FOCUS");
@@ -126,6 +126,51 @@ void CameraPanel::setupUI()
     });
     layout->addWidget(resetButton);
 
+    // Connect camera signals to update UI when camera changes externally
+    connect(&camera, &Camera::positionChanged, this, &CameraPanel::onCameraPositionChanged);
+    connect(&camera, &Camera::rotationChanged, this, &CameraPanel::onCameraRotationChanged);
+    connect(&camera, &Camera::fovChanged, this, &CameraPanel::onCameraFOVChanged);
+
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");
+}
+
+void CameraPanel::onCameraPositionChanged(float x, float y, float z)
+{
+    // Block signals to prevent feedback loop
+    posX->blockSignals(true);
+    posY->blockSignals(true);
+    posZ->blockSignals(true);
+    
+    posX->setValue(x);
+    posY->setValue(y);
+    posZ->setValue(z);
+    
+    posX->blockSignals(false);
+    posY->blockSignals(false);
+    posZ->blockSignals(false);
+}
+
+void CameraPanel::onCameraRotationChanged(float x, float y, float z)
+{
+    // Block signals to prevent feedback loop
+    rotX->blockSignals(true);
+    rotY->blockSignals(true);
+    rotZ->blockSignals(true);
+    
+    rotX->setValue(x);
+    rotY->setValue(y);
+    rotZ->setValue(z);
+    
+    rotX->blockSignals(false);
+    rotY->blockSignals(false);
+    rotZ->blockSignals(false);
+}
+
+void CameraPanel::onCameraFOVChanged(float fov)
+{
+    // Block signals to prevent feedback loop
+    fovSpin->blockSignals(true);
+    fovSpin->setValue(static_cast<int>(fov));
+    fovSpin->blockSignals(false);
 }

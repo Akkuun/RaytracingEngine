@@ -1,5 +1,4 @@
-#ifndef D23AE4E1_E516_45B4_A33B_535EC53DC280
-#define D23AE4E1_E516_45B4_A33B_535EC53DC280
+#pragma once
 
 #include <map>
 #include <vector>
@@ -107,6 +106,3 @@ private:
     // If disabled, KeyInput.getKeyXXX() will always return false
     bool _isEnabled;
 };
-
-
-#endif /* D23AE4E1_E516_45B4_A33B_535EC53DC280 */

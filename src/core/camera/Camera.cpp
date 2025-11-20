@@ -29,6 +29,11 @@ void Camera::reset()
     m_attached = DEFAULT_ATTACHED;
     m_resetting = true;
     m_resetTime = 0.f;
+    
+    // Emit signals for the reset target values
+    emit positionChanged(m_targetPosition.x, m_targetPosition.y, m_targetPosition.z);
+    emit rotationChanged(glm::degrees(m_targetEulerAngle.x), glm::degrees(m_targetEulerAngle.y), glm::degrees(m_targetEulerAngle.z));
+    emit fovChanged(m_targetFov);
 }
 
 void Camera::init()
@@ -52,11 +57,13 @@ void Camera::handleMouseMove(float deltaX, float deltaY)
     int invertY = m_invertY ? -1 : 1;
     int invertX = m_invertX ? -1 : 1;
 
+    bool rotationChanged = false;
     if (deltaX != 0) {
         m_eulerAngle.y = Camera_Helper::clipAnglePI(
             m_eulerAngle.y - deltaX * M_PI / 180.0 * m_rotation_speed * invertX
         );
         m_hasMoved = true;
+        rotationChanged = true;
     }
     if (deltaY != 0) {
         m_eulerAngle.x = Camera_Helper::clamp(
@@ -64,6 +71,11 @@ void Camera::handleMouseMove(float deltaX, float deltaY)
             -M_PI_2 + 0.1f, M_PI_2 - 0.1f
         );
         m_hasMoved = true;
+        rotationChanged = true;
+    }
+    
+    if (rotationChanged) {
+        emit this->rotationChanged(glm::degrees(m_eulerAngle.x), glm::degrees(m_eulerAngle.y), glm::degrees(m_eulerAngle.z));
     }
 }
 
@@ -111,19 +123,22 @@ void Camera::update(float deltaTime)
         }
     }
 
-    // Handle keyboard rotation in mode 1
-    if (!m_resetting && m_mode == 1) {
+    // Handle keyboard rotation (arrow keys) - works in all modes
+    bool keyboardRotationChanged = false;
+    if (!m_resetting) {
         if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_LEFT))) {
             m_eulerAngle.y = Camera_Helper::clipAnglePI(
                 m_eulerAngle.y + m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection
             );
             m_hasMoved = true;
+            keyboardRotationChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_RIGHT))) {
             m_eulerAngle.y = Camera_Helper::clipAnglePI(
                 m_eulerAngle.y - m_rotation_speed * M_PI / 180 * m_rotationSpeedKeysCorrection
             );
             m_hasMoved = true;
+            keyboardRotationChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_UP))) {
             m_eulerAngle.x = Camera_Helper::clamp(
@@ -131,6 +146,7 @@ void Camera::update(float deltaTime)
                 -M_PI_2 + 0.1f, M_PI_2 - 0.1f
             );
             m_hasMoved = true;
+            keyboardRotationChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_CAMERA_DOWN))) {
             m_eulerAngle.x = Camera_Helper::clamp(
@@ -138,10 +154,16 @@ void Camera::update(float deltaTime)
                 -M_PI_2 + 0.1f, M_PI_2 - 0.1f
             );
             m_hasMoved = true;
+            keyboardRotationChanged = true;
         }
     }
     
+    if (keyboardRotationChanged) {
+        emit rotationChanged(glm::degrees(m_eulerAngle.x), glm::degrees(m_eulerAngle.y), glm::degrees(m_eulerAngle.z));
+    }
+    
     // Handle WASD movement (free camera mode)
+    bool keyboardPositionChanged = false;
     if (!m_resetting && !m_attached) {
         glm::vec3 front = glm::rotate(m_rotation, VEC_FRONT);
         glm::vec3 right = glm::rotate(m_rotation, VEC_RIGHT);
@@ -149,27 +171,37 @@ void Camera::update(float deltaTime)
         if (isKeyPressed(keybinds.getKeybind(KB_MOVE_FORWARD))) {
             m_position += front * m_translation_speed;
             m_hasMoved = true;
+            keyboardPositionChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_MOVE_BACKWARD))) {
             m_position -= front * m_translation_speed;
             m_hasMoved = true;
+            keyboardPositionChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_MOVE_LEFT))) {
             m_position -= right * m_translation_speed;
             m_hasMoved = true;
+            keyboardPositionChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_MOVE_RIGHT))) {
             m_position += right * m_translation_speed;
             m_hasMoved = true;
+            keyboardPositionChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_MOVE_UP))) {
             m_position += VEC_UP * m_translation_speed;
             m_hasMoved = true;
+            keyboardPositionChanged = true;
         }
         if (isKeyPressed(keybinds.getKeybind(KB_MOVE_DOWN))) {
             m_position -= VEC_UP * m_translation_speed;
             m_hasMoved = true;
+            keyboardPositionChanged = true;
         }
+    }
+    
+    if (keyboardPositionChanged) {
+        emit positionChanged(m_position.x, m_position.y, m_position.z);
     }
 
     // Animation du FOV en fonction de la course de la target
@@ -241,6 +273,7 @@ void Camera::setRotation(const glm::vec3& eulerAngles)
 {
     m_eulerAngle = eulerAngles;
     m_rotation = glm::quat(m_eulerAngle);
+    emit rotationChanged(glm::degrees(m_eulerAngle.x), glm::degrees(m_eulerAngle.y), glm::degrees(m_eulerAngle.z));
 }
 
 GPUCamera Camera::toGPU() const {
