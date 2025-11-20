@@ -7,8 +7,8 @@ class Sphere : public Shape
 {
 public:
     // Default constructor with default values
-    Sphere() 
-        : Shape(vec3(0.0f, 0.0f, -1.5f), "Sphere "  + std::to_string(nextID), nullptr), radius(0.15f), color(0.9f, 0.9f, 0.9f), emission(0.0f, 0.0f, 0.0f) {}
+    Sphere()
+        : Shape(vec3(-0.05f, 0.0f, -0.3f), "Sphere " + std::to_string(nextID), nullptr), radius(0.15f), color(0.9f, 0.9f, 0.9f), emission(0.0f, 0.0f, 0.0f) {}
 
     Sphere(float r, const vec3& center) 
         : Shape(center, "Sphere "  + std::to_string(nextID), nullptr), radius(r), color(1.0f, 1.0f, 1.0f), emission(0.0f, 0.0f, 0.0f) {}
