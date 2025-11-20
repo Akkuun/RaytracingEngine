@@ -65,6 +65,8 @@ find_path(OpenCL_HPP_INCLUDE_DIR CL/opencl.hpp
 
 # Find only Qt headers that need MOC processing (contain Q_OBJECT or Q_GADGET)
 file(GLOB UI_HEADERS "src/ui/*.h" "src/ui/panels/*.h")
+# Add Camera.h which now inherits from QObject
+list(APPEND UI_HEADERS "src/core/camera/Camera.h")
 
 # Qt6 MOC - process only Qt headers
 qt6_wrap_cpp(MOC_SOURCES ${UI_HEADERS})

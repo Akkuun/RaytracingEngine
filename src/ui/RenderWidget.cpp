@@ -44,7 +44,14 @@ void RenderWidget::scheduleNextFrame()
         elapsedTimer.restart();
         
         // Update camera with delta time
-        Camera::getInstance().update(deltaTime);
+        Camera& camera = Camera::getInstance();
+        camera.update(deltaTime);
+        
+        // Check if camera moved and reset TAA accumulation if needed
+        if (camera.hasMoved() && renderEngine) {
+            renderEngine->markCameraDirty();
+            camera.clearMovedFlag();
+        }
         
         renderFrame();
         isRendering = false;
@@ -124,12 +131,14 @@ void RenderWidget::updateFPS()
 
 void RenderWidget::keyPressEvent(QKeyEvent *event)
 {
+    // Forward key events to Camera for simple key tracking
     Camera::getInstance().handleKeyPress(event->key(), true);
     QWidget::keyPressEvent(event);
 }
 
 void RenderWidget::keyReleaseEvent(QKeyEvent *event)
 {
+    // Forward key events to Camera for simple key tracking
     Camera::getInstance().handleKeyPress(event->key(), false);
     QWidget::keyReleaseEvent(event);
 }

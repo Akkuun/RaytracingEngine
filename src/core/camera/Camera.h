@@ -7,6 +7,9 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
+#include <map>
+#include <memory>
+#include <QObject>
 
 class QKeyEvent;
 class QMouseEvent;
@@ -33,7 +36,7 @@ static const glm::vec3 DEFAULT_EULER_ANGLE = glm::vec3(0.0f, 0.0f, 0.0f);
 static const bool DEFAULT_ATTACHED = false;
 static const float DEFAULT_TRANSLATION_SPEED = 0.05f;
 static const float DEFAULT_DISTANCE_SPEED = 0.1f;
-static const float DEFAULT_ROTATION_SPEED = 0.1f;
+static const float DEFAULT_ROTATION_SPEED = 1.0f;
 static const float KEYS_ROTATION_SPEED_CORRECTION = 1.0f;
 static const glm::vec3 CAMERA_POSITION_RELATIVE_TO_PLAYER = glm::vec3(0.0f, 2.0f, 5.0f);
 static const float DELTA_Y_SNEAK = 0.3f;
@@ -43,8 +46,10 @@ static const glm::vec3 VEC_UP = glm::vec3(0.f, 1.f, 0.f);
 static const glm::vec3 VEC_FRONT = glm::vec3(0.f, 0.f, 1.f);
 static const glm::vec3 VEC_RIGHT = glm::vec3(1.f, 0.f, 0.f);
 
-class Camera
+class Camera : public QObject
 {
+    Q_OBJECT
+
 public:
     static Camera& getInstance() {
         static Camera instance;
@@ -53,6 +58,12 @@ public:
     Camera();
     ~Camera();
 
+signals:
+    void positionChanged(float x, float y, float z);
+    void rotationChanged(float x, float y, float z); // In degrees
+    void fovChanged(float fov);
+
+public:
     void reset();
     void init();
     void update(float deltaTime);
@@ -70,7 +81,10 @@ public:
 
     // Getters
     glm::vec3 getPosition() const { return m_position; }
-    void setPosition(glm::vec3 position) { m_position = position; }
+    void setPosition(glm::vec3 position) { 
+        m_position = position;
+        emit positionChanged(position.x, position.y, position.z);
+    }
     
     glm::quat getRotation() const { return m_rotation; }
     
@@ -87,7 +101,10 @@ public:
 
     // Camera parameters
     inline float getFOV() const { return m_fovDegree; }
-    inline void setFOV(float fov) { m_fovDegree = fov; }
+    inline void setFOV(float fov) { 
+        m_fovDegree = fov;
+        emit fovChanged(fov);
+    }
     inline float getNearPlane() const { return m_nearPlane; }   
     inline float getFarPlane() const { return m_farPlane; }
 
@@ -95,6 +112,10 @@ public:
 
     // Convert to GPU format
     GPUCamera toGPU() const;
+
+    // Check if camera has changed (for TAA accumulation reset)
+    bool hasMoved() const { return m_hasMoved; }
+    void clearMovedFlag() { m_hasMoved = false; }
 
 private:
     // Camera parameters
@@ -152,6 +173,9 @@ private:
 
     inline glm::vec3 getTarget() const { return m_targetPrev; }
 
-    // Key state tracking for Qt
-    bool m_keysPressed[512] = {false};
+    // Simple key state tracking for camera control
+    std::map<int, bool> m_keysPressed;
+    
+    // Movement tracking for TAA reset
+    bool m_hasMoved = false;
 };

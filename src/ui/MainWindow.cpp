@@ -5,10 +5,15 @@
 #include "./panels/ObjectPanel.h"
 #include "./panels/CameraPanel.h"
 #include "./panels/ParametersPanel.h"
+#include "../core/input/Keybinds.hpp"
+#include "../core/commands/CommandsManager.h"
+#include "../core/commands/actionsCommands/CameraResetCommand.h"
 #include <QVBoxLayout>
+#include <QShortcut>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
 #include <QShortcut>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), 
@@ -28,16 +33,20 @@ MainWindow::MainWindow(QWidget *parent)
     kernelManager = &KernelManager::getInstance();
     setupUI();
     
-    // Setup keyboard shortcuts
-    togglePanelsShortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
+    // Setup keyboard shortcuts from Keybinds singleton
+    Keybinds& keybinds = Keybinds::getInstance();
+    
+    togglePanelsShortcut = new QShortcut(keybinds.getKeybind(KB_TOGGLE_PANELS), this);
     connect(togglePanelsShortcut, &QShortcut::activated, this, &MainWindow::toggleBothPanels);
     
-    // Setup Undo/Redo shortcuts
-    undoShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z), this);
+    undoShortcut = new QShortcut(keybinds.getKeybind(KB_UNDO), this);
     connect(undoShortcut, &QShortcut::activated, this, &MainWindow::onUndo);
     
-    redoShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z), this);
+    redoShortcut = new QShortcut(keybinds.getKeybind(KB_REDO), this);
     connect(redoShortcut, &QShortcut::activated, this, &MainWindow::onRedo);
+    
+    resetCameraShortcut = new QShortcut(keybinds.getKeybind(KB_RESET_CAMERA), this);
+    connect(resetCameraShortcut, &QShortcut::activated, this, &MainWindow::onResetCamera);
 }
 
 MainWindow::~MainWindow() {}
@@ -377,4 +386,28 @@ void MainWindow::onRedo()
     if (commandManager.canRedo()) {
         commandManager.redo();
     }
+}
+
+void MainWindow::onResetCamera()
+{
+    // Create and execute camera reset command (allows undo)
+    commandManager.executeCommand(new CameraResetCommand());
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    // Forward key events to Camera for simple key tracking
+    Camera::getInstance().handleKeyPress(event->key(), true);
+    
+    // Let the base class handle other keys (and trigger shortcuts)
+    QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    // Forward key events to Camera for simple key tracking  
+    Camera::getInstance().handleKeyPress(event->key(), false);
+    
+    // Let the base class handle other keys
+    QMainWindow::keyReleaseEvent(event);
 }

@@ -9,6 +9,7 @@
 #include <QPropertyAnimation>
 #include <QEasingCurve>
 #include <QShortcut>
+#include "../core/camera/Camera.h"
 #include "../core/systems/DeviceManager/DeviceManager.h"
 #include "../core/systems/KernelManager/KernelManager.h"
 #include "../core/commands/CommandsManager.h"
@@ -26,6 +27,8 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private slots:
     void toggleLeftPanel();
@@ -33,6 +36,7 @@ private slots:
     void toggleBothPanels();
     void onUndo();
     void onRedo();
+    void onResetCamera();
 
 private:
     void setupUI();
@@ -70,6 +74,7 @@ private:
     QShortcut *togglePanelsShortcut;
     QShortcut *undoShortcut;
     QShortcut *redoShortcut;
+    QShortcut *resetCameraShortcut;
 
     // OpenCL Device Manager
     DeviceManager* deviceManager;
