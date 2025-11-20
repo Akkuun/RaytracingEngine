@@ -127,7 +127,7 @@ void SceneManager::buildScene()
 
     Mesh *mesh = new Mesh("../assets/models3D/tripod.off");
     mesh->scale(vec3(0.4f));
-    // mesh->translate(vec3(0.0f, 0.0f, 2.0f));
+    mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
     mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
     mesh->generateCpuTriangles();
     addShape(mesh);
