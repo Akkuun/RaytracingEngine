@@ -228,6 +228,10 @@ void RenderEngine::setupMaterialBuffer()
 
     for (auto *material : materials)
     {
+        if (!material) {
+            std::cerr << "Warning: Null material pointer in materials vector, skipping..." << std::endl;
+            continue;
+        }
         GPUMaterial gpu_material = material->toGPU();
         gpu_materials.push_back(gpu_material);
     }
@@ -270,13 +274,22 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials)
     std::vector<unsigned char> allTextureData;
     int currentOffset = 0;
 
+    // Safety check: ensure gpu_materials vector matches materials vector size
+    if (gpu_materials.size() != materials.size()) {
+        std::cerr << "Error: gpu_materials size (" << gpu_materials.size() 
+                  << ") doesn't match materials size (" << materials.size() << ")" << std::endl;
+        return;
+    }
+
     for (size_t i = 0; i < materials.size(); i++)
     {
         Material* material = materials[i];
         if (!material) {
             std::cerr << "Warning: Null material at index " << i << std::endl;
-            gpu_materials[i].texture_offset = -1;
-            gpu_materials[i].normal_map_offset = -1;
+            if (i < gpu_materials.size()) {
+                gpu_materials[i].texture_offset = -1;
+                gpu_materials[i].normal_map_offset = -1;
+            }
             continue;
         }
         

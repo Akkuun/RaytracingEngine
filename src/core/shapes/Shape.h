@@ -6,7 +6,13 @@
 class Shape
 {
 public:
-    virtual ~Shape() = default;
+    virtual ~Shape() {
+        // Clean up material if it was allocated by this shape
+        if (material != nullptr) {
+            delete material;
+            material = nullptr;
+        }
+    }
     virtual ShapeType getType() const { return ShapeType::UNDEFINED; }
 
     // Getters

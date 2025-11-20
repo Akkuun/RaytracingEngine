@@ -28,6 +28,12 @@ public:
     Material(const std::string& pathFileTexture);
     Material(const std::string& pathFileTexture, const std::string& pathFileNormalMap);
     Material(const vec3 &diffuse_color);
+    ~Material() {
+        image.data.clear();
+        normals.data.clear();
+        emissionMap.data.clear();
+        metalicityMap.data.clear();
+    }
 
     // Getters
     inline const vec3 &getAmbient() const { return ambient_material; }
@@ -88,10 +94,10 @@ private:
     vec3 light_color;
     float light_intensity;
 
-    ppmLoader::ImageRGB &image;
-    ppmLoader::ImageRGB &normals;
-    ppmLoader::ImageRGB &emissionMap;
-    ppmLoader::ImageRGB &metalicityMap;
+    ppmLoader::ImageRGB image;
+    ppmLoader::ImageRGB normals;
+    ppmLoader::ImageRGB emissionMap;
+    ppmLoader::ImageRGB metalicityMap;
 
     bool has_normal_map = false;
 

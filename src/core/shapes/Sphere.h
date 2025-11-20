@@ -19,7 +19,7 @@ public:
     Sphere(float r, const vec3& center, const vec3& color, const std::string& name, Material* mat)
     : Shape(center, name, mat), radius(r), color(color), emission(0.0f, 0.0f, 0.0f) {}
     Sphere(float r, const vec3 &center, const vec3 &color, const vec3 &emi, Material *mat)
-        : Shape(center, "Sphere " + std::to_string(nextID), mat), radius(r), color(color), emission(emi), material(mat) {}
+        : Shape(center, "Sphere " + std::to_string(nextID), mat), radius(r), color(color), emission(emi) {}
 
     GPUSphere toGPU() const;
 
@@ -42,5 +42,5 @@ private:
     float radius;   // Attribut spécifique à Sphere
     vec3 color;     // Color
     vec3 emission;  // Emission (light)
-    Material* material;
+    // Note: material is inherited from Shape base class, no need to redeclare
 };

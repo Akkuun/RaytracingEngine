@@ -27,8 +27,8 @@ typedef struct {
 } GPUCamera;
 
 // Camera constants
-static const float DEFAULT_FOV = 45.0f;
-static const glm::vec3 DEFAULT_POSITION = glm::vec3(0.0f, 0.0f, -4.0f); // TODO ajust  if needed
+static const float DEFAULT_FOV = 80.0f;
+static const glm::vec3 DEFAULT_POSITION = glm::vec3(0.0f, 0.0f, -1.0f); // TODO ajust  if needed
 static const glm::vec3 DEFAULT_EULER_ANGLE = glm::vec3(0.0f, 0.0f, 0.0f);
 static const bool DEFAULT_ATTACHED = false;
 static const float DEFAULT_TRANSLATION_SPEED = 0.05f;
