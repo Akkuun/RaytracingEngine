@@ -41,12 +41,24 @@ public:
         if (shape) {
             sceneManager.getShapeByID(shape->getID())->setScale(newScale);
         }
+        if (shape->getType() == ShapeType::MESH) {
+            Mesh *mesh = static_cast<Mesh *>(shape);
+            vec3 scaleFactor(newScale.x / previousScale.x, newScale.y / previousScale.y, newScale.z / previousScale.z);
+            mesh->scale(scaleFactor);
+            mesh->generateCpuTriangles();
+        }
     }
 
     // revert the shape scale to previousScale
     void undo() override {
         if (shape) {
             sceneManager.getShapeByID(shape->getID())->setScale(previousScale);
+        }
+        if (shape->getType() == ShapeType::MESH) {
+            Mesh *mesh = static_cast<Mesh *>(shape);
+            vec3 scaleFactor(previousScale.x / newScale.x, previousScale.y / newScale.y, previousScale.z / newScale.z);
+            mesh->scale(scaleFactor);
+            mesh->generateCpuTriangles();
         }
     }
 

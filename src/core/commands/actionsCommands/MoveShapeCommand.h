@@ -37,16 +37,33 @@ public:
         }
     }
     // set the shape position to newPosition
-    void execute() override {
-        if (shape) {
+    void execute() override
+    {
+        if (shape)
+        {
+            previousPosition = shape->getPosition();
             sceneManager.getShapeByID(shape->getID())->setPosition(newPosition);
+            if (shape->getType() == ShapeType::MESH)
+            {
+                Mesh *mesh = static_cast<Mesh *>(shape);
+                mesh->translate(newPosition - previousPosition); // Move all vertices
+                mesh->generateCpuTriangles();
+            }
         }
     }
 
     // revert the shape position to previousPosition
     void undo() override {
-        if (shape) {
+        if (shape)
+        {
+            vec3 oldPos = shape->getPosition();
             sceneManager.getShapeByID(shape->getID())->setPosition(previousPosition);
+            if (shape->getType() == ShapeType::MESH)
+            {
+                Mesh *mesh = static_cast<Mesh *>(shape);
+                mesh->translate(previousPosition - oldPos); // Move all vertices
+                mesh->generateCpuTriangles();
+            }
         }
     }
 
