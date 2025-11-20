@@ -94,6 +94,7 @@ typedef struct {
     Vec3 pos;
     Vec3 emi;
     Vec3 color;
+	int materialIndex;
 } GPUSphere;
 
 // Match CPU-side GPUSquare exactly
@@ -114,6 +115,10 @@ typedef struct {
 	Vec3 color;
 } GPUTriangle;
 
+typedef struct {
+Vec3 diffuse;
+}GPUMaterial;
+
 struct Intersection {
 	float t;
 	float3 hitpoint;
@@ -131,12 +136,13 @@ typedef struct __attribute__((aligned(16))) {
         GPUSquare square;
 		GPUTriangle triangle;
     } data;
+	// int materialID;
 } GPUShape;
 
-float3 get_shape_color(__global const GPUShape* shape)
+float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials)
 {
 	if (shape->type == SPHERE) {
-		return vec3_to_float3(shape->data.sphere.color);
+		return vec3_to_float3(materials[0].diffuse);
 	} else if (shape->type == SQUARE) {
 		return vec3_to_float3(shape->data.square.color);
 	} else if (shape->type == TRIANGLE) {
@@ -144,7 +150,6 @@ float3 get_shape_color(__global const GPUShape* shape)
 	}
 	return (float3)(0.0f, 0.0f, 0.0f); /* default color */
 }
-
 struct Intersection intersect_sphere(__global const GPUSphere* sphere, const struct Ray* ray, float* t)
 {
 	float3 sphere_pos = vec3_to_float3(sphere->pos);
@@ -351,7 +356,7 @@ bool compute_shadow(__global const GPUShape* shapes, int numShapes, const struct
 
 // Iterative version to avoid recursion issues with Rusticl driver
 // Uses hemisphere sampling for diffuse materials
-float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed)
+float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed, __global const GPUMaterial* materials)
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
@@ -365,7 +370,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 			break;
 		}
 
-		float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex]);
+		float3 diffuse = get_shape_color(&shapes[intersection.hitShapeIndex],materials);
 		
 		// Direct lighting contribution
 		float3 directLight = (float3)(0.0f, 0.0f, 0.0f);
@@ -457,7 +462,7 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 // frameCount -> number of frames accumulated so far (resets when camera/scene changes)
 __kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, 
                            __global GPUShape* shapes, int numShapes,
-                           __global GPUCamera* camera)
+                           __global GPUCamera* camera, __global GPUMaterial* materials, int numMaterials)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */
@@ -483,7 +488,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	// Initialize random seed based on pixel position AND frame count for temporal variation
 	uint seed = (x_coord * 1973 + y_coord * 9277 + frameCount * 26699) | 1;
 	
-	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed);
+	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials);
 
 	/* If no intersection found, return background colour */
 	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {

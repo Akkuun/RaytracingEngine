@@ -54,3 +54,14 @@ typedef struct __attribute__((aligned(16))) {
         GPUTriangle triangle;
     } data;
 } GPUShape;
+
+
+
+enum TextureType {
+    Texture_None = 0, // explicit values
+    Texture_Image = 1
+};
+
+struct GPUMaterial {
+    Vec3 diffuse;
+};

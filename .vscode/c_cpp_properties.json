@@ -7,6 +7,7 @@
                 "${workspaceFolder}/panels",
                 "${workspaceFolder}/external/OpenCL-CLHPP/include",
                 "${workspaceFolder}/external/glm-0.9.7.1/glm",
+                "${workspaceFolder}/external/glm-0.9.7.1/",
                 "${workspaceFolder}",
                 "/usr/include/qt6",
                 "/usr/include/qt6/QtWidgets",

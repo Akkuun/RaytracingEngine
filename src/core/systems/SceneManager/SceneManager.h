@@ -6,28 +6,33 @@
 #include "../../shapes/Triangle.h"
 #include "../../shapes/Mesh.h"
 
-class SceneManager {
+class SceneManager
+{
 public:
     // Singleton pattern
-    static SceneManager& getInstance();
-    
+    static SceneManager &getInstance();
+
     // Delete copy constructor and assignment operator
-    SceneManager(const SceneManager&) = delete;
-    SceneManager& operator=(const SceneManager&) = delete;
-    
+    SceneManager(const SceneManager &) = delete;
+    SceneManager &operator=(const SceneManager &) = delete;
+
     ~SceneManager();
-    
-    void addShape(Shape* shape);
-    void deleteShape(Shape* shape);
-    const std::vector<Shape*>& getShapes() const;
+
+    void addShape(Shape *shape);
+    void deleteShape(Shape *shape);
+    inline const std::vector<Shape *> &getShapes() { return shapes; }
+    inline const std::vector<Material *> &getMaterials() const { return materials; }
+    void updateUniqueMaterials();
     void buildScene();
-    
+
     inline size_t getNumShapes() const { return shapes.size(); }
-    Shape* getShapesBuffer() const; // Returns a buffer suitable for GPU consumption
-    Shape* getShapeByID(const int &shapeID) const;
+    size_t getNumMaterials() const { return materials.size(); }
+    Shape *getShapesBuffer() const; // Returns a buffer suitable for GPU consumption
+    Shape *getShapeByID(const int &shapeID) const;
 
 private:
     SceneManager(); // Private constructor
-    std::vector<Shape*> shapes;
-    void clearShapes();    
+    std::vector<Shape *> shapes;
+    std::vector<Material *> materials;
+    void clearShapes();
 };
