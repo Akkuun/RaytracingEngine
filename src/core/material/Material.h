@@ -4,6 +4,23 @@
 #include "../math/vec3.h"
 #include "../defines/Defines.h"
 
+
+class MaterialId
+{
+public:
+    static MaterialId& getInstance()
+    {
+        static MaterialId instance;
+        return instance;
+    }
+
+private:
+    int id = 0;
+    MaterialId() {}
+public:
+    int getNewId() { return id++; }
+};
+
 class Material
 {
 public:
@@ -53,37 +70,6 @@ public:
 
     GPUMaterial toGPU() const;
 
-    // bool operator==(const Material& other) const {
-    //     return
-    //         // if ambient mat is ==
-    //         ambient_material.x == other.ambient_material.x &&
-    //         ambient_material.y == other.ambient_material.y &&
-    //         ambient_material.z == other.ambient_material.z &&
-    //         // if diffuse mat is ==
-    //         diffuse_material.x == other.diffuse_material.x &&
-    //         diffuse_material.y == other.diffuse_material.y &&
-    //         diffuse_material.z == other.diffuse_material.z &&
-    //         // if specular mat is ==
-    //         specular_material.x == other.specular_material.x &&
-    //         specular_material.y == other.specular_material.y &&
-    //         specular_material.z == other.specular_material.z &&
-    //         // if texture scales are ==
-    //         texture_scale_x == other.texture_scale_x &&
-    //         texture_scale_y == other.texture_scale_y &&
-    //         // if other properties are ==
-    //         shininess == other.shininess &&
-    //         index_medium == other.index_medium &&
-    //         transparency == other.transparency &&
-    //         emissive == other.emissive &&
-    //         light_color.x == other.light_color.x &&
-    //         light_color.y == other.light_color.y &&
-    //         light_color.z == other.light_color.z &&
-    //         light_intensity == other.light_intensity &&
-    //         // image/normal map comparaison (only check paths) to avoid checking pointer comparison
-    //         pathFileTexture == other.pathFileTexture &&
-    //         pathFileNormalMap == other.pathFileNormalMap;
-    // }
-
 private:
     vec3 ambient_material;
     vec3 diffuse_material;
@@ -109,7 +95,7 @@ private:
     bool has_normal_map = false;
 
 
-    std::vector<int> shapeIDAssociated;
+    int material_id = MaterialId::getInstance().getNewId();
 
 
 
