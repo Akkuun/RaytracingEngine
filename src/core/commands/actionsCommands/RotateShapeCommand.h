@@ -27,7 +27,6 @@ public:
             previousRotation = shape->getRotation();
             // New rotation
             newRotation = vec3(newX, newY, newZ);
-
         }
     }
 
@@ -41,12 +40,24 @@ public:
         if (shape) {
             sceneManager.getShapeByID(shape->getID())->setRotation(newRotation);
         }
+        if (shape->getType() == ShapeType::MESH)
+        {
+            Mesh *mesh = static_cast<Mesh *>(shape);
+            mesh->rotate(newRotation - previousRotation); // Rotate all vertices
+            mesh->generateCpuTriangles();
+        }
     }
 
     // revert the shape rotation to previousRotation
     void undo() override {
         if (shape) {
             sceneManager.getShapeByID(shape->getID())->setRotation(previousRotation);
+        }
+        if (shape->getType() == ShapeType::MESH)
+        {
+            Mesh *mesh = static_cast<Mesh *>(shape);
+            mesh->rotate(previousRotation - newRotation); // Rotate all vertices
+            mesh->generateCpuTriangles();
         }
     }
 

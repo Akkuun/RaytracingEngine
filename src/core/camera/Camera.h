@@ -15,17 +15,19 @@ class QKeyEvent;
 class QMouseEvent;
 
 // GPU-compatible Vec3 with padding to match kernel
-typedef struct {
+typedef struct
+{
     float x, y, z;
-    float _padding;  // Padding to align to 16 bytes (same as float4)
+    float _padding; // Padding to align to 16 bytes (same as float4)
 } GPUVec3;
 
 // GPU-compatible camera structure
-typedef struct {
-    GPUVec3 origin;   // Camera position (16 bytes)
-    GPUVec3 target;   // What the camera is looking at (16 bytes)
-    GPUVec3 up;       // Up vector (16 bytes)
-    float fov;        // Field of view in degrees (4 bytes)
+typedef struct
+{
+    GPUVec3 origin;    // Camera position (16 bytes)
+    GPUVec3 target;    // What the camera is looking at (16 bytes)
+    GPUVec3 up;        // Up vector (16 bytes)
+    float fov;         // Field of view in degrees (4 bytes)
     float _padding[3]; // Padding for alignment (12 bytes)
 } GPUCamera;
 
@@ -51,7 +53,8 @@ class Camera : public QObject
     Q_OBJECT
 
 public:
-    static Camera& getInstance() {
+    static Camera &getInstance()
+    {
         static Camera instance;
         return instance;
     }
@@ -67,9 +70,16 @@ public:
     void reset();
     void init();
     void update(float deltaTime);
-    void setTarget(glm::vec3 target);
-    void updateTarget(glm::vec3 target);
+    void setTarget(const glm::vec3 &target);
+    void updateTarget(const glm::vec3 &target);
     void setPlayerMotions(bool sprinting, bool sneaking);
+    
+    // Convert to GPU format
+    GPUCamera toGPU() const;
+
+    // Check if camera has changed (for TAA accumulation reset)
+    inline bool hasMoved() const { return m_hasMoved; }
+    inline void clearMovedFlag() { m_hasMoved = false; }
 
     // Input handling (to be called from Qt widgets)
     void handleKeyPress(int key, bool pressed);
@@ -80,42 +90,25 @@ public:
     inline bool isFPS() const { return !m_attached; }
 
     // Getters
-    glm::vec3 getPosition() const { return m_position; }
-    void setPosition(glm::vec3 position) { 
-        m_position = position;
-        emit positionChanged(position.x, position.y, position.z);
-    }
-    
-    glm::quat getRotation() const { return m_rotation; }
-    
-    glm::vec3 getFront() const {
-        return glm::rotate(m_rotation, VEC_FRONT);
-    }
-    
-    glm::vec3 getRotationEuler() const { return m_eulerAngle; }
-    void setRotation(const glm::vec3& eulerAngles);
-
+    inline glm::vec3 getFront() const{return glm::rotate(m_rotation, VEC_FRONT);}
+    inline glm::vec3 getPosition() const { return m_position; }
+    inline glm::vec3 getRotationEuler() const { return m_eulerAngle; }
+    inline glm::quat getRotation() const { return m_rotation; }
     // Matrix getters
     inline glm::mat4 getViewMatrix() const { return m_viewMatrix; }
     inline glm::mat4 getProjectionMatrix() const { return m_projectionMatrix; }
-
     // Camera parameters
     inline float getFOV() const { return m_fovDegree; }
-    inline void setFOV(float fov) { 
-        m_fovDegree = fov;
-        emit fovChanged(fov);
-    }
-    inline float getNearPlane() const { return m_nearPlane; }   
+    inline float getNearPlane() const { return m_nearPlane; }
     inline float getFarPlane() const { return m_farPlane; }
+
+    // Setters
+    void setPosition(const glm::vec3 &position);
+    void setRotation(const glm::vec3 &eulerAngles);
+    void setFOV(float fov);
 
     bool m_attached = DEFAULT_ATTACHED;
 
-    // Convert to GPU format
-    GPUCamera toGPU() const;
-
-    // Check if camera has changed (for TAA accumulation reset)
-    bool hasMoved() const { return m_hasMoved; }
-    void clearMovedFlag() { m_hasMoved = false; }
 
 private:
     // Camera parameters
@@ -175,7 +168,7 @@ private:
 
     // Simple key state tracking for camera control
     std::map<int, bool> m_keysPressed;
-    
+
     // Movement tracking for TAA reset
     bool m_hasMoved = false;
 };

@@ -12,8 +12,8 @@ private:
     int commandID;
     inline static int nextCommandID = 0;
 public:
-    CameraMoveCommand(Camera& cam, float newX, float newY, float newZ)
-        : camera(cam), commandID(nextCommandID++) {
+    CameraMoveCommand(const Camera& cam, float newX, float newY, float newZ)
+        : camera(const_cast<Camera&>(cam)), commandID(nextCommandID++) {
         previousPosition = camera.getPosition();
         newPosition = glm::vec3(newX, newY, newZ);
     }

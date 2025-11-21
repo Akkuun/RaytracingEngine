@@ -37,7 +37,7 @@ public:
     
     // Notify all registered callbacks
     void notifySceneChanged() {
-        for (auto& callback : sceneChangedCallbacks) {
+        for (const auto& callback : sceneChangedCallbacks) {
             if (callback) {
                 callback();
             }

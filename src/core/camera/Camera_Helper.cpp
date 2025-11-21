@@ -1,7 +1,7 @@
 #include "Camera_Helper.h"
 #include <cmath>
 
-glm::vec3 Camera_Helper::quatToEuler(glm::quat quat)
+glm::vec3 Camera_Helper::quatToEuler(const glm::quat& quat)
 {
     // Opengl quat to euler function give yaw between -90 and 90
     // If you want correct pitch and yaw you can use this 
@@ -36,8 +36,8 @@ glm::vec3 Camera_Helper::quatToEuler(glm::quat quat)
 }
 
 void Camera_Helper::computeFinalView(glm::mat4& outProjectionMatrix, glm::mat4& outviewMatrix, 
-                                      glm::vec3& position, glm::quat rotation, 
-                                      float fovDegree, float near, float far)
+                                      const glm::vec3& position, const glm::quat& rotation, 
+                                      float &fovDegree, float &near, float &far)
 {
     // Projection matrix : FOV, 16:9 ratio, display range : near <-> far units
     outProjectionMatrix = glm::perspective(glm::radians(fovDegree), 16.0f / 9.0f, near, far);
@@ -49,21 +49,22 @@ void Camera_Helper::computeFinalView(glm::mat4& outProjectionMatrix, glm::mat4& 
     outviewMatrix = glm::lookAt(position, position + front, up);
 }
 
-glm::vec3 Camera_Helper::projectVectorOnPlan(glm::vec3 vector, glm::vec3 normal) {
+glm::vec3 Camera_Helper::projectVectorOnPlan(const glm::vec3& vector, const glm::vec3& normal) {
     return vector - glm::dot(vector, normal) * normal;
 }
 
-double Camera_Helper::clipAnglePI(double angle) {
-    while(angle < -M_PI) {
-        angle += 2*M_PI;
+double Camera_Helper::clipAnglePI(const double &angle) {
+    double clippedAngle = angle;
+    while(clippedAngle < -M_PI) {
+        clippedAngle += 2*M_PI;
     }
-    while(angle > M_PI) {
-        angle -= 2*M_PI;
+    while(clippedAngle > M_PI) {
+        clippedAngle -= 2*M_PI;
     }
-    return angle;
+    return clippedAngle;
 }
 
-double Camera_Helper::clamp(double value, double min, double max) {
+double Camera_Helper::clamp(const double &value, const double &min, const double &max) {
     if(value < min) {
         return min;
     }
@@ -73,7 +74,7 @@ double Camera_Helper::clamp(double value, double min, double max) {
     return value;
 }
 
-double Camera_Helper::interpolation(double ratio, InterPolationType type) {
+double Camera_Helper::interpolation(const double &ratio, const InterPolationType &type) {
     switch(type) {
         case LINEAR:
             return ratio;

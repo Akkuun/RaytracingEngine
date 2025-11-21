@@ -12,8 +12,8 @@ private:
     int commandID;
     inline static int nextCommandID = 0;
 public:
-    CameraRotationCommand(Camera& cam, float newX, float newY, float newZ)
-        : camera(cam), commandID(nextCommandID++) {
+    CameraRotationCommand(const Camera& cam, float newX, float newY, float newZ)
+        : camera(const_cast<Camera&>(cam)), commandID(nextCommandID++) {
         previousRotation = camera.getRotationEuler();
         newRotation = glm::vec3(newX, newY, newZ);
     }

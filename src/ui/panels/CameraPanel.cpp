@@ -13,7 +13,7 @@
 #include "../../core/systems/RenderEngine/RenderEngine.h"
 #include "../../core/camera/Camera.h"
 #include "../../core/commands/CommandsManager.h"
-#include "../../core/input/Keybinds.hpp"
+#include "../../core/input/Keybinds.h"
 
 CameraPanel::CameraPanel(QWidget *parent) : QWidget(parent)
 {

@@ -1,7 +1,7 @@
 #include "SceneTreeWidget.h"
 #include "../../core/commands/actionsCommands/DeleteShapeCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
-#include "../../core/input/Keybinds.hpp"
+#include "../../core/input/Keybinds.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>

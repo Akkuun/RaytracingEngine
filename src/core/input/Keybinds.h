@@ -20,6 +20,8 @@
 #define KB_UNDO              "undo"
 #define KB_REDO              "redo"
 
+#define KB_APPLY_ON_ALL_AXIS "applyOnAllAxis"
+
 #define KB_REBIND_SUCCESS          0
 #define KB_ERROR_ACTION_NOT_FOUND   -1
 #define KB_ERROR_KEYBIND_IN_USE     -2
@@ -53,7 +55,8 @@ private:
 
         // UI keybinds
         keybindsMap[KB_TOGGLE_PANELS] = QKeySequence(Qt::Key_F);
-        
+        keybindsMap[KB_APPLY_ON_ALL_AXIS] = QKeySequence(Qt::CTRL);
+
         // Undo/Redo with standard shortcuts
         keybindsMap[KB_UNDO] = QKeySequence(Qt::CTRL | Qt::Key_Z);
         keybindsMap[KB_REDO] = QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z);
