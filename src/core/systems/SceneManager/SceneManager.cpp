@@ -116,7 +116,6 @@ void SceneManager::buildScene()
         vec3(-0.1f, 0.2f, -0.3f), // vertex A
         vec3(0.0f, 0.3f, -0.3f),   // vertex C
         vec3(-0.0f, 0.2f, -0.3f),   // vertex B
-        vec3(0.9f, 0.9f, 0.1f),   // color - yellow
         "Triangle"                // name
     ));
 

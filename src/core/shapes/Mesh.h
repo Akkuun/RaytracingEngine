@@ -96,7 +96,7 @@ public:
             const vec3& v1 = vertices[tri.v[1]].position;
             const vec3& v2 = vertices[tri.v[2]].position;
             // don´t increment ID for mesh triangles
-            cpuTriangles.emplace_back(v0, v1, v2, vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)), emission, true);
+            cpuTriangles.emplace_back(v0, v1, v2, true);
         }
     }
     const std::vector<Triangle>& getTriangles() const {

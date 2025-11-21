@@ -57,6 +57,5 @@ std::string Triangle::toString() const
     baseStr += "V0: (" + std::to_string(v0.x) + ", " + std::to_string(v0.y) + ", " + std::to_string(v0.z) + ")\n";
     baseStr += "V1: (" + std::to_string(v1.x) + ", " + std::to_string(v1.y) + ", " + std::to_string(v1.z) + ")\n";
     baseStr += "V2: (" + std::to_string(v2.x) + ", " + std::to_string(v2.y) + ", " + std::to_string(v2.z) + ")\n";
-    baseStr += "Color: (" + std::to_string(color.x) + ", " + std::to_string(color.y) + ", " + std::to_string(color.z) + ")\n";
     return baseStr;
 }
