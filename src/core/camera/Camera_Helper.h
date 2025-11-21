@@ -1,5 +1,4 @@
-#ifndef C1D9E61C_80B1_4BF9_9107_36B9C5CA497D
-#define C1D9E61C_80B1_4BF9_9107_36B9C5CA497D
+#pragma once
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -11,21 +10,25 @@
 
 enum InterPolationType
 {
-    LINEAR, COS, EXP, LOG, SQUARE, SQRT, CUBIC, SQRT3
+    LINEAR,
+    COS,
+    EXP,
+    LOG,
+    SQUARE,
+    SQRT,
+    CUBIC,
+    SQRT3
 };
 
 class Camera_Helper
 {
-public: 
-    static glm::vec3 quatToEuler(glm::quat quat);
-    static void computeFinalView(glm::mat4& outProjectionMatrix, glm::mat4& outviewMatrix, 
-                                  glm::vec3& position, glm::quat rotation, 
-                                  float fovDegree, float near, float far);
-    static glm::vec3 projectVectorOnPlan(glm::vec3 vector, glm::vec3 normal);
-    static double clipAnglePI(double angle);
-    static double clamp(double value, double min, double max);
-    static double interpolation(double ratio, InterPolationType type);
+public:
+    static glm::vec3 quatToEuler(const glm::quat &quat);
+    static void computeFinalView(glm::mat4 &outProjectionMatrix, glm::mat4 &outviewMatrix,
+                                 const glm::vec3 &position, const glm::quat &rotation,
+                                 float &fovDegree, float &near, float &far);
+    static glm::vec3 projectVectorOnPlan(const glm::vec3 &vector, const glm::vec3 &normal);
+    static double clipAnglePI(const double &angle);
+    static double clamp(const double &value, const double &min, const double &max);
+    static double interpolation(const double &ratio, const InterPolationType &type);
 };
-
-
-#endif /* C1D9E61C_80B1_4BF9_9107_36B9C5CA497D */
