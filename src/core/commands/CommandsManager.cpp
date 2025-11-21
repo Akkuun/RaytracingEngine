@@ -1,5 +1,4 @@
-#ifndef COMMAND_MANAGER_H
-#define COMMAND_MANAGER_H
+#pragma once
 
 #include "ICommand.h"
 #include <stack>
@@ -96,5 +95,3 @@ public:
         while (!redoStack.empty()) redoStack.pop();
     }
 };
-
-#endif // COMMAND_MANAGER_H
