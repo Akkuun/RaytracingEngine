@@ -113,10 +113,10 @@ void SceneManager::buildScene()
 
     // Triangle - blue
     addShape(new Triangle(
+        "Triangle",                // name
         vec3(-0.1f, 0.2f, -0.3f), // vertex A
         vec3(0.0f, 0.3f, -0.3f),   // vertex C
-        vec3(-0.0f, 0.2f, -0.3f),   // vertex B
-        "Triangle"                // name
+        vec3(-0.0f, 0.2f, -0.3f)   // vertex B
     ));
 
     Mesh *mesh = new Mesh("../assets/models3D/tripod.off");

@@ -30,6 +30,10 @@ public:
         (void)isPartOfMesh; // unused, just for signature differentiation
     }
 
+    // obscure rease beacause the other constructor can't decide which one to call with name at the end (think is isPartOfMesh)
+    Triangle(std::string name, const vec3 &v0, const vec3 &v1, const vec3 &v2)
+        : Shape((v0 + v1 + v2) * (1.0f / 3.0f), name, nullptr), v0(v0), v1(v1), v2(v2) {}
+
     // Convert to GPU-friendly struct
     GPUTriangle toGPU() const;
 
