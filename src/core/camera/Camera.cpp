@@ -107,7 +107,9 @@ void Camera::update(float deltaTime)
     {
         if (seq.isEmpty())
             return false;
-        int key = seq[0] & ~Qt::KeyboardModifierMask; // Extract key without modifiers
+        // Use QKeyCombination directly instead of int to avoid deprecated warning
+        QKeyCombination keyCombo = seq[0];
+        int key = keyCombo.key(); // Extract key code
         return m_keysPressed[key];
     };
 
@@ -340,7 +342,8 @@ GPUCamera Camera::toGPU() const
     return gpu_camera;
 }
 
-void Camera::setPosition(const glm::vec3& position) { 
+void Camera::setPosition(const glm::vec3 &position)
+{
     m_position = position;
     emit positionChanged(position.x, position.y, position.z);
 }

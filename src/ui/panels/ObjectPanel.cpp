@@ -292,7 +292,7 @@ void ObjectPanel::setupUI()
     connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newX)
             {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
-        if (shape && shape->getType() == ShapeType::SPHERE || isShortcutPressed()) {
+        if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
             applyUniformScalling(newX);
         } else {
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
@@ -301,7 +301,7 @@ void ObjectPanel::setupUI()
     connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newY)
             {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
-        if (shape && shape->getType() == ShapeType::SPHERE || isShortcutPressed()) {
+        if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
             applyUniformScalling(newY);
         } else {
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
@@ -310,7 +310,7 @@ void ObjectPanel::setupUI()
     connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newZ)
             {
         Shape* shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
-        if (shape && shape->getType() == ShapeType::SPHERE || isShortcutPressed()) {
+        if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
             applyUniformScalling(newZ);
         } else {
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));

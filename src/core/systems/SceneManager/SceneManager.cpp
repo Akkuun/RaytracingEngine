@@ -67,7 +67,6 @@ void SceneManager::buildScene()
         vec3(1.5f, 0.0f, 0.0f),   // u_vec
         vec3(0.0f, 0.0f, 1.5f), // v_vec
         vec3(0.0f, 1.0f, 0.0f),   // normal
-        vec3(0.9f, 0.9f, 0.9f),   // color
         "Floor",                   // name
         new Material("../assets/textures/white_pool_tiles.ppm")
         ));
@@ -78,7 +77,6 @@ void SceneManager::buildScene()
         vec3(1.5f, 0.0f, 0.0f),   // u_vec
         vec3(0.0f, 0.0f, 1.5f), // v_vec
         vec3(0.0f, -1.0f, 0.0f),  // normal
-        vec3(0.9f, 0.9f, 0.9f),   // color
         "Ceiling",                 // name
         new Material("../assets/textures/metal.ppm")
     ));
@@ -89,7 +87,6 @@ void SceneManager::buildScene()
         vec3(0.0f, 1.5f, 0.0f),   // u_vec
         vec3(0.0f, 0.0f, 1.5f), // v_vec
         vec3(1.0f, 0.0f, 0.0f),   // normal
-        vec3(0.9f, 0.1f, 0.1f),   // color - red
         "Right Wall",               // name
         new Material("../assets/textures/brickwall.ppm")
     ));
@@ -100,7 +97,6 @@ void SceneManager::buildScene()
         vec3(0.0f, 1.5f, 0.0f),   // u_vec
         vec3(0.0f, 0.0f, 1.5f), // v_vec
         vec3(-1.0f, 0.0f, 0.0f),  // normal
-        vec3(0.1f, 0.9f, 0.1f),   // color - green
         "Left Wall",              // name
         new Material("../assets/textures/brickwall.ppm")
     ));
@@ -111,7 +107,6 @@ void SceneManager::buildScene()
         vec3(1.5f, 0.0f, 0.0f),   // u_vec
         vec3(0.0f, 1.5f, 0.0f),   // v_vec
         vec3(0.0f, 0.0f, -1.0f),   // normal
-        vec3(0.9f, 0.9f, 0.9f),   // color
         "Back Wall",               // name
         new Material("../assets/textures/white_pool_tiles.ppm")
         ));

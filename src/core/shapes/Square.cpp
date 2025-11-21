@@ -55,6 +55,5 @@ std::string Square::toString() const
     baseStr += "U Vector: (" + std::to_string(u_vec.x) + ", " + std::to_string(u_vec.y) + ", " + std::to_string(u_vec.z) + ")\n";
     baseStr += "V Vector: (" + std::to_string(v_vec.x) + ", " + std::to_string(v_vec.y) + ", " + std::to_string(v_vec.z) + ")\n";
     baseStr += "Normal: (" + std::to_string(normal.x) + ", " + std::to_string(normal.y) + ", " + std::to_string(normal.z) + ")\n";
-    baseStr += "Color: (" + std::to_string(color.x) + ", " + std::to_string(color.y) + ", " + std::to_string(color.z) + ")\n";
     return baseStr;
 }

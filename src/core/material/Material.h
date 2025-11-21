@@ -4,11 +4,10 @@
 #include "../math/vec3.h"
 #include "../defines/Defines.h"
 
-
 class MaterialId
 {
 public:
-    static MaterialId& getInstance()
+    static MaterialId &getInstance()
     {
         static MaterialId instance;
         return instance;
@@ -17,6 +16,7 @@ public:
 private:
     int id = 0;
     MaterialId() {}
+
 public:
     int getNewId() { return id++; }
 };
@@ -25,10 +25,11 @@ class Material
 {
 public:
     Material();
-    Material(const std::string& pathFileTexture);
-    Material(const std::string& pathFileTexture, const std::string& pathFileNormalMap);
+    Material(const std::string &pathFileTexture);
+    Material(const std::string &pathFileTexture, const std::string &pathFileNormalMap);
     Material(const vec3 &diffuse_color);
-    ~Material() {
+    ~Material()
+    {
         image.data.clear();
         normals.data.clear();
         emissionMap.data.clear();
@@ -66,47 +67,36 @@ public:
         texture_scale_y = sy;
     }
 
-    inline void set_texture(const ppmLoader::ImageRGB &img){
+    inline void set_texture(const ppmLoader::ImageRGB &img)
+    {
         image = img;
     }
-    inline void set_normals(const ppmLoader::ImageRGB &img){
+    inline void set_normals(const ppmLoader::ImageRGB &img)
+    {
         normals = img;
         has_normal_map = true;
     }
 
-
     GPUMaterial toGPU() const;
 
 private:
+    float transparency = 0.;
+    float index_medium;
     vec3 ambient_material;
     vec3 diffuse_material;
     vec3 specular_material;
     double shininess;
-
-    float index_medium;
-    float transparency = 0.;
-
-
-    float texture_scale_x = 1.;
-    float texture_scale_y = 1.;
-
     bool emissive;
     vec3 light_color;
     float light_intensity;
-
     ppmLoader::ImageRGB image;
     ppmLoader::ImageRGB normals;
     ppmLoader::ImageRGB emissionMap;
     ppmLoader::ImageRGB metalicityMap;
-
+    float texture_scale_x = 1.;
+    float texture_scale_y = 1.;
     bool has_normal_map = false;
-
-
     int material_id = MaterialId::getInstance().getNewId();
-
-
-
-    // used for == verification
     std::string pathFileTexture = "";
     std::string pathFileNormalMap = "";
 };
