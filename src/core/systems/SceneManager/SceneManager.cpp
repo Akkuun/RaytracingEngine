@@ -54,12 +54,16 @@ void SceneManager::buildScene()
     addShape(new Sphere(
         0.15f,
          vec3(0.25f, -0.2f, -0.25f),
-          vec3(0.9f, 0.9f, 0.9f),
            "Boule 1",
             new Material(vec3(1.f, 0.3f, 1.f))));
 
     // Sphere 2 - Texture Material
-    addShape(new Sphere(0.1f, vec3(-0.25f, -0.25f, -0.25f), vec3(0.95f, 0.95f, 0.95f), "Boule 2", new Material("../assets/textures/earth.ppm")));
+    addShape(new Sphere(
+        0.1f, // radius
+         vec3(-0.25f, -0.25f, -0.25f), // center
+          "Boule 2", // name
+           new Material("../assets/textures/earth.ppm")) // Earth texture
+        );
 
     // Floor - white
     addShape(new Square(

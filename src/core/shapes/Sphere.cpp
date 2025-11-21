@@ -35,6 +35,5 @@ std::string Sphere::toString() const
 {
     std::string baseStr = Shape::toString();
     baseStr += "Radius: " + std::to_string(radius) + "\n";
-    baseStr += "Color: (" + std::to_string(color.x) + ", " + std::to_string(color.y) + ", " + std::to_string(color.z) + ")\n";
     return baseStr;
 }
