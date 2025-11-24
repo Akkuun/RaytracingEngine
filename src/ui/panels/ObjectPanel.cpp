@@ -11,7 +11,6 @@
 #include <QSpinBox>
 #include <QComboBox>
 #include <QCheckBox>
-#include <QPushButton>
 #include <QPixmap>
 #include <QPainter>
 #include <QFileDialog>
@@ -23,6 +22,7 @@
 #include "../../core/commands/actionsCommands/MoveShapeCommand.h"
 #include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
 #include "../../core/commands/actionsCommands/RotateShapeCommand.h"
+#include "../../core/commands/actionsCommands/SetTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include <QKeyEvent>
 
@@ -155,12 +155,12 @@ void ObjectPanel::setupUI()
     QHBoxLayout *textureControlsLayout = new QHBoxLayout();
 
     // Load texture button
-    QPushButton *loadTextureBtn = new QPushButton("Load");
+    loadTextureBtn = new QPushButton("Load");
     loadTextureBtn->setMaximumWidth(50);
     loadTextureBtn->setStyleSheet("QPushButton { background-color: #444; color: white; border: 1px solid #666; padding: 2px; }");
 
     // Clear texture button
-    QPushButton *clearTextureBtn = new QPushButton("Clear");
+    clearTextureBtn = new QPushButton("Clear");
     clearTextureBtn->setMaximumWidth(50);
     clearTextureBtn->setStyleSheet("QPushButton { background-color: #444; color: white; border: 1px solid #666; padding: 2px; }");
 
@@ -176,9 +176,9 @@ void ObjectPanel::setupUI()
     previewLayout->addLayout(textureControlsLayout);
 
     // Connect buttons (basic functionality)
-    connect(loadTextureBtn, &QPushButton::clicked, [texturePreview, textureNameLabel]()
-            {
-        QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Texture", "", "Image Files (*.png *.jpg *.jpeg *.bmp *.tiff)");
+    connect(loadTextureBtn, &QPushButton::clicked, [this, texturePreview, textureNameLabel]()
+    {
+        QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Texture", "", "Image Files (*.ppm)");
         if (!fileName.isEmpty()) {
             QPixmap pixmap(fileName);
             if (!pixmap.isNull()) {
@@ -187,8 +187,14 @@ void ObjectPanel::setupUI()
                 texturePreview->setPixmap(scaledPixmap);
                 QFileInfo fileInfo(fileName);
                 textureNameLabel->setText(fileInfo.baseName());
+
+                ppmLoader::ImageRGB image;
+                ppmLoader::load_ppm(image, fileName.toStdString());
+                commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
+                emit materialChanged();
             }
-        } });
+        }
+    });
 
     connect(clearTextureBtn, &QPushButton::clicked, [texturePreview, textureNameLabel, checkerboard]()
             {
@@ -203,7 +209,7 @@ void ObjectPanel::setupUI()
     // Reflection
     QHBoxLayout *reflectionLayout = new QHBoxLayout();
     QLabel *reflectionLabel = new QLabel("METALLIC:");
-    QDoubleSpinBox *reflectionSpinBox = new QDoubleSpinBox();
+    reflectionSpinBox = new QDoubleSpinBox();
     reflectionSpinBox->setRange(0.0, 1.0);
     reflectionSpinBox->setSingleStep(0.01);
     reflectionSpinBox->setDecimals(2);
@@ -217,7 +223,7 @@ void ObjectPanel::setupUI()
     // Refraction
     QHBoxLayout *refractionLayout = new QHBoxLayout();
     QLabel *refractionLabel = new QLabel("OPACITY:");
-    QDoubleSpinBox *refractionSpinBox = new QDoubleSpinBox();
+    refractionSpinBox = new QDoubleSpinBox();
     refractionSpinBox->setRange(0.0, 1.0);
     refractionSpinBox->setSingleStep(0.01);
     refractionSpinBox->setDecimals(2);
@@ -231,7 +237,7 @@ void ObjectPanel::setupUI()
     // Emissive
     QHBoxLayout *emissiveLayout = new QHBoxLayout();
     QLabel *emissiveLabel = new QLabel("EMISSIVE:");
-    QSpinBox *emissiveSpinBox = new QSpinBox();
+    emissiveSpinBox = new QSpinBox();
     emissiveSpinBox->setRange(0, 1000);
     emissiveSpinBox->setValue(0);
     emissiveSpinBox->setMaximumWidth(90);
@@ -243,7 +249,7 @@ void ObjectPanel::setupUI()
     // Refraction Index
     QHBoxLayout *refractionIndexLayout = new QHBoxLayout();
     QLabel *refractionIndexLabel = new QLabel("REFRACTION INDEX:");
-    QDoubleSpinBox *refractionIndexSpinBox = new QDoubleSpinBox();
+    refractionIndexSpinBox = new QDoubleSpinBox();
     refractionIndexSpinBox->setRange(0.0, 10.0);
     refractionIndexSpinBox->setSingleStep(0.001);
     refractionIndexSpinBox->setDecimals(3);
@@ -338,6 +344,52 @@ void ObjectPanel::setupUI()
             if (SceneManager::getInstance().getShapes().empty()) return;
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
         } });
+
+    // Connect material spin boxes
+    connect(reflectionSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+        Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape) {
+            Material *mat = shape->getMaterial();
+            if (mat) {
+                mat->setSpecular(vec3(value, value, value));
+                emit materialChanged();
+            }
+        }
+    });
+
+    connect(refractionSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+        Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape) {
+            Material *mat = shape->getMaterial();
+            if (mat) {
+                mat->setTransparency(value);
+                emit materialChanged();
+            }
+        }
+    });
+
+    connect(emissiveSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
+        Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape) {
+            Material *mat = shape->getMaterial();
+            if (mat) {
+                mat->setLightIntensity(value);
+                mat->setEmissive(value > 0);
+                emit materialChanged();
+            }
+        }
+    });
+
+    connect(refractionIndexSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+        Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+        if (shape) {
+            Material *mat = shape->getMaterial();
+            if (mat) {
+                mat->setIndexMedium(value);
+                emit materialChanged();
+            }
+        }
+    });
 }
 
 void ObjectPanel::setRenderWidget(RenderWidget *widget)
@@ -346,6 +398,7 @@ void ObjectPanel::setRenderWidget(RenderWidget *widget)
     {
         // send the signal to update the FPS chart
         connect(widget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
+        connect(this, &ObjectPanel::materialChanged, widget, &RenderWidget::markMaterialDirty);
     }
 }
 // function to update the current selected shape properties in the panel
@@ -405,6 +458,25 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     scaleX->blockSignals(false);
     scaleY->blockSignals(false);
     scaleZ->blockSignals(false);
+
+    // Update material properties
+    reflectionSpinBox->blockSignals(true);
+    refractionSpinBox->blockSignals(true);
+    emissiveSpinBox->blockSignals(true);
+    refractionIndexSpinBox->blockSignals(true);
+
+    Material *mat = shape->getMaterial();
+    if (mat) {
+        reflectionSpinBox->setValue(mat->getSpecular().x);
+        refractionSpinBox->setValue(mat->getTransparency());
+        emissiveSpinBox->setValue(mat->getLightIntensity());
+        refractionIndexSpinBox->setValue(mat->getIndexMedium());
+    }
+
+    reflectionSpinBox->blockSignals(false);
+    refractionSpinBox->blockSignals(false);
+    emissiveSpinBox->blockSignals(false);
+    refractionIndexSpinBox->blockSignals(false);
 
     // Update texture
     onTextureSelectionChanged(shape->getMaterial());

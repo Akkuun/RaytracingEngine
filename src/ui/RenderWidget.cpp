@@ -61,6 +61,13 @@ void RenderWidget::scheduleNextFrame()
     }
 }
 
+void RenderWidget::markMaterialDirty() 
+{
+    if (renderEngine) {
+        renderEngine->markMaterialDirty();
+    }
+}
+
 void RenderWidget::renderFrame()
 {
     width = QWidget::width();

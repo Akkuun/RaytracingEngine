@@ -5,6 +5,7 @@
 #include "../../core/utils/imageLoader/ImageLoader.h"
 #include "../../core/material/Material.h"
 #include <QDoubleSpinBox>
+#include <QPushButton>
 #include <QFrame>
 #include <QMap>
 class FPSChart;
@@ -30,6 +31,7 @@ signals:
     void shapeYPositionChanged(int shapeID, float newY);
     // detect when shape Z position change
     void shapeZPositionChanged(int shapeID, float newZ);
+    void materialChanged();
 
 private:
     void setupUI();
@@ -53,6 +55,14 @@ private:
     void onTextureSelectionChanged(const Material *material);
 
     QFrame *texturePreviewFrame;
+    QPushButton *loadTextureBtn;
+    QPushButton *clearTextureBtn;
+
+    // Material properties
+    QDoubleSpinBox *reflectionSpinBox;
+    QDoubleSpinBox *refractionSpinBox;
+    QSpinBox *emissiveSpinBox;
+    QDoubleSpinBox *refractionIndexSpinBox;
 
     bool applyOnAllAxis = false;
     QMap<int, bool> keysPressed;
