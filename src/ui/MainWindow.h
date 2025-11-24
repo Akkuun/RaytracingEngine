@@ -16,6 +16,7 @@
 
 class RenderWidget;
 class ObjectPanel;
+class ObjectPropertiesPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -57,6 +58,7 @@ private:
 
     // Panel references
     ObjectPanel *objectPanel;
+    ObjectPropertiesPanel *objectPropertiesPanel;
 
     // Render area
     RenderWidget *renderWidget;

@@ -3,6 +3,7 @@
 #include "CollapsiblePanel.h"
 #include "./panels/ScenePanel.h"
 #include "./panels/ObjectPanel.h"
+#include "./panels/ObjectPropertiesPanel.h"
 #include "./panels/CameraPanel.h"
 #include "./panels/ParametersPanel.h"
 #include "../core/input/Keybinds.h"
@@ -111,10 +112,16 @@ void MainWindow::setupLeftPanel()
     leftLayout->addWidget(scenePanelCollapsible);
 
     // Object Panel
-    CollapsiblePanel *objectPanelCollapsible = new CollapsiblePanel("▼ OBJECT");
+    CollapsiblePanel *objectPanelCollapsible = new CollapsiblePanel("▼ OBJECT TRANSFORM");
     objectPanel = new ObjectPanel();
     objectPanelCollapsible->setContent(objectPanel);
     leftLayout->addWidget(objectPanelCollapsible);
+
+    // Object properties
+    CollapsiblePanel *objectPropertiesPanelCollapsible = new CollapsiblePanel("▼ OBJECT PROPERTIES");
+    objectPropertiesPanel = new ObjectPropertiesPanel();
+    objectPropertiesPanelCollapsible->setContent(objectPropertiesPanel);
+    leftLayout->addWidget(objectPropertiesPanelCollapsible);
 
     // Connect ObjectPanel to RenderWidget for FPS updates
     objectPanel->setRenderWidget(renderWidget);

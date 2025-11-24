@@ -31,7 +31,6 @@ signals:
     void shapeYPositionChanged(int shapeID, float newY);
     // detect when shape Z position change
     void shapeZPositionChanged(int shapeID, float newZ);
-    void materialChanged();
 
 private:
     void setupUI();
@@ -51,18 +50,6 @@ private:
     QDoubleSpinBox *scaleX;
     QDoubleSpinBox *scaleY;
     QDoubleSpinBox *scaleZ;
-
-    void onTextureSelectionChanged(const Material *material);
-
-    QFrame *texturePreviewFrame;
-    QPushButton *loadTextureBtn;
-    QPushButton *clearTextureBtn;
-
-    // Material properties
-    QDoubleSpinBox *reflectionSpinBox;
-    QDoubleSpinBox *refractionSpinBox;
-    QSpinBox *emissiveSpinBox;
-    QDoubleSpinBox *refractionIndexSpinBox;
 
     bool applyOnAllAxis = false;
     QMap<int, bool> keysPressed;
