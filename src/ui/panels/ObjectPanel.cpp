@@ -77,9 +77,9 @@ void ObjectPanel::setupUI()
     rotX->setRange(-360, 360);
     rotY->setRange(-360, 360);
     rotZ->setRange(-360, 360);
-    rotX->setSingleStep(0.1);
-    rotY->setSingleStep(0.1);
-    rotZ->setSingleStep(0.1);
+    rotX->setSingleStep(1.0);
+    rotY->setSingleStep(1.0);
+    rotZ->setSingleStep(1.0);
     rotX->setValue(initialShape->getRotation().x);
     rotY->setValue(initialShape->getRotation().y);
     rotZ->setValue(initialShape->getRotation().z);
@@ -103,9 +103,9 @@ void ObjectPanel::setupUI()
     scaleX->setRange(0.01, 100);
     scaleY->setRange(0.01, 100);
     scaleZ->setRange(0.01, 100);
-    scaleX->setSingleStep(0.1);
-    scaleY->setSingleStep(0.1);
-    scaleZ->setSingleStep(0.1);
+    scaleX->setSingleStep(0.005); // ??? why not 0.05
+    scaleY->setSingleStep(0.005);
+    scaleZ->setSingleStep(0.005);
     scaleX->setValue(1);
     scaleY->setValue(1);
     scaleZ->setValue(1);
@@ -277,13 +277,22 @@ void ObjectPanel::setupUI()
 
     // Connection rotation spin boxes changes
     connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX)
-            { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value())); });
+            {
+                if (SceneManager::getInstance().getShapes().empty()) return;
+                commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value()));
+            });
 
     connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY)
-            { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value())); });
+            {
+                if (SceneManager::getInstance().getShapes().empty()) return;
+                commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value()));
+            });
 
     connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ)
-            { commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ)); });
+            {
+                if (SceneManager::getInstance().getShapes().empty()) return;
+                commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ));
+            });
 
     // Lambda function to synchronize scale for all axis for sphere shapes ONLY
     auto applyUniformScalling = [this](double value)
@@ -307,6 +316,7 @@ void ObjectPanel::setupUI()
         if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
             applyUniformScalling(newX);
         } else {
+            if (SceneManager::getInstance().getShapes().empty()) return;
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
         } });
 
@@ -316,6 +326,7 @@ void ObjectPanel::setupUI()
         if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
             applyUniformScalling(newY);
         } else {
+            if (SceneManager::getInstance().getShapes().empty()) return;
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
         } });
 
@@ -325,6 +336,7 @@ void ObjectPanel::setupUI()
         if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
             applyUniformScalling(newZ);
         } else {
+            if (SceneManager::getInstance().getShapes().empty()) return;
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), scaleY->value(), newZ));
         } });
 }
