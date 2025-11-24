@@ -177,6 +177,7 @@ void RenderEngine::setupShapesBuffer()
                 gpu_shapes.push_back(GPUShape());
                 GPUShape &mesh_gpu_shape = gpu_shapes.back();
                 mesh_gpu_shape.data.triangle = tri.toGPU();
+                mesh_gpu_shape.data.triangle.materialIndex = mesh->getMaterial() ? mesh->getMaterial()->getMaterialId() : -1;
                 mesh_gpu_shape.type = ShapeType::TRIANGLE;
                 i++;
             }
