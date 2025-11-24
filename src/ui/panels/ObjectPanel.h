@@ -2,7 +2,10 @@
 
 #include <QWidget>
 #include "../../core/commands/CommandsManager.h"
+#include "../../core/utils/imageLoader/ImageLoader.h"
+#include "../../core/material/Material.h"
 #include <QDoubleSpinBox>
+#include <QFrame>
 #include <QMap>
 class FPSChart;
 class RenderWidget;
@@ -46,6 +49,10 @@ private:
     QDoubleSpinBox *scaleX;
     QDoubleSpinBox *scaleY;
     QDoubleSpinBox *scaleZ;
+
+    void onTextureSelectionChanged(const Material *material);
+
+    QFrame *texturePreviewFrame;
 
     bool applyOnAllAxis = false;
     QMap<int, bool> keysPressed;

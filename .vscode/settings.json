@@ -92,6 +92,7 @@
         "hash_set": "cpp",
         "shared_mutex": "cpp",
         "stack": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "qcheckbox": "cpp"
     }
 }

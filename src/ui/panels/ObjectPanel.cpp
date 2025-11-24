@@ -15,7 +15,6 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QFileDialog>
-#include <QFrame>
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
@@ -124,7 +123,7 @@ void ObjectPanel::setupUI()
     layout->addWidget(new QLabel("TEXTURE"));
 
     // Texture preview block
-    QFrame *texturePreviewFrame = new QFrame();
+    texturePreviewFrame = new QFrame();
     texturePreviewFrame->setFrameStyle(QFrame::Box | QFrame::Raised);
     texturePreviewFrame->setMaximumHeight(100);
     texturePreviewFrame->setStyleSheet("QFrame { background-color: #2a2a2a; border: 2px solid #555; }");
@@ -406,6 +405,28 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     scaleX->blockSignals(false);
     scaleY->blockSignals(false);
     scaleZ->blockSignals(false);
+
+    // Update texture
+    onTextureSelectionChanged(shape->getMaterial());
+}
+
+void ObjectPanel::onTextureSelectionChanged(const Material *material)
+{
+    if (material != nullptr) {
+        QImage image(reinterpret_cast<const uchar*>(material->getImage().data.data()), material->getImage().w, material->getImage().h, QImage::Format_RGB888);
+        if (!image.isNull()) {
+            QPixmap pixmap = QPixmap::fromImage(image);
+            texturePreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(texturePreviewFrame->width() - 2, texturePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            return;
+        }
+    }
+    // If image is null, set to default checkerboard
+    QPixmap checkerboard(64, 64);
+    checkerboard.fill(Qt::gray);
+    QPainter painter(&checkerboard);
+    painter.fillRect(0, 0, 32, 32, Qt::darkGray);
+    painter.fillRect(32, 32, 32, 32, Qt::darkGray);
+    texturePreviewFrame->findChild<QLabel*>()->setPixmap(checkerboard);
 }
 
 // apply the scale on all axis
