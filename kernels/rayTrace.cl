@@ -350,7 +350,7 @@ struct Intersection intersect_square(__global const GPUSquare* square, const str
         return result;
     }
 
-    result.uv = (float2)((u_dist / u_length) + 0.5f, (v_dist / v_length) + 0.5f); // UV coordinates in [0,1] range
+    result.uv = (float2)((u_dist / u_length) + 0.5f, 1.0 - ((v_dist / v_length) + 0.5f)); // UV coordinates in [0,1] range
 
     return result;
 }
