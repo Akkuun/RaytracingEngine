@@ -24,9 +24,10 @@
 #include "../../core/commands/actionsCommands/MoveShapeCommand.h"
 #include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
 #include "../../core/commands/actionsCommands/RotateShapeCommand.h"
+#include "../../core/systems/SceneManager/SceneManager.h"
 #include <QKeyEvent>
 
-ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(-1), commandManager(CommandsManager::getInstance())
+ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
     setupUI();
 }
@@ -35,6 +36,8 @@ void ObjectPanel::setupUI()
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(5);
+
+    Shape *initialShape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
 
     // Position
     layout->addWidget(new QLabel("POSITION"));
@@ -57,6 +60,9 @@ void ObjectPanel::setupUI()
     posLayout->addWidget(posX);
     posLayout->addWidget(posY);
     posLayout->addWidget(posZ);
+    posX->setValue(initialShape->getPosition().x);
+    posY->setValue(initialShape->getPosition().y);
+    posZ->setValue(initialShape->getPosition().z);
     layout->addLayout(posLayout);
 
     // Rotation
@@ -74,6 +80,9 @@ void ObjectPanel::setupUI()
     rotX->setSingleStep(0.1);
     rotY->setSingleStep(0.1);
     rotZ->setSingleStep(0.1);
+    rotX->setValue(initialShape->getRotation().x);
+    rotY->setValue(initialShape->getRotation().y);
+    rotZ->setValue(initialShape->getRotation().z);
     rotX->setMaximumWidth(90);
     rotY->setMaximumWidth(90);
     rotZ->setMaximumWidth(90);
@@ -106,6 +115,9 @@ void ObjectPanel::setupUI()
     scaleLayout->addWidget(scaleX);
     scaleLayout->addWidget(scaleY);
     scaleLayout->addWidget(scaleZ);
+    scaleX->setValue(initialShape->getScale().x);
+    scaleY->setValue(initialShape->getScale().y);
+    scaleZ->setValue(initialShape->getScale().z);
     layout->addLayout(scaleLayout);
 
     // Texture
