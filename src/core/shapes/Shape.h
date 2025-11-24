@@ -26,6 +26,12 @@ public:
     inline void setPosition(const vec3 &pos) { position = pos; }
     inline void setScale(const vec3 &s) { scale = s; }
     inline void setRotation(const vec3 &rot) { rotation = rot; }
+    inline void setMaterial(Material *mat) {
+        if (material != nullptr) {
+            delete material;
+        }
+        material = mat;
+    }
 
     Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(nullptr) {}
     Shape(const vec3 &pos, const std::string &name, Material *mat) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(mat) {}

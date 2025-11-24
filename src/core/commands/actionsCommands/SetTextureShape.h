@@ -22,6 +22,14 @@ public:
                 // If getting previous texture fails, initialize to empty
                 previousTexture = ppmLoader::ImageRGB{0, 0, {}};
             }
+        } else { // Create a new material if none exists
+            shape->setMaterial(new Material());
+            try {
+                previousTexture = shape->getMaterial()->getImage();
+            } catch (...) {
+                // If getting previous texture fails, initialize to empty
+                previousTexture = ppmLoader::ImageRGB{0, 0, {}};
+            }
         }
     }
     void execute() override {
