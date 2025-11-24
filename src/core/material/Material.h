@@ -71,6 +71,13 @@ public:
     {
         image = img;
     }
+
+    inline void remove_texture()
+    {
+        image.data.clear();
+        image.w = 0;
+        image.h = 0;
+    }
     inline void set_normals(const ppmLoader::ImageRGB &img)
     {
         normals = img;

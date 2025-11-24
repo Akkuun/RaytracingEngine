@@ -39,10 +39,10 @@ class Keybinds {
 private:
     Keybinds() {
         // Camera movement keybinds (single keys)
-        keybindsMap[KB_MOVE_FORWARD] = QKeySequence(Qt::Key_W);
+        keybindsMap[KB_MOVE_FORWARD] = QKeySequence(Qt::Key_Z);
         keybindsMap[KB_MOVE_BACKWARD] = QKeySequence(Qt::Key_S);
         keybindsMap[KB_MOVE_LEFT] = QKeySequence(Qt::Key_D);
-        keybindsMap[KB_MOVE_RIGHT] = QKeySequence(Qt::Key_A);
+        keybindsMap[KB_MOVE_RIGHT] = QKeySequence(Qt::Key_Q);
         keybindsMap[KB_MOVE_UP] = QKeySequence(Qt::Key_Space);
         keybindsMap[KB_MOVE_DOWN] = QKeySequence(Qt::Key_C);
         

@@ -23,6 +23,7 @@
 #include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
 #include "../../core/commands/actionsCommands/RotateShapeCommand.h"
 #include "../../core/commands/actionsCommands/SetTextureShape.h"
+#include "../../core/commands/actionsCommands/ClearTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include <QKeyEvent>
 
@@ -193,6 +194,11 @@ void ObjectPanel::setupUI()
                 commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
             }
         }
+    });
+
+    connect(clearTextureBtn, &QPushButton::clicked, [this, texturePreview, textureNameLabel, checkerboard]()
+    {
+        commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
     });
 
     connect(clearTextureBtn, &QPushButton::clicked, [texturePreview, textureNameLabel, checkerboard]()
