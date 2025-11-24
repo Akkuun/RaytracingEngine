@@ -191,7 +191,6 @@ void ObjectPanel::setupUI()
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
                 commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
-                emit materialChanged();
             }
         }
     });
