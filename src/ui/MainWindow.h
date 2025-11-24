@@ -17,6 +17,7 @@
 class RenderWidget;
 class ObjectPanel;
 class ObjectPropertiesPanel;
+class FPSChartPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -59,6 +60,7 @@ private:
     // Panel references
     ObjectPanel *objectPanel;
     ObjectPropertiesPanel *objectPropertiesPanel;
+    FPSChartPanel *fpsChartPanel;
 
     // Render area
     RenderWidget *renderWidget;

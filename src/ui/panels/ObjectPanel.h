@@ -17,7 +17,6 @@ class ObjectPanel : public QWidget
 
 public:
     explicit ObjectPanel(QWidget *parent = nullptr);
-    void setRenderWidget(RenderWidget *widget);
     void setApplyOnAllAxis(bool apply);
     void handleKeyPress(int key, bool pressed);
 
@@ -34,7 +33,6 @@ signals:
 
 private:
     void setupUI();
-    FPSChart *fpsChart;
     int currentSelectedShapeID;
     CommandsManager &commandManager;
 

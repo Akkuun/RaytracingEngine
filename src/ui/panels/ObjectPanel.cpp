@@ -1,7 +1,5 @@
 #include <CL/opencl.hpp>
 #include "ObjectPanel.h"
-#include "FPSChart.h"
-#include "../RenderWidget.h"
 #include "../../core/systems/KernelManager/KernelManager.h"
 #include "../../core/systems/DeviceManager/DeviceManager.h"
 #include <QVBoxLayout>
@@ -27,7 +25,7 @@
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include <QKeyEvent>
 
-ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), fpsChart(nullptr), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
+ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
     setupUI();
 }
@@ -120,14 +118,6 @@ void ObjectPanel::setupUI()
     scaleZ->setValue(initialShape->getScale().z);
     layout->addLayout(scaleLayout);
 
-    
-    // FPS Chart
-    layout->addSpacing(15);
-    layout->addWidget(new QLabel("FPS MONITOR"));
-    fpsChart = new FPSChart();
-    fpsChart->setMaxDataPoints(60); // Show last 60 FPS values
-    layout->addWidget(fpsChart);
-
     // Only style the text color, inherit background from parent
     setStyleSheet("QLabel { color: white; }");
 
@@ -207,14 +197,6 @@ void ObjectPanel::setupUI()
         } });
 }
 
-void ObjectPanel::setRenderWidget(RenderWidget *widget)
-{
-    if (widget && fpsChart)
-    {
-        // send the signal to update the FPS chart
-        connect(widget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
-    }
-}
 // function to update the current selected shape properties in the panel
 void ObjectPanel::onShapeSelectionChanged(int shapeID)
 {
