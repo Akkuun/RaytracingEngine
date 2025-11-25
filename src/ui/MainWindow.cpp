@@ -4,7 +4,7 @@
 #include "./panels/ScenePanel.h"
 #include "./panels/ObjectPanel.h"
 #include "./panels/ObjectPropertiesPanel.h"
-#include "./panels/FPSChartPanel.h"
+#include "./panels/FPSChart.h"
 #include "./panels/CameraPanel.h"
 #include "./panels/ParametersPanel.h"
 #include "../core/input/Keybinds.h"
@@ -125,12 +125,10 @@ void MainWindow::setupLeftPanel()
     leftLayout->addWidget(objectPropertiesPanelCollapsible);
 
     // FPS Chart Panel
-    CollapsiblePanel *fpsChartPanelCollapsible = new CollapsiblePanel("▼ FPS CHART");
-    fpsChartPanel = new FPSChartPanel();
-    fpsChartPanelCollapsible->setContent(fpsChartPanel);
-    leftLayout->addWidget(fpsChartPanelCollapsible);
-    // Connect ObjectPanel to RenderWidget for FPS updates
-    fpsChartPanel->setRenderWidget(renderWidget);
+    FPSChart *fpsChart = new FPSChart();
+    fpsChart->setMaxDataPoints(60);
+    leftLayout->addWidget(fpsChart);
+    connect(renderWidget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
 
     // Connect ScenePanel shape selection to ObjectPanel
     connect(scenePanel, &ScenePanel::shapeSelectionChanged,

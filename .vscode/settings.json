@@ -93,6 +93,7 @@
         "shared_mutex": "cpp",
         "stack": "cpp",
         "typeindex": "cpp",
-        "qcheckbox": "cpp"
+        "qcheckbox": "cpp",
+        "qwidget": "cpp"
     }
 }
