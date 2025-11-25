@@ -14,7 +14,6 @@
 #include <QShortcut>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
-#include <QShortcut>
 #include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)

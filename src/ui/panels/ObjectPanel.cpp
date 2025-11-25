@@ -1,4 +1,3 @@
-#include <CL/opencl.hpp>
 #include "ObjectPanel.h"
 #include "../../core/systems/KernelManager/KernelManager.h"
 #include "../../core/systems/DeviceManager/DeviceManager.h"
@@ -15,8 +14,6 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
-#include <fstream>
-#include <vector>
 #include "../../core/commands/actionsCommands/MoveShapeCommand.h"
 #include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
 #include "../../core/commands/actionsCommands/RotateShapeCommand.h"

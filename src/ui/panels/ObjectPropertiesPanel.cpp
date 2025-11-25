@@ -1,31 +1,17 @@
-#include <CL/opencl.hpp>
 #include "ObjectPropertiesPanel.h"
-#include "FPSChart.h"
 #include "../RenderWidget.h"
-#include "../../core/systems/KernelManager/KernelManager.h"
-#include "../../core/systems/DeviceManager/DeviceManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
-#include <QComboBox>
-#include <QCheckBox>
 #include <QPixmap>
 #include <QPainter>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QDebug>
-#include <QMessageBox>
-#include <fstream>
-#include <vector>
-#include "../../core/commands/actionsCommands/MoveShapeCommand.h"
-#include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
-#include "../../core/commands/actionsCommands/RotateShapeCommand.h"
 #include "../../core/commands/actionsCommands/SetTextureShape.h"
 #include "../../core/commands/actionsCommands/ClearTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
-#include <QKeyEvent>
 
 ObjectPropertiesPanel::ObjectPropertiesPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {

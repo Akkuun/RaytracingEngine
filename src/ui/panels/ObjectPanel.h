@@ -2,14 +2,10 @@
 
 #include <QWidget>
 #include "../../core/commands/CommandsManager.h"
-#include "../../core/utils/imageLoader/ImageLoader.h"
-#include "../../core/material/Material.h"
 #include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QFrame>
 #include <QMap>
-class FPSChart;
-class RenderWidget;
 
 class ObjectPanel : public QWidget
 {
