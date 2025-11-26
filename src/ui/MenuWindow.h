@@ -14,7 +14,7 @@ private:
 
     void listRecentProjects(); // loop though the dataFolder and sort each name+file in chronological order
 
-    void createNewProject();                              // open a dialog to create a new project (choose name + location) and create the cube scene
+    void createNewProject();                              // open the main window with a default scene (sphere and square)
     void openProjectFromPath(const QString &projectPath); // load project from dialog
     void loadProject();                                   // open a file dialog to load a project
 

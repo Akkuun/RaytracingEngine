@@ -85,3 +85,9 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+
+
+#ignore users saved files
+/saves/usersSaves/*
+#ignore recent project file
+/saves/recentProject.json

@@ -3,6 +3,7 @@
 #include "../utils/imageLoader/ImageLoader.h"
 #include "../math/vec3.h"
 #include "../defines/Defines.h"
+#include "../../../external/json/single_include/nlohmann/json.hpp"
 
 class MaterialId
 {
@@ -27,6 +28,7 @@ public:
     Material();
     Material(const std::string &pathFileTexture);
     Material(const std::string &pathFileTexture, const std::string &pathFileNormalMap);
+    Material(const nlohmann::json &j);
     Material(const vec3 &diffuse_color);
     ~Material()
     {
@@ -87,6 +89,10 @@ public:
         normals = img;
         has_normal_map = true;
     }
+
+    void setPathFileTexture(const std::string &path) { pathFileTexture = path; }
+    void setPathFileNormalMap(const std::string &path) { pathFileNormalMap = path; }
+    void setHasNormalMap(bool has) { has_normal_map = has; }
 
     GPUMaterial toGPU() const;
 

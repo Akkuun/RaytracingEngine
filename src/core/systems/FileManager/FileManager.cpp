@@ -95,13 +95,6 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         shapeJson["position"] = {shape->getPosition().x, shape->getPosition().y, shape->getPosition().z};
         shapeJson["scale"] = {shape->getScale().x, shape->getScale().y, shape->getScale().z};
         shapeJson["rotation"] = {shape->getRotation().x, shape->getRotation().y, shape->getRotation().z};
-        if (shape->getType() == ShapeType::MESH)
-        {
-            Mesh *meshShape = dynamic_cast<Mesh *>(shape);
-            // For mesh, we might want to save additional data like file path, number of triangles, etc.
-            // Here we just add a placeholder
-            shapeJson["file_path"] = meshShape->getFilename();
-        }
 
         // material properties
         Material *mat = shape->getMaterial();
@@ -131,6 +124,56 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
                 matJson["normal_map"] = mat->getPathFileNormalMap();
             }
             shapeJson["material"] = matJson;
+        }
+
+        // Based on shape type, save specific properties
+        switch (shape->getType())
+        {
+            case ShapeType::SPHERE:
+            {
+                Sphere *sphere = dynamic_cast<Sphere *>(shape);
+                if (sphere)
+                {
+                    shapeJson["radius"] = sphere->getRadius();
+                    shapeJson["center"] = {sphere->getCenter().x, sphere->getCenter().y, sphere->getCenter().z};
+                }
+                break;
+            }
+            case ShapeType::SQUARE:
+            {
+                Square *square = dynamic_cast<Square *>(shape);
+                if (square)
+                {
+                    shapeJson["u_vec"] = {square->getUVector().x, square->getUVector().y, square->getUVector().z};
+                    shapeJson["v_vec"] = {square->getVVector().x, square->getVVector().y, square->getVVector().z};
+                    shapeJson["normal"] = {square->getNormal().x, square->getNormal().y, square->getNormal().z};
+                }
+                break;
+            }
+
+            case ShapeType::TRIANGLE:
+            {
+                Triangle *triangle = dynamic_cast<Triangle *>(shape);
+                if (triangle)
+                {
+                    shapeJson["vertexA"] = {triangle->getV0().x, triangle->getV0().y, triangle->getV0().z};
+                    shapeJson["vertexB"] = {triangle->getV2().x, triangle->getV2().y, triangle->getV2().z}; // Switch v1 and v2 to fix normal
+                    shapeJson["vertexC"] = {triangle->getV1().x, triangle->getV1().y, triangle->getV1().z};
+                }
+                break;
+            }
+            case ShapeType::MESH:
+            {
+                Mesh *mesh = dynamic_cast<Mesh *>(shape);
+                if (mesh)
+                {
+                    shapeJson["file_path"] = mesh->getFilename();
+                }
+                break;
+            }
+            default:
+                std::cerr << "Warning: Unknown shape type while saving project." << std::endl;
+                break;
         }
 
         jsonData["shapes"].push_back(shapeJson);

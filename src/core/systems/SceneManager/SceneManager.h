@@ -24,6 +24,8 @@ public:
     inline const std::vector<Material *> &getMaterials() const { return materials; }
     void updateUniqueMaterials();
     void buildScene();
+    void buildScene(const std::string &path);
+    void defaultScene();
 
     inline size_t getNumShapes() const { return shapes.size(); }
     size_t getNumMaterials() const { return materials.size(); }

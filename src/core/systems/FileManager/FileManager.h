@@ -17,17 +17,23 @@ public:
     inline const std::string &getActualProjectPath() const { return actualProjectPath; }
     inline void setActualProjectPath(const std::string &path) { actualProjectPath = path; }
 
-    void saveProject(); // Save the current project to actualProjectPath (loop through SceneManager data, camera, lights)
+    void saveProject(); // function called after Ctrl + Z and create the save file if inexistant or update it
+
     
-private:
+    inline bool getIsNewProjectSelected() const { return isNewProjectSelected; }
+    inline void setIsNewProjectSelected(bool value) { isNewProjectSelected = value; }
+    
+    private:
     FileManager(); // Private constructor
     std::string actualProjectPath;
     std::string currentProjectName;
     void loadProject(const std::string &projectPath); //  read JSON file and populate SceneManager, camera, lights, etc.
-
-   
+    
     void saveProjectAs(const std::string &newProjectPath); // Save the current project to a new path
-    void createNewProjectSaveFile();
-
+    void createNewProjectSaveFile();                       // create a new save file
+    
     void updateRecentProjectsList();
+    bool isNewProjectSelected = false;
+    
+    void createNewProject(); // open the main window with a default scene (sphere and square)
 };

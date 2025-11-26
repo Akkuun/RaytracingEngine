@@ -1,7 +1,12 @@
 [
     {
-        "date": "2025-11-26 16:09:52",
+        "date": "2025-11-26 22:35:54",
         "name": "toto",
         "path": "/home/mathis/Programming/RaytracingEngine/saves/userSaves/toto.json"
+    },
+    {
+        "date": "2025-11-26 22:07:37",
+        "name": "simple",
+        "path": "/home/mathis/Programming/RaytracingEngine/saves/userSaves/simple.json"
     }
 ]

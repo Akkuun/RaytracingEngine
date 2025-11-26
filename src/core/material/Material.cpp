@@ -28,9 +28,10 @@ Material::Material(const std::string &pathFileTexture) : Material()
 {
     ppmLoader::load_ppm(image, pathFileTexture); // load texture and set result to image
     this->pathFileTexture = pathFileTexture;
-    
+
     // If texture loading failed, ensure image dimensions are 0
-    if (image.data.empty()) {
+    if (image.data.empty())
+    {
         image.w = 0;
         image.h = 0;
     }
@@ -41,25 +42,31 @@ Material::Material(const std::string &pathFileTexture, const std::string &pathFi
 {
     ppmLoader::load_ppm(image, pathFileTexture);     // load texture and set result to image
     ppmLoader::load_ppm(normals, pathFileNormalMap); // load normal map and set result to normals
-    
+
     // If texture loading failed, ensure image dimensions are 0
-    if (image.data.empty()) {
+    if (image.data.empty())
+    {
         image.w = 0;
         image.h = 0;
         has_texture = false;
-    }else{
+    }
+    else
+    {
         has_texture = true;
     }
-    
+
     // If normal map loading failed or no data, disable normal map
-    if (normals.data.empty()) {
+    if (normals.data.empty())
+    {
         normals.w = 0;
         normals.h = 0;
         has_normal_map = false;
-    } else {
+    }
+    else
+    {
         has_normal_map = true;
     }
-    
+
     this->pathFileTexture = pathFileTexture;
     this->pathFileNormalMap = pathFileNormalMap;
 }
@@ -88,55 +95,139 @@ Material::Material(const vec3 &diffuse_color)
 GPUMaterial Material::toGPU() const
 {
     GPUMaterial gpuMat;
-    
+
     // Ambient
     gpuMat.ambient.x = ambient_material.x;
     gpuMat.ambient.y = ambient_material.y;
     gpuMat.ambient.z = ambient_material.z;
     gpuMat.ambient._padding = 0.0f;
-    
+
     // Diffuse
     gpuMat.diffuse.x = diffuse_material.x;
     gpuMat.diffuse.y = diffuse_material.y;
     gpuMat.diffuse.z = diffuse_material.z;
     gpuMat.diffuse._padding = 0.0f;
-    
+
     // Specular
     gpuMat.specular.x = specular_material.x;
     gpuMat.specular.y = specular_material.y;
     gpuMat.specular.z = specular_material.z;
     gpuMat.specular._padding = 0.0f;
-    
+
     // Material properties
     gpuMat.shininess = static_cast<float>(shininess);
     gpuMat.index_medium = index_medium;
     gpuMat.transparency = transparency;
     gpuMat.texture_scale_x = texture_scale_x;
-    
+
     gpuMat.texture_scale_y = texture_scale_y;
     gpuMat.emissive = emissive ? 1 : 0;
     gpuMat._padding1[0] = 0.0f;
     gpuMat._padding1[1] = 0.0f;
-    
+
     gpuMat.light_color.x = light_color.x;
     gpuMat.light_color.y = light_color.y;
     gpuMat.light_color.z = light_color.z;
     gpuMat.light_color._padding = 0.0f;
-    
+
     gpuMat.light_intensity = light_intensity;
-    
+
     // Texture properties
     gpuMat.has_texture = (!image.data.empty()) ? 1 : 0;
     gpuMat.has_normal_map = has_normal_map ? 1 : 0;
     gpuMat.texture_width = image.w;
     gpuMat.texture_height = image.h;
-    
+
     // Texture offsets will be set by RenderEngine when building the texture buffer
     gpuMat.texture_offset = 0;
     gpuMat.normal_map_offset = 0;
-    
+
     // Material ID
     gpuMat.material_id = material_id;
 
     return gpuMat;
+}
+
+Material::Material(const nlohmann::json &j) : Material()
+{
+    if (j.contains("ambient"))
+    {
+        ambient_material = vec3(j["ambient"][0], j["ambient"][1], j["ambient"][2]);
+    }
+    if (j.contains("diffuse"))
+    {
+        diffuse_material = vec3(j["diffuse"][0], j["diffuse"][1], j["diffuse"][2]);
+    }
+    if (j.contains("specular"))
+    {
+        specular_material = vec3(j["specular"][0], j["specular"][1], j["specular"][2]);
+    }
+    if (j.contains("shininess"))
+    {
+        shininess = j["shininess"];
+    }
+    if (j.contains("transparency"))
+    {
+        transparency = j["transparency"];
+    }
+    if (j.contains("index_medium"))
+    {
+        index_medium = j["index_medium"];
+    }
+    if (j.contains("emissive"))
+    {
+        emissive = j["emissive"];
+    }
+    if (j.contains("light_color"))
+    {
+        light_color = vec3(j["light_color"][0], j["light_color"][1], j["light_color"][2]);
+    }
+    if (j.contains("light_intensity"))
+    {
+        light_intensity = j["light_intensity"];
+    }
+    if (j.contains("has_normal_map"))
+    {
+        has_normal_map = j["has_normal_map"];
+    }
+    if (j.contains("texture_scale_x"))
+    {
+        texture_scale_x = j["texture_scale_x"];
+    }
+    if (j.contains("texture_scale_y"))
+    {
+        texture_scale_y = j["texture_scale_y"];
+    }
+    if (j.contains("material_id"))
+    {
+        material_id = j["material_id"];
+    }
+    if (j.contains("texture"))
+    {
+        std::string texturePath = j["texture"];
+        if (!texturePath.empty())
+        {
+            ppmLoader::load_ppm(image, texturePath);
+            this->pathFileTexture = texturePath;
+            has_texture = !image.data.empty();
+        }
+        else
+        {
+            has_texture = false;
+        }
+    }
+    if (j.contains("normal_map"))
+    {
+        std::string normalMapPath = j["normal_map"];
+        if (!normalMapPath.empty())
+        {
+            ppmLoader::load_ppm(normals, normalMapPath);
+            this->pathFileNormalMap = normalMapPath;
+            has_normal_map = !normals.data.empty();
+        }
+        else
+        {
+            has_normal_map = false;
+        }
+    }
 }
