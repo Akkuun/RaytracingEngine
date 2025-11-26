@@ -8,6 +8,9 @@
 #include <QFrame>
 #include <QFileDialog>
 #include "../../src/core/systems/FileManager/FileManager.h"
+#include "../../external/json/single_include/nlohmann/json.hpp"
+#include <fstream>
+#include <iostream>
 
 MenuWindow::MenuWindow(QWidget *parent)
     : QWidget(parent), titleLabel(new QLabel("Recent Projects"))
@@ -59,7 +62,6 @@ MenuWindow::MenuWindow(QWidget *parent)
     auto *rightPanel = new QVBoxLayout();
     rightPanel->setSpacing(14);
 
-
     titleLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white; margin-bottom: 8px;");
     rightPanel->addWidget(titleLabel);
 
@@ -78,7 +80,7 @@ MenuWindow::MenuWindow(QWidget *parent)
         "margin-bottom: 6px;"
         "border-bottom: 1px solid #444;"
         "}");
-    projectList->setFixedWidth(600); 
+    projectList->setFixedWidth(600);
     projectList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     projectList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
@@ -124,8 +126,6 @@ MenuWindow::MenuWindow(QWidget *parent)
         }
     };
 
-
-
     loadProjectList(this->projectsData);
 
     connect(projectsBtn, &QPushButton::clicked, this, [this, loadProjectList]()
@@ -135,14 +135,10 @@ MenuWindow::MenuWindow(QWidget *parent)
 
     // Add slot for loading a project
     connect(openBtn, &QPushButton::clicked, this, [this]()
-            {
-                loadProject();
-            });
+            { loadProject(); });
 
     // connect project selection to openMainWindow
     connect(projectList, &QListWidget::itemClicked, this, &MenuWindow::openMainWindow); // TODO change to loadProject from the path of the item selected
-
-
 }
 
 void MenuWindow::openMainWindow()
@@ -155,28 +151,41 @@ void MenuWindow::openMainWindow()
 void MenuWindow::loadProject()
 {
     QString filePath = QFileDialog::getOpenFileName(this, "Open Project", "saves/userSaves", "JSON Files (*.json)");
-    if (!filePath.isEmpty()) {
+    if (!filePath.isEmpty())
+    {
         emit loadProject(filePath);
         openMainWindow();
-    } 
+    }
 }
 
-void MenuWindow::openProjectFromPath(const QString &projectPath){
+void MenuWindow::openProjectFromPath(const QString &projectPath)
+{
     emit loadProject(projectPath);
     openMainWindow();
 }
 
-
 void MenuWindow::listRecentProjects()
 {
-    // list all JSON file in recentsaves.JSON that contains all the filePath used in the app
-    QDir dir("saves/userSaves");
-    QFileInfoList files = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
-    std::sort(files.begin(), files.end(), [](const QFileInfo &a, const QFileInfo &b) {
-        return a.lastModified() > b.lastModified();
-    });
-    for (const QFileInfo &fileInfo : files) {
-        QString projectName = fileInfo.completeBaseName();
-        this->projectsData.append(qMakePair(projectName, fileInfo.absoluteFilePath()));
+    // Read recentProject.json and sort by date (descending)
+    this->projectsData.clear();
+    std::ifstream file("saves/recentProject.json");
+    
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open saves/recentProject.json" << std::endl;
+        return;
+    }
+    nlohmann::json arr;
+    file >> arr;
+    file.close();
+    if (!arr.is_array())
+        return;
+    std::sort(arr.begin(), arr.end(), [](const nlohmann::json &a, const nlohmann::json &b)
+              { return a["date"].get<std::string>() > b["date"].get<std::string>(); });
+    for (const auto &obj : arr)
+    {
+        QString projectName = QString::fromStdString(obj.value("name", ""));
+        QString projectPath = QString::fromStdString(obj.value("path", ""));
+        this->projectsData.append(qMakePair(projectName, projectPath));
     }
 }
