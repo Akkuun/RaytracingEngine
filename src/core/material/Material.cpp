@@ -46,6 +46,9 @@ Material::Material(const std::string &pathFileTexture, const std::string &pathFi
     if (image.data.empty()) {
         image.w = 0;
         image.h = 0;
+        has_texture = false;
+    }else{
+        has_texture = true;
     }
     
     // If normal map loading failed or no data, disable normal map

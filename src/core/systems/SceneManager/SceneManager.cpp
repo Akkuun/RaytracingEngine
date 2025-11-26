@@ -11,6 +11,9 @@ SceneManager &SceneManager::getInstance()
 SceneManager::SceneManager()
 {
     buildScene(); // TODO create 2nd version with buildScene(path) to get all the shape from a single file
+    // TODO buildScene(FileManager::getInstance().getActualProjectPath());
+    // if path is not empty -> read data from file
+    // else build default scene (square and single sphere)
 }
 
 SceneManager::~SceneManager()

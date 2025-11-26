@@ -50,7 +50,11 @@ public:
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
     inline int getMaterialId() const { return material_id; }
-
+    inline bool hasTexture() const { return  has_texture; }
+    inline std::string getPathFileTexture() const { return pathFileTexture; }
+    inline std::string getPathFileNormalMap() const { return pathFileNormalMap; }
+    inline float getTextureScaleX() const { return texture_scale_x; }
+    inline float getTextureScaleY() const { return texture_scale_y; }
     // Setters
     inline void setAmbient(const vec3 &v) { ambient_material = v; }
     inline void setDiffuse(const vec3 &v) { diffuse_material = v; }
@@ -103,6 +107,7 @@ private:
     float texture_scale_x = 1.;
     float texture_scale_y = 1.;
     bool has_normal_map = false;
+    bool has_texture = false;
     int material_id = MaterialId::getInstance().getNewId();
     std::string pathFileTexture = "";
     std::string pathFileNormalMap = "";

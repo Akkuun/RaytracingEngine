@@ -10,6 +10,7 @@
 #include "../core/input/Keybinds.h"
 #include "../core/commands/CommandsManager.h"
 #include "../core/commands/actionsCommands/CameraResetCommand.h"
+#include "../core/systems/FileManager/FileManager.h"
 #include <QVBoxLayout>
 #include <QShortcut>
 #include <QPropertyAnimation>
@@ -51,6 +52,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     resetCameraShortcut = new QShortcut(keybinds.getKeybind(KB_RESET_CAMERA), this);
     connect(resetCameraShortcut, &QShortcut::activated, this, &MainWindow::onResetCamera);
+
+    saveFileShortcut = new QShortcut(keybinds.getKeybind(KB_SAVE), this);
+    connect(saveFileShortcut, &QShortcut::activated, this, []() {
+        FileManager::getInstance().saveProject();
+    });
 }
 
 MainWindow::~MainWindow() {}

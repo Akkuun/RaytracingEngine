@@ -81,6 +81,7 @@ private:
     QShortcut *redoShortcut;
     QShortcut *resetCameraShortcut;
     QShortcut *applyOnAllAxisShortcut;
+    QShortcut *saveFileShortcut;
 
     // OpenCL Device Manager
     DeviceManager *deviceManager;

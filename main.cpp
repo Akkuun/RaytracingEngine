@@ -1,4 +1,4 @@
-#include "src/ui/MainWindow.h"
+#include "src/ui/MenuWindow.h"
 #include <QApplication>
 int main(int argc, char *argv[])
 {
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     darkPalette.setColor(QPalette::HighlightedText, Qt::black);
     app.setPalette(darkPalette);
 
-    MainWindow window;
+    MenuWindow window;
     window.show();
 
     return app.exec();

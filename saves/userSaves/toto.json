@@ -1,0 +1,439 @@
+{
+    "camera": {
+        "far_plane": 10000.0,
+        "fov": 80.0,
+        "near_plane": 0.10000000149011612,
+        "position": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "project_name": "toto",
+    "shapes": [
+        {
+            "id": 0,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.30000001192092896,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 0,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 0,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Boule 1",
+            "position": [
+                0.25,
+                -0.20000000298023224,
+                -0.25
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "id": 1,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 1,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 1,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/earth.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Boule 2",
+            "position": [
+                -0.25,
+                -0.25,
+                -0.25
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "id": 2,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 2,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 2,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/white_pool_tiles.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Floor",
+            "position": [
+                0.0,
+                -0.3499999940395355,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2
+        },
+        {
+            "id": 3,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 3,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 3,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/metal.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Ceiling",
+            "position": [
+                0.0,
+                0.3499999940395355,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2
+        },
+        {
+            "id": 4,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 4,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 4,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/brickwall.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Right Wall",
+            "position": [
+                -0.75,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2
+        },
+        {
+            "id": 5,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 5,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 5,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/brickwall.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Left Wall",
+            "position": [
+                0.75,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2
+        },
+        {
+            "id": 6,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "id": 6,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 6,
+                "normal_map": "",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/white_pool_tiles.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Back Wall",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2
+        },
+        {
+            "id": 7,
+            "name": "Triangle",
+            "position": [
+                -0.03333333507180214,
+                0.23333333432674408,
+                -0.30000001192092896
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 3
+        },
+        {
+            "file_path": "../assets/models3D/tripod.off",
+            "id": 8,
+            "name": "tripod 8",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 4
+        }
+    ]
+}

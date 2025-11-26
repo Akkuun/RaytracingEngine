@@ -40,9 +40,7 @@ private:
     std::vector<MeshVertex> vertices;
     std::vector<MeshTriangle> triangles;
     std::vector<Triangle> cpuTriangles;
-
-    vec3 color = vec3(0.9f, 0.9f, 0.1f);
-    vec3 emission = vec3(0.0f);
+    std::string filename;
 
 public:
     Mesh() : Shape() {}
@@ -53,6 +51,7 @@ public:
         setPosition(vec3(0.0f));
         scaleToUnit();
         generateCpuTriangles();
+        this->filename = filename;
     }
     ShapeType getType() const override { return ShapeType::MESH; }
 
@@ -96,4 +95,6 @@ public:
     void translate(const vec3 &offset);
     // Uses angles in radians
     void rotate(const vec3 &angles);
+
+    std::string getFilename() const { return filename; }
 };

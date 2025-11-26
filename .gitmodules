@@ -1,3 +1,6 @@
 [submodule "external/OpenCL-CLHPP"]
 	path = external/OpenCL-CLHPP
 	url = https://github.com/KhronosGroup/OpenCL-CLHPP.git
+[submodule "external/json"]
+	path = external/json
+	url = https://github.com/nlohmann/json.git
