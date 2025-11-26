@@ -123,6 +123,9 @@ void MainWindow::setupLeftPanel()
     objectPropertiesPanelCollapsible->setContent(objectPropertiesPanel);
     leftLayout->addWidget(objectPropertiesPanelCollapsible);
 
+    connect(scenePanel, &ScenePanel::shapeSelectionChanged,
+            objectPropertiesPanel, &ObjectPropertiesPanel::onShapeSelectionChanged);
+
     // FPS Chart Panel
     FPSChart *fpsChart = new FPSChart();
     fpsChart->setMaxDataPoints(60);

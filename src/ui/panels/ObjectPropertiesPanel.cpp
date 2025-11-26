@@ -525,10 +525,12 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
 
 void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
 {
+    std::cout << "HELLO" << std::endl;
     if (material != nullptr) {
         QImage image(reinterpret_cast<const uchar*>(material->getImage().data.data()), material->getImage().w, material->getImage().h, QImage::Format_RGB888);
         if (!image.isNull()) {
             QPixmap pixmap = QPixmap::fromImage(image);
+            
             texturePreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(texturePreviewFrame->width() - 2, texturePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
             return;
         }

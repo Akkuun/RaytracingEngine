@@ -27,6 +27,8 @@ signals:
     // detect when shape Z position change
     void shapeZPositionChanged(int shapeID, float newZ);
 
+    void selectionShapeChanged(int shapeID);
+
 private:
     void setupUI();
     int currentSelectedShapeID;

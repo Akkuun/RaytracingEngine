@@ -251,6 +251,8 @@ void ObjectPanel::onShapeSelectionChanged(int shapeID)
     scaleX->blockSignals(false);
     scaleY->blockSignals(false);
     scaleZ->blockSignals(false);
+
+    emit selectionShapeChanged(shapeID);
 }
 
 // apply the scale on all axis

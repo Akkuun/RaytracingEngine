@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QFrame>
 #include <QMap>
+#include <QLabel>
 class RenderWidget;
 
 class ObjectPropertiesPanel : public QWidget

@@ -94,6 +94,8 @@
         "stack": "cpp",
         "typeindex": "cpp",
         "qcheckbox": "cpp",
-        "qwidget": "cpp"
+        "qwidget": "cpp",
+        "expected": "cpp",
+        "regex": "cpp"
     }
 }
