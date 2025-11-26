@@ -29,6 +29,7 @@ void FileManager::saveProject()
     { // the file is already set, we just save the current project to that path
         saveProjectAs(actualProjectPath);
     }
+    updateRecentProjectsList(); // add the project to recent projects list to future menu opening
 }
 
 void FileManager::createNewProjectSaveFile()
@@ -69,6 +70,7 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
     else
         projectName = newProjectPath.substr(lastSlash + 1, lastDot - lastSlash - 1);
 
+    currentProjectName = projectName;
     jsonData["project_name"] = projectName;
 
     // 2 - save camera settings
@@ -79,7 +81,6 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         {"fov", camera.getFOV()},
         {"near_plane", camera.getNearPlane()},
         {"far_plane", camera.getFarPlane()}};
-
 
     // 3 - save shapes and their properties
 
@@ -94,9 +95,9 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         shapeJson["position"] = {shape->getPosition().x, shape->getPosition().y, shape->getPosition().z};
         shapeJson["scale"] = {shape->getScale().x, shape->getScale().y, shape->getScale().z};
         shapeJson["rotation"] = {shape->getRotation().x, shape->getRotation().y, shape->getRotation().z};
-        if(shape->getType() == ShapeType::MESH)
+        if (shape->getType() == ShapeType::MESH)
         {
-            Mesh* meshShape = dynamic_cast<Mesh*>(shape);
+            Mesh *meshShape = dynamic_cast<Mesh *>(shape);
             // For mesh, we might want to save additional data like file path, number of triangles, etc.
             // Here we just add a placeholder
             shapeJson["file_path"] = meshShape->getFilename();
@@ -135,10 +136,72 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         jsonData["shapes"].push_back(shapeJson);
     }
 
-    // 4 TODO aditional data -> rays/pixel, maxrebounce
-
+    // TODO aditional data -> rays/pixel, maxrebounce
 
     // Finally, write the JSON data to the file
     fileStream << jsonData.dump(4); // Pretty print with 4 spaces indentation
     fileStream.close();
+}
+
+void FileManager::updateRecentProjectsList()
+{
+
+    std::string recentProjectsPath = "../saves/recentProject.json";
+
+    std::cout << "Updating recent projects list at: " << recentProjectsPath << std::endl;
+
+    // Read or create the recent projects JSON file
+    nlohmann::json recentProjectsJson;
+    std::ifstream file(recentProjectsPath);
+    if (!file)
+    {
+        // File doesn't exist, create an empty array
+        recentProjectsJson = nlohmann::json::array();
+        std::ofstream outFile(recentProjectsPath);
+        outFile << recentProjectsJson.dump(4);
+        outFile.close();
+    }
+    else
+    {
+        file >> recentProjectsJson;
+        file.close();
+    }
+
+    // Add the current project path and date to recentProject.json
+    std::string currentDate;
+    {
+        // Get current date/time as string
+        std::time_t now = std::time(nullptr);
+        char buf[32];
+        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+        currentDate = buf;
+    }
+    nlohmann::json entry = {
+        {"name", currentProjectName},
+        {"path", actualProjectPath},
+        {"date", currentDate}};
+    // Remove any previous entry for this path
+    for (auto it = recentProjectsJson.begin(); it != recentProjectsJson.end();)
+    {
+        if ((*it)["path"] == actualProjectPath)
+        {
+            it = recentProjectsJson.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    // Add new entry at the front (most recent)
+    recentProjectsJson.insert(recentProjectsJson.begin(), entry);
+    // Optionally limit the number of recent projects
+    const int maxRecent = 20;
+    while (recentProjectsJson.size() > maxRecent)
+    {
+        recentProjectsJson.erase(recentProjectsJson.end() - 1);
+    }
+    // Write back to file
+    std::ofstream outFile(recentProjectsPath);
+    outFile << recentProjectsJson.dump(4);
+    outFile.close();
 }

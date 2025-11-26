@@ -22,9 +22,12 @@ public:
 private:
     FileManager(); // Private constructor
     std::string actualProjectPath;
+    std::string currentProjectName;
     void loadProject(const std::string &projectPath); //  read JSON file and populate SceneManager, camera, lights, etc.
 
    
     void saveProjectAs(const std::string &newProjectPath); // Save the current project to a new path
     void createNewProjectSaveFile();
+
+    void updateRecentProjectsList();
 };
