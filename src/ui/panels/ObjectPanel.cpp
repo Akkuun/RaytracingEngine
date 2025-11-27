@@ -119,29 +119,29 @@ void ObjectPanel::setupUI()
     setStyleSheet("QLabel { color: white; }");
 
     // Connect position spin boxes changes to execute the correct command (Move command)
-    connect(posX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX)
+    connect(posX, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double newX)
             { commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, newX, posY->value(), posZ->value())); });
 
-    connect(posY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY)
+    connect(posY, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double newY)
             { commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), newY, posZ->value())); });
 
-    connect(posZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ)
+    connect(posZ, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double newZ)
             { commandManager.executeCommand(new MoveShapeCommand(currentSelectedShapeID, posX->value(), posY->value(), newZ)); });
 
     // Connection rotation spin boxes changes
-    connect(rotX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newX)
+    connect(rotX, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double newX)
             {
                 if (SceneManager::getInstance().getShapes().empty()) return;
                 commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, newX, rotY->value(), rotZ->value()));
             });
 
-    connect(rotY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newY)
+    connect(rotY, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double newY)
             {
                 if (SceneManager::getInstance().getShapes().empty()) return;
                 commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), newY, rotZ->value()));
             });
 
-    connect(rotZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double newZ)
+    connect(rotZ, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double newZ)
             {
                 if (SceneManager::getInstance().getShapes().empty()) return;
                 commandManager.executeCommand(new RotateShapeCommand(currentSelectedShapeID, rotX->value(), rotY->value(), newZ));
@@ -163,7 +163,7 @@ void ObjectPanel::setupUI()
     };
 
     // Connection scale spin boxes changes, IF shape is SPHERE or CTRL is pressed we apply uniform scaling
-    connect(scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newX)
+    connect(scaleX, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newX)
             {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
@@ -173,7 +173,7 @@ void ObjectPanel::setupUI()
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, newX, scaleY->value(), scaleZ->value()));
         } });
 
-    connect(scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newY)
+    connect(scaleY, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newY)
             {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {
@@ -183,7 +183,7 @@ void ObjectPanel::setupUI()
             commandManager.executeCommand(new ScaleShapeCommand(currentSelectedShapeID, scaleX->value(), newY, scaleZ->value()));
         } });
 
-    connect(scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newZ)
+    connect(scaleZ, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this, applyUniformScalling](double newZ)
             {
         Shape* shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape && (shape->getType() == ShapeType::SPHERE || isShortcutPressed())) {

@@ -96,6 +96,7 @@
         "qcheckbox": "cpp",
         "qwidget": "cpp",
         "expected": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "csignal": "cpp"
     }
 }

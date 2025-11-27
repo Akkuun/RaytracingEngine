@@ -3,6 +3,7 @@
 #include "../../systems/SceneManager/SceneManager.h"
 #include "../../shapes/Shape.h"
 #include "../../material/Material.h"
+#include "../CommandsManager.h"
 
 class SetTextureShape : public ICommand {
 private:
@@ -34,9 +35,11 @@ public:
     }
     void execute() override {
         shape->getMaterial()->set_texture(newTexture);
+        CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
     }
     void undo() override {
         shape->getMaterial()->set_texture(previousTexture);
+        CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
     }
     int getID() const override {
         return commandID;

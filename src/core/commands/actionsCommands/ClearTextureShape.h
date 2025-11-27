@@ -3,6 +3,7 @@
 #include "../../systems/SceneManager/SceneManager.h"
 #include "../../shapes/Shape.h"
 #include "../../material/Material.h"
+#include "../CommandsManager.h"
 
 class ClearTextureShape : public ICommand {
 private:
@@ -33,9 +34,11 @@ public:
     }
     void execute() override {
         shape->getMaterial()->remove_texture();
+        CommandsManager::getInstance().notifyMaterialChanged();
     }
     void undo() override {
         shape->getMaterial()->set_texture(previousTexture);
+        CommandsManager::getInstance().notifyMaterialChanged();
     }
     int getID() const override {
         return commandID;

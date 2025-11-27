@@ -6,6 +6,7 @@
 #include "../../shapes/Sphere.h"
 #include "../../shapes/Square.h"
 #include "../../shapes/Triangle.h"
+#include "../CommandsManager.h"
 
 class AddShapeCommand : public ICommand {
 private:
@@ -31,11 +32,13 @@ public:
     void execute() override {
         sceneManager.addShape(shape);
         ownsShape = false;
+        CommandsManager::getInstance().notifyShapesChanged();
     }
 
     void undo() override {
         sceneManager.deleteShape(shape);
         ownsShape = true;
+        CommandsManager::getInstance().notifyShapesChanged();
     }
 
     int getID() const override {

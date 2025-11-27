@@ -3,6 +3,7 @@
 #include "../../systems/SceneManager/SceneManager.h"
 #include "../../camera/Camera.h"
 #include <glm/glm.hpp>
+#include "../CommandsManager.h"
 
 class CameraMoveCommand : public ICommand {
 private:
@@ -19,9 +20,11 @@ public:
     }
     void execute() override {
         camera.setPosition(newPosition);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
     void undo() override {
         camera.setPosition(previousPosition);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
     int getID() const override {
         return commandID;

@@ -19,7 +19,7 @@ public:
 
     // Call functions
     void resetAccumulation() { frameCount = 0; } // Call when camera/scene changes
-    void markShapesDirty() { shapesBufferDirty = true; } // Call when shapes are added/removed/modified
+    void markShapesDirty() { shapesBufferDirty = true; frameCount = 0; } // Call when shapes are added/removed/modified
     void markCameraDirty() { cameraBufferDirty = true; frameCount = 0; } // Call when camera changes
     void markMaterialDirty() { materialBufferDirty = true; frameCount = 0; } // Call when a material is modified
     void notifySceneChanged() { shapesBufferDirty = true; materialBufferDirty = true; frameCount = 0; } // MANDATORY , called when the scene or a material has been changed (shapes or material added/removed/modified)

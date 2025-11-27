@@ -6,6 +6,7 @@
 #include "../../shapes/Sphere.h"
 #include "../../shapes/Square.h"
 #include "../../shapes/Triangle.h"
+#include "../CommandsManager.h"
 
 class MoveShapeCommand : public ICommand {
 private:
@@ -49,6 +50,7 @@ public:
                 mesh->translate(newPosition - previousPosition); // Move all vertices
                 mesh->generateCpuTriangles();
             }
+            CommandsManager::getInstance().notifyShapesChanged();
         }
     }
 
@@ -64,6 +66,7 @@ public:
                 mesh->translate(previousPosition - oldPos); // Move all vertices
                 mesh->generateCpuTriangles();
             }
+            CommandsManager::getInstance().notifyShapesChanged();
         }
     }
 

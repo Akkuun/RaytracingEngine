@@ -20,6 +20,22 @@ RenderWidget::RenderWidget(QWidget *parent)
         renderEngine->notifySceneChanged();
     });
 
+
+    CommandsManager::getInstance().addCameraChangedCallback([this]() {
+        // Notify render engine that camera changed
+        renderEngine->markCameraDirty();
+    });
+
+    CommandsManager::getInstance().addShapesChangedCallback([this]() {
+        // Notify render engine that shapes changed
+        renderEngine->markShapesDirty();
+    });
+
+    CommandsManager::getInstance().addMaterialChangedCallback([this]() {
+        // Notify render engine that material changed
+        renderEngine->markMaterialDirty();
+    });
+
     // Enable mouse tracking for camera control
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
