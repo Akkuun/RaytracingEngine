@@ -115,11 +115,11 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
             matJson["material_id"] = mat->getMaterialId();
             matJson["texture_scale_x"] = mat->getTextureScaleX();
             matJson["texture_scale_y"] = mat->getTextureScaleY();
-            if (!mat->hasTexture())
+            if (mat->hasTexture())
             {
                 matJson["texture"] = mat->getPathFileTexture();
             }
-            if (!mat->hasNormalMap())
+            if (mat->hasNormalMap())
             {
                 matJson["normal_map"] = mat->getPathFileNormalMap();
             }

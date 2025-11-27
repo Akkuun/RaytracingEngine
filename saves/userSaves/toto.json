@@ -45,14 +45,12 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 0,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
                     0.0,
                     0.0
                 ],
-                "texture": "",
                 "texture_scale_x": 1.0,
                 "texture_scale_y": 1.0,
                 "transparency": 0.0
@@ -70,9 +68,9 @@
                 0.0
             ],
             "scale": [
-                1.0,
-                1.0,
-                1.0
+                0.550000011920929,
+                0.550000011920929,
+                0.550000011920929
             ],
             "type": 1
         },
@@ -105,7 +103,6 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 1,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
@@ -130,9 +127,9 @@
                 0.0
             ],
             "scale": [
-                1.0,
-                1.0,
-                1.0
+                2.450000047683716,
+                2.450000047683716,
+                2.450000047683716
             ],
             "type": 1
         },
@@ -160,7 +157,6 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 2,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
@@ -229,7 +225,6 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 3,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
@@ -298,7 +293,6 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 4,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
@@ -367,7 +361,6 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 5,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
@@ -436,7 +429,6 @@
                 ],
                 "light_intensity": 1.0,
                 "material_id": 6,
-                "normal_map": "",
                 "shininess": 32.0,
                 "specular": [
                     0.0,
@@ -531,9 +523,9 @@
                 0.0
             ],
             "scale": [
-                1.0,
-                1.0,
-                1.0
+                0.5,
+                0.5,
+                0.5
             ],
             "type": 4
         }

@@ -235,6 +235,10 @@ void SceneManager::buildScene(const std::string &path)
         } 
         else if (shapeType == ShapeType::MESH) {
             Mesh *mesh = new Mesh(shapeJson["file_path"]);
+            // specify transformations for mesh
+            mesh->scale(scale);
+            mesh->rotate(rotation);
+            mesh->translate(position);
             mesh->generateCpuTriangles();
             shape = mesh;
         } else {
@@ -243,7 +247,6 @@ void SceneManager::buildScene(const std::string &path)
         addShape(shape);
         shape->setPosition(position);
         shape->setRotation(rotation);
-        std::cout<<"scale" << scale << std::endl;
         shape->setScale(scale);
 
         
