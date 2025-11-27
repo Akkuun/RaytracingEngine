@@ -20,6 +20,8 @@
 #define KB_UNDO              "undo"
 #define KB_REDO              "redo"
 
+#define KB_SAVE             "save"
+
 #define KB_APPLY_ON_ALL_AXIS "applyOnAllAxis"
 
 #define KB_REBIND_SUCCESS          0
@@ -39,10 +41,10 @@ class Keybinds {
 private:
     Keybinds() {
         // Camera movement keybinds (single keys)
-        keybindsMap[KB_MOVE_FORWARD] = QKeySequence(Qt::Key_W);
+        keybindsMap[KB_MOVE_FORWARD] = QKeySequence(Qt::Key_Z);
         keybindsMap[KB_MOVE_BACKWARD] = QKeySequence(Qt::Key_S);
         keybindsMap[KB_MOVE_LEFT] = QKeySequence(Qt::Key_D);
-        keybindsMap[KB_MOVE_RIGHT] = QKeySequence(Qt::Key_A);
+        keybindsMap[KB_MOVE_RIGHT] = QKeySequence(Qt::Key_Q);
         keybindsMap[KB_MOVE_UP] = QKeySequence(Qt::Key_Space);
         keybindsMap[KB_MOVE_DOWN] = QKeySequence(Qt::Key_C);
         
@@ -60,6 +62,10 @@ private:
         // Undo/Redo with standard shortcuts
         keybindsMap[KB_UNDO] = QKeySequence(Qt::CTRL | Qt::Key_Z);
         keybindsMap[KB_REDO] = QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z);
+        
+        // Save
+        keybindsMap[KB_SAVE] = QKeySequence(Qt::CTRL | Qt::Key_S);
+    
     }
     Keybinds(const Keybinds&) = delete;
     Keybinds& operator=(const Keybinds&) = delete;

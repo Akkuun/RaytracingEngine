@@ -3,9 +3,9 @@
 #include <QWidget>
 #include "../../core/commands/CommandsManager.h"
 #include <QDoubleSpinBox>
+#include <QPushButton>
+#include <QFrame>
 #include <QMap>
-class FPSChart;
-class RenderWidget;
 
 class ObjectPanel : public QWidget
 {
@@ -13,7 +13,6 @@ class ObjectPanel : public QWidget
 
 public:
     explicit ObjectPanel(QWidget *parent = nullptr);
-    void setRenderWidget(RenderWidget *widget);
     void setApplyOnAllAxis(bool apply);
     void handleKeyPress(int key, bool pressed);
 
@@ -28,9 +27,10 @@ signals:
     // detect when shape Z position change
     void shapeZPositionChanged(int shapeID, float newZ);
 
+    void selectionShapeChanged(int shapeID);
+
 private:
     void setupUI();
-    FPSChart *fpsChart;
     int currentSelectedShapeID;
     CommandsManager &commandManager;
 

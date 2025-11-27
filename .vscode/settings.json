@@ -92,6 +92,11 @@
         "hash_set": "cpp",
         "shared_mutex": "cpp",
         "stack": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "qcheckbox": "cpp",
+        "qwidget": "cpp",
+        "expected": "cpp",
+        "regex": "cpp",
+        "csignal": "cpp"
     }
 }

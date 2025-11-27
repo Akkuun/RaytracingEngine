@@ -16,6 +16,8 @@
 
 class RenderWidget;
 class ObjectPanel;
+class ObjectPropertiesPanel;
+class FPSChartPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -57,6 +59,8 @@ private:
 
     // Panel references
     ObjectPanel *objectPanel;
+    ObjectPropertiesPanel *objectPropertiesPanel;
+    FPSChartPanel *fpsChartPanel;
 
     // Render area
     RenderWidget *renderWidget;
@@ -77,6 +81,7 @@ private:
     QShortcut *redoShortcut;
     QShortcut *resetCameraShortcut;
     QShortcut *applyOnAllAxisShortcut;
+    QShortcut *saveFileShortcut;
 
     // OpenCL Device Manager
     DeviceManager *deviceManager;

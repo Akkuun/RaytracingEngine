@@ -12,6 +12,9 @@ private:
     
     // Multiple callbacks for notifying listeners (UI) about scene changes
     std::vector<std::function<void()>> sceneChangedCallbacks;
+    std::vector<std::function<void()>> cameraChangedCallbacks;
+    std::vector<std::function<void()>> shapesChangedCallbacks;
+    std::vector<std::function<void()>> materialChangedCallbacks;
     
     CommandsManager() = default;
 
@@ -28,16 +31,67 @@ public:
     void addSceneChangedCallback(std::function<void()> callback) {
         sceneChangedCallbacks.push_back(callback);
     }
+
+    void addCameraChangedCallback(std::function<void()> callback) {
+        cameraChangedCallbacks.push_back(callback);
+    }
+
+    void addShapesChangedCallback(std::function<void()> callback) {
+        shapesChangedCallbacks.push_back(callback);
+    }
+
+    void addMaterialChangedCallback(std::function<void()> callback) {
+        materialChangedCallbacks.push_back(callback);
+    }
     
     // Legacy method for backward compatibility
     void setSceneChangedCallback(std::function<void()> callback) {
         sceneChangedCallbacks.clear();
         sceneChangedCallbacks.push_back(callback);
     }
+
+    void setCameraChangedCallback(std::function<void()> callback) {
+        cameraChangedCallbacks.clear();
+        cameraChangedCallbacks.push_back(callback);
+    }
+
+    void setShapesChangedCallback(std::function<void()> callback) {
+        shapesChangedCallbacks.clear();
+        shapesChangedCallbacks.push_back(callback);
+    }
+
+    void setMaterialChangedCallback(std::function<void()> callback) {
+        materialChangedCallbacks.clear();
+        materialChangedCallbacks.push_back(callback);
+    }
     
     // Notify all registered callbacks
     void notifySceneChanged() {
         for (const auto& callback : sceneChangedCallbacks) {
+            if (callback) {
+                callback();
+            }
+        }
+    }
+
+    void notifyCameraChanged() {
+        for (const auto& callback : cameraChangedCallbacks) {
+            if (callback) {
+                callback();
+            }
+        }
+    }
+
+    void notifyShapesChanged() {
+        for (const auto& callback : shapesChangedCallbacks) {
+            if (callback) {
+                callback();
+            }
+        }
+    }
+
+    void notifyMaterialChanged() {
+        for (const auto& callback : materialChangedCallbacks) {
             if (callback) {
                 callback();
             }
@@ -52,9 +106,6 @@ public:
         while (!redoStack.empty()) {
             redoStack.pop();
         }
-        
-        // Notify that scene changed
-        notifySceneChanged();
     }
 
     bool canUndo() const {

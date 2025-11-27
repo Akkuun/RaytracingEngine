@@ -1,5 +1,5 @@
 #include "SceneTreeWidget.h"
-#include "../../core/commands/actionsCommands/DeleteShapeCommand.h"
+#include "../../core/commands/actionsCommands/shapes/DeleteShapeCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "../../core/input/Keybinds.h"
 #include <QVBoxLayout>
@@ -14,6 +14,7 @@ SceneTreeWidget::SceneTreeWidget(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(8);
     mainLayout->setContentsMargins(0, 0, 0, 0);
+    setMinimumHeight(350);
 
     // === TOP TOOLBAR: Undo/Redo/Delete ===
     QFrame *topToolbar = new QFrame(this);

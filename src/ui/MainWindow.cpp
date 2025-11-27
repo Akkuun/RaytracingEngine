@@ -3,16 +3,18 @@
 #include "CollapsiblePanel.h"
 #include "./panels/ScenePanel.h"
 #include "./panels/ObjectPanel.h"
+#include "./panels/ObjectPropertiesPanel.h"
+#include "./panels/FPSChart.h"
 #include "./panels/CameraPanel.h"
 #include "./panels/ParametersPanel.h"
 #include "../core/input/Keybinds.h"
 #include "../core/commands/CommandsManager.h"
-#include "../core/commands/actionsCommands/CameraResetCommand.h"
+#include "../core/commands/actionsCommands/camera/CameraResetCommand.h"
+#include "../core/systems/FileManager/FileManager.h"
 #include <QVBoxLayout>
 #include <QShortcut>
 #include <QPropertyAnimation>
 #include <QEasingCurve>
-#include <QShortcut>
 #include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -49,6 +51,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     resetCameraShortcut = new QShortcut(keybinds.getKeybind(KB_RESET_CAMERA), this);
     connect(resetCameraShortcut, &QShortcut::activated, this, &MainWindow::onResetCamera);
+
+    saveFileShortcut = new QShortcut(keybinds.getKeybind(KB_SAVE), this);
+    connect(saveFileShortcut, &QShortcut::activated, this, []() {
+        FileManager::getInstance().saveProject();
+    });
 }
 
 MainWindow::~MainWindow() {}
@@ -111,13 +118,25 @@ void MainWindow::setupLeftPanel()
     leftLayout->addWidget(scenePanelCollapsible);
 
     // Object Panel
-    CollapsiblePanel *objectPanelCollapsible = new CollapsiblePanel("▼ OBJECT");
+    CollapsiblePanel *objectPanelCollapsible = new CollapsiblePanel("▼ OBJECT TRANSFORM");
     objectPanel = new ObjectPanel();
     objectPanelCollapsible->setContent(objectPanel);
     leftLayout->addWidget(objectPanelCollapsible);
 
-    // Connect ObjectPanel to RenderWidget for FPS updates
-    objectPanel->setRenderWidget(renderWidget);
+    // Object properties
+    CollapsiblePanel *objectPropertiesPanelCollapsible = new CollapsiblePanel("▼ OBJECT PROPERTIES");
+    objectPropertiesPanel = new ObjectPropertiesPanel();
+    objectPropertiesPanelCollapsible->setContent(objectPropertiesPanel);
+    leftLayout->addWidget(objectPropertiesPanelCollapsible);
+
+    connect(scenePanel, &ScenePanel::shapeSelectionChanged,
+            objectPropertiesPanel, &ObjectPropertiesPanel::onShapeSelectionChanged);
+
+    // FPS Chart Panel
+    FPSChart *fpsChart = new FPSChart();
+    fpsChart->setMaxDataPoints(60);
+    leftLayout->addWidget(fpsChart);
+    connect(renderWidget, &RenderWidget::fpsUpdated, fpsChart, &FPSChart::addFPSValue);
 
     // Connect ScenePanel shape selection to ObjectPanel
     connect(scenePanel, &ScenePanel::shapeSelectionChanged,

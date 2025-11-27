@@ -18,14 +18,16 @@ public:
     : Shape(center, name, mat), radius(r) {}
     Sphere(float r, const vec3 &center, Material *mat)
         : Shape(center, "Sphere " + std::to_string(nextID), mat), radius(r) {}
+    Sphere(float r, const vec3 &center, const std::string &name)
+        : Shape(center, name, nullptr), radius(r) {}
 
     GPUSphere toGPU() const;
 
     ShapeType getType() const override { return ShapeType::SPHERE; }
     
 
-    float getRadius() const { return radius; }
-
+    inline float getRadius() const { return radius; }
+    inline vec3 getCenter() const { return position; }
 
     
     // Setters spécifiques à Sphere

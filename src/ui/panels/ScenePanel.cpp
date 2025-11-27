@@ -1,6 +1,6 @@
 #include "ScenePanel.h"
 #include "SceneTreeWidget.h"
-#include "../../core/commands/actionsCommands/AddShapeCommand.h"
+#include "../../core/commands/actionsCommands/shapes/AddShapeCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "../../core/shapes/Mesh.h"
 #include <QVBoxLayout>

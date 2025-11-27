@@ -6,10 +6,10 @@
 #include <QSpinBox>
 #include <QCheckBox>
 #include <QPushButton>
-#include "../../core/commands/actionsCommands/CameraMoveCommand.h"
-#include "../../core/commands/actionsCommands/CameraRotationCommand.h"
-#include "../../core/commands/actionsCommands/CameraFOVCommand.h"
-#include "../../core/commands/actionsCommands/CameraResetCommand.h"
+#include "../../core/commands/actionsCommands/camera/CameraMoveCommand.h"
+#include "../../core/commands/actionsCommands/camera/CameraRotationCommand.h"
+#include "../../core/commands/actionsCommands/camera/CameraFOVCommand.h"
+#include "../../core/commands/actionsCommands/camera/CameraResetCommand.h"
 #include "../../core/systems/RenderEngine/RenderEngine.h"
 #include "../../core/camera/Camera.h"
 #include "../../core/commands/CommandsManager.h"

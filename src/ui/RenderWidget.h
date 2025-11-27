@@ -27,6 +27,9 @@ protected:
 private slots:
     void scheduleNextFrame();
 
+public slots:
+    void markMaterialDirty();
+
 private:
     QElapsedTimer elapsedTimer;
     QElapsedTimer fpsTimer;

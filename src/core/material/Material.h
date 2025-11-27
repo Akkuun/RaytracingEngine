@@ -3,6 +3,7 @@
 #include "../utils/imageLoader/ImageLoader.h"
 #include "../math/vec3.h"
 #include "../defines/Defines.h"
+#include "../../../external/json/single_include/nlohmann/json.hpp"
 
 class MaterialId
 {
@@ -27,6 +28,7 @@ public:
     Material();
     Material(const std::string &pathFileTexture);
     Material(const std::string &pathFileTexture, const std::string &pathFileNormalMap);
+    Material(const nlohmann::json &j);
     Material(const vec3 &diffuse_color);
     ~Material()
     {
@@ -50,7 +52,11 @@ public:
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
     inline int getMaterialId() const { return material_id; }
-
+    inline bool hasTexture() const { return  has_texture; }
+    inline std::string getPathFileTexture() const { return pathFileTexture; }
+    inline std::string getPathFileNormalMap() const { return pathFileNormalMap; }
+    inline float getTextureScaleX() const { return texture_scale_x; }
+    inline float getTextureScaleY() const { return texture_scale_y; }
     // Setters
     inline void setAmbient(const vec3 &v) { ambient_material = v; }
     inline void setDiffuse(const vec3 &v) { diffuse_material = v; }
@@ -71,11 +77,22 @@ public:
     {
         image = img;
     }
+
+    inline void remove_texture()
+    {
+        image.data.clear();
+        image.w = 0;
+        image.h = 0;
+    }
     inline void set_normals(const ppmLoader::ImageRGB &img)
     {
         normals = img;
         has_normal_map = true;
     }
+
+    void setPathFileTexture(const std::string &path) { pathFileTexture = path; }
+    void setPathFileNormalMap(const std::string &path) { pathFileNormalMap = path; }
+    void setHasNormalMap(bool has) { has_normal_map = has; }
 
     GPUMaterial toGPU() const;
 
@@ -96,6 +113,7 @@ private:
     float texture_scale_x = 1.;
     float texture_scale_y = 1.;
     bool has_normal_map = false;
+    bool has_texture = false;
     int material_id = MaterialId::getInstance().getNewId();
     std::string pathFileTexture = "";
     std::string pathFileNormalMap = "";
