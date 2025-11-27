@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../shapes/Shape.h"
-#include "../../shapes/Sphere.h"
-#include "../../shapes/Square.h"
-#include "../../shapes/Triangle.h"
+#include "../../../shapes/Shape.h"
+#include "../../../shapes/Sphere.h"
+#include "../../../shapes/Square.h"
+#include "../../../shapes/Triangle.h"
+#include "../../../systems/SceneManager/SceneManager.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class ScaleShapeCommand : public ICommand {
 private:
@@ -47,6 +48,7 @@ public:
             mesh->scale(scaleFactor);
             mesh->generateCpuTriangles();
         }
+        if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }
 
     // revert the shape scale to previousScale
@@ -60,6 +62,7 @@ public:
             mesh->scale(scaleFactor);
             mesh->generateCpuTriangles();
         }
+        if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }
 
     int getID() const override {

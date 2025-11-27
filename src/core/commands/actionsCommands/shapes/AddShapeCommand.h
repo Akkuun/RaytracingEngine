@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../shapes/Shape.h"
-#include "../../shapes/Sphere.h"
-#include "../../shapes/Square.h"
-#include "../../shapes/Triangle.h"
+#include "../../../shapes/Shape.h"
+#include "../../../shapes/Sphere.h"
+#include "../../../shapes/Square.h"
+#include "../../../shapes/Triangle.h"
+#include "../../../systems/SceneManager/SceneManager.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class AddShapeCommand : public ICommand {
 private:
@@ -31,11 +32,13 @@ public:
     void execute() override {
         sceneManager.addShape(shape);
         ownsShape = false;
+        CommandsManager::getInstance().notifyShapesChanged();
     }
 
     void undo() override {
         sceneManager.deleteShape(shape);
         ownsShape = true;
+        CommandsManager::getInstance().notifyShapesChanged();
     }
 
     int getID() const override {

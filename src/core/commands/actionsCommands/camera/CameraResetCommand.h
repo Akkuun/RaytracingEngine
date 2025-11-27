@@ -1,8 +1,10 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../camera/Camera.h"
+
 #include <glm/glm.hpp>
 #include <string>
+#include "../../../camera/Camera.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 /**
  * @brief Command to reset camera to default or save/restore camera states
@@ -103,6 +105,7 @@ public:
         camera.setPosition(targetPosition);
         camera.setRotation(targetRotation);
         camera.setFOV(targetFOV);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
 
     void undo() override
@@ -111,6 +114,7 @@ public:
         camera.setPosition(previousPosition);
         camera.setRotation(previousRotation);
         camera.setFOV(previousFOV);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
 
     int getID() const override

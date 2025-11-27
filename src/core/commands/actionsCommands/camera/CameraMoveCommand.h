@@ -1,8 +1,10 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../camera/Camera.h"
+
+#include "../../../systems/SceneManager/SceneManager.h"
 #include <glm/glm.hpp>
+#include "../../../camera/Camera.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class CameraMoveCommand : public ICommand {
 private:
@@ -19,9 +21,11 @@ public:
     }
     void execute() override {
         camera.setPosition(newPosition);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
     void undo() override {
         camera.setPosition(previousPosition);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
     int getID() const override {
         return commandID;

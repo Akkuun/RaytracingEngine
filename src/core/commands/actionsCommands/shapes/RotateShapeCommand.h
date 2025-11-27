@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../shapes/Shape.h"
-#include "../../shapes/Sphere.h"
-#include "../../shapes/Square.h"
-#include "../../shapes/Triangle.h"
+#include "../../../shapes/Shape.h"
+#include "../../../shapes/Sphere.h"
+#include "../../../shapes/Square.h"
+#include "../../../shapes/Triangle.h"
+#include "../../../systems/SceneManager/SceneManager.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class RotateShapeCommand : public ICommand {
 private:
@@ -46,6 +47,7 @@ public:
             mesh->rotate(newRotation - previousRotation); // Rotate all vertices
             mesh->generateCpuTriangles();
         }
+        if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }
 
     // revert the shape rotation to previousRotation
@@ -59,6 +61,7 @@ public:
             mesh->rotate(previousRotation - newRotation); // Rotate all vertices
             mesh->generateCpuTriangles();
         }
+        if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }
 
     int getID() const override {

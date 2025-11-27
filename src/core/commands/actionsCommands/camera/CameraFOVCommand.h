@@ -1,6 +1,7 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../camera/Camera.h"
+#include "../../../camera/Camera.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class CameraFOVCommand : public ICommand
 {
@@ -21,10 +22,12 @@ public:
     void execute() override
     {
         camera.setFOV(newFOV);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
     void undo() override
     {
         camera.setFOV(previousFOV);
+        CommandsManager::getInstance().notifyCameraChanged();
     }
     int getID() const override
     {
