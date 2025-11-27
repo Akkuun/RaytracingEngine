@@ -125,6 +125,12 @@ SceneTreeWidget::SceneTreeWidget(QWidget *parent)
         updateUndoRedoButtons();
     });
     
+    // Register callback for shapes changes
+    commandManager.addShapesChangedCallback([this]() {
+        updateSceneTree();
+        updateUndoRedoButtons();
+    });
+    
     // Initialize tree with existing shapes
     updateSceneTree();
     updateUndoRedoButtons();

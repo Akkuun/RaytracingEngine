@@ -4,6 +4,10 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QCheckBox>
+#include "../../core/camera/Camera.h"
+#include "../../core/commands/CommandsManager.h"
+#include "../../core/commands/actionsCommands/camera/CameraNbBouncesCommand.h"
+#include "../../core/commands/actionsCommands/camera/CameraRPPCommand.h"
 
 ParametersPanel::ParametersPanel(QWidget *parent) : QWidget(parent)
 {
@@ -16,13 +20,16 @@ void ParametersPanel::setupUI()
     layout->setSpacing(8);
     layout->setContentsMargins(5, 5, 5, 5);
 
+    Camera& camera = Camera::getInstance();
+    CommandsManager& commandManager = CommandsManager::getInstance();
+
     // Rays per pixel
     QHBoxLayout *raysLayout = new QHBoxLayout();
     QLabel *raysLabel = new QLabel("RAYS PER PIXEL");
     raysLabel->setStyleSheet("QLabel { font-size: 9px; }");
-    QSpinBox *raysSpin = new QSpinBox();
+    raysSpin = new QSpinBox();
     raysSpin->setRange(1, 1000);
-    raysSpin->setValue(1);
+    raysSpin->setValue(camera.getRaysPerPixel());
     raysSpin->setMaximumWidth(60);
     raysLayout->addWidget(raysLabel);
     raysLayout->addWidget(raysSpin);
@@ -32,9 +39,9 @@ void ParametersPanel::setupUI()
     QHBoxLayout *reboundsLayout = new QHBoxLayout();
     QLabel *reboundsLabel = new QLabel("MAX REBOUNDS");
     reboundsLabel->setStyleSheet("QLabel { font-size: 9px; }");
-    QSpinBox *reboundsSpin = new QSpinBox();
+    reboundsSpin = new QSpinBox();
     reboundsSpin->setRange(1, 100);
-    reboundsSpin->setValue(5);
+    reboundsSpin->setValue(camera.getNbBounces());
     reboundsSpin->setMaximumWidth(60);
     reboundsLayout->addWidget(reboundsLabel);
     reboundsLayout->addWidget(reboundsSpin);
@@ -50,6 +57,31 @@ void ParametersPanel::setupUI()
     denoisingLayout->addStretch();
     layout->addLayout(denoisingLayout);
 
+    connect(reboundsSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newBounces){
+        commandManager.executeCommand(new CameraNbBouncesCommand(camera, newBounces));
+    });
+
+    connect(raysSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newRPP){
+        commandManager.executeCommand(new CameraRPPCommand(camera, newRPP));
+    });
+
+    connect(&camera, &Camera::nbBouncesChanged, this, &ParametersPanel::onCameraNBouncesChanged);
+    connect(&camera, &Camera::raysPerPixelChanged, this, &ParametersPanel::onCameraRaysPerPixelChanged);
+
     // Don't set background style on the widget itself - let it inherit from parent
     setStyleSheet("QLabel { color: white; }");
+}
+
+void ParametersPanel::onCameraNBouncesChanged(int bounces)
+{
+    reboundsSpin->blockSignals(true);
+    reboundsSpin->setValue(bounces);
+    reboundsSpin->blockSignals(false);
+}
+
+void ParametersPanel::onCameraRaysPerPixelChanged(int rpp)
+{
+    raysSpin->blockSignals(true);
+    raysSpin->setValue(rpp);
+    raysSpin->blockSignals(false);
 }
