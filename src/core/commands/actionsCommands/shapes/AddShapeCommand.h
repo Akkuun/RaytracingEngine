@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../shapes/Shape.h"
-#include "../../shapes/Sphere.h"
-#include "../../shapes/Square.h"
-#include "../../shapes/Triangle.h"
-#include "../CommandsManager.h"
+#include "../../../shapes/Shape.h"
+#include "../../../shapes/Sphere.h"
+#include "../../../shapes/Square.h"
+#include "../../../shapes/Triangle.h"
+#include "../../../systems/SceneManager/SceneManager.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class AddShapeCommand : public ICommand {
 private:

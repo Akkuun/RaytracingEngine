@@ -8,8 +8,8 @@
 #include <QPainter>
 #include <QFileDialog>
 #include <QFileInfo>
-#include "../../core/commands/actionsCommands/SetTextureShape.h"
-#include "../../core/commands/actionsCommands/ClearTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/SetTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/ClearTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 

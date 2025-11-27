@@ -1,7 +1,7 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../camera/Camera.h"
-#include "../CommandsManager.h"
+#include "../../../camera/Camera.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class CameraFOVCommand : public ICommand
 {

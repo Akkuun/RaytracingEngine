@@ -1,9 +1,10 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../camera/Camera.h"
+
 #include <glm/glm.hpp>
 #include <string>
-#include "../CommandsManager.h"
+#include "../../../camera/Camera.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 /**
  * @brief Command to reset camera to default or save/restore camera states

@@ -1,9 +1,10 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../camera/Camera.h"
+
+#include "../../../systems/SceneManager/SceneManager.h"
 #include <glm/glm.hpp>
-#include "../CommandsManager.h"
+#include "../../../camera/Camera.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
 
 class CameraMoveCommand : public ICommand {
 private:

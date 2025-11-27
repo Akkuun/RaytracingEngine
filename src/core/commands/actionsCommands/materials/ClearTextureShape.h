@@ -1,20 +1,20 @@
 #pragma once
-#include "../ICommand.h"
-#include "../../systems/SceneManager/SceneManager.h"
-#include "../../shapes/Shape.h"
-#include "../../material/Material.h"
-#include "../CommandsManager.h"
 
-class SetTextureShape : public ICommand {
+#include "../../../material/Material.h"
+#include "../../../shapes/Shape.h"
+#include "../../../systems/SceneManager/SceneManager.h"
+#include "../../CommandsManager.h"
+#include "../../ICommand.h"
+
+class ClearTextureShape : public ICommand {
 private:
     Shape* shape;
     ppmLoader::ImageRGB previousTexture;
-    ppmLoader::ImageRGB newTexture;
     int commandID;
     inline static int nextCommandID = 0;
 public:
-    SetTextureShape(Shape* shape, ppmLoader::ImageRGB newTex)
-        : shape(shape), newTexture(newTex), commandID(nextCommandID++) {
+    ClearTextureShape(Shape* shape)
+        : shape(shape), commandID(nextCommandID++) {
         Material* mat = shape->getMaterial();
         if (mat) {
             try {
@@ -34,12 +34,12 @@ public:
         }
     }
     void execute() override {
-        shape->getMaterial()->set_texture(newTexture);
-        CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
+        shape->getMaterial()->remove_texture();
+        CommandsManager::getInstance().notifyMaterialChanged();
     }
     void undo() override {
         shape->getMaterial()->set_texture(previousTexture);
-        CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
+        CommandsManager::getInstance().notifyMaterialChanged();
     }
     int getID() const override {
         return commandID;

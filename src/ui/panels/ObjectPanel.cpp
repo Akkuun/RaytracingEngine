@@ -13,11 +13,11 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
-#include "../../core/commands/actionsCommands/MoveShapeCommand.h"
-#include "../../core/commands/actionsCommands/ScaleShapeCommand.h"
-#include "../../core/commands/actionsCommands/RotateShapeCommand.h"
-#include "../../core/commands/actionsCommands/SetTextureShape.h"
-#include "../../core/commands/actionsCommands/ClearTextureShape.h"
+#include "../../core/commands/actionsCommands/shapes/MoveShapeCommand.h"
+#include "../../core/commands/actionsCommands/shapes/ScaleShapeCommand.h"
+#include "../../core/commands/actionsCommands/shapes/RotateShapeCommand.h"
+#include "../../core/commands/actionsCommands/materials/SetTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/ClearTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include <QKeyEvent>
 #include "./CustomDoubleSpinBox.h"

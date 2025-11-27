@@ -9,7 +9,7 @@
 #include "./panels/ParametersPanel.h"
 #include "../core/input/Keybinds.h"
 #include "../core/commands/CommandsManager.h"
-#include "../core/commands/actionsCommands/CameraResetCommand.h"
+#include "../core/commands/actionsCommands/camera/CameraResetCommand.h"
 #include "../core/systems/FileManager/FileManager.h"
 #include <QVBoxLayout>
 #include <QShortcut>
