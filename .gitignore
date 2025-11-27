@@ -88,6 +88,7 @@ compile_commands.json
 
 
 #ignore users saved files
-/saves/usersSaves/*
+/saves/userSaves/*
+!/saves/userSaves/.gitkeep
 #ignore recent project file
 /saves/recentProject.json
