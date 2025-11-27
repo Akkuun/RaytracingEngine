@@ -3,7 +3,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QPixmap>
 #include <QPainter>
@@ -12,6 +11,7 @@
 #include "../../core/commands/actionsCommands/SetTextureShape.h"
 #include "../../core/commands/actionsCommands/ClearTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
+#include "./CustomDoubleSpinBox.h"
 
 ObjectPropertiesPanel::ObjectPropertiesPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
@@ -22,8 +22,6 @@ void ObjectPropertiesPanel::setupUI()
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(5);
-
-    Shape *initialShape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
 
     // Diffuse
     layout->addWidget(new QLabel("DIFFUSE"));
@@ -204,7 +202,7 @@ void ObjectPropertiesPanel::setupUI()
     // Reflection / metallicity
     QHBoxLayout *reflectionLayout = new QHBoxLayout();
     QLabel *reflectionLabel = new QLabel("METALLIC:");
-    reflectionSpinBox = new QDoubleSpinBox();
+    reflectionSpinBox = new CustomDoubleSpinBox();
     reflectionSpinBox->setRange(0.0, 1.0);
     reflectionSpinBox->setSingleStep(0.01);
     reflectionSpinBox->setDecimals(2);
@@ -396,7 +394,7 @@ void ObjectPropertiesPanel::setupUI()
     // Refraction
     QHBoxLayout *refractionLayout = new QHBoxLayout();
     QLabel *refractionLabel = new QLabel("OPACITY:");
-    refractionSpinBox = new QDoubleSpinBox();
+    refractionSpinBox = new CustomDoubleSpinBox();
     refractionSpinBox->setRange(0.0, 1.0);
     refractionSpinBox->setSingleStep(0.01);
     refractionSpinBox->setDecimals(2);
@@ -410,7 +408,7 @@ void ObjectPropertiesPanel::setupUI()
     // Refraction Index
     QHBoxLayout *refractionIndexLayout = new QHBoxLayout();
     QLabel *refractionIndexLabel = new QLabel("REFRACTION INDEX:");
-    refractionIndexSpinBox = new QDoubleSpinBox();
+    refractionIndexSpinBox = new CustomDoubleSpinBox();
     refractionIndexSpinBox->setRange(0.0, 10.0);
     refractionIndexSpinBox->setSingleStep(0.001);
     refractionIndexSpinBox->setDecimals(3);
@@ -425,7 +423,7 @@ void ObjectPropertiesPanel::setupUI()
     setStyleSheet("QLabel { color: white; }");
 
     // Connect material spin boxes
-    connect(reflectionSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+    connect(reflectionSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value) {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();
@@ -436,7 +434,7 @@ void ObjectPropertiesPanel::setupUI()
         }
     });
 
-    connect(refractionSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+    connect(refractionSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value) {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();
@@ -459,7 +457,7 @@ void ObjectPropertiesPanel::setupUI()
         }
     });
 
-    connect(refractionIndexSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+    connect(refractionIndexSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value) {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();

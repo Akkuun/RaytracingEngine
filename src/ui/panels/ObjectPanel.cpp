@@ -4,7 +4,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QComboBox>
 #include <QCheckBox>
@@ -21,6 +20,7 @@
 #include "../../core/commands/actionsCommands/ClearTextureShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include <QKeyEvent>
+#include "./CustomDoubleSpinBox.h"
 
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
@@ -37,9 +37,9 @@ void ObjectPanel::setupUI()
     // Position
     layout->addWidget(new QLabel("POSITION"));
     QHBoxLayout *posLayout = new QHBoxLayout();
-    posX = new QDoubleSpinBox();
-    posY = new QDoubleSpinBox();
-    posZ = new QDoubleSpinBox();
+    posX = new CustomDoubleSpinBox();
+    posY = new CustomDoubleSpinBox();
+    posZ = new CustomDoubleSpinBox();
     posX->setPrefix("X: ");
     posY->setPrefix("Y: ");
     posZ->setPrefix("Z: ");
@@ -63,9 +63,9 @@ void ObjectPanel::setupUI()
     // Rotation
     layout->addWidget(new QLabel("ROTATION"));
     QHBoxLayout *rotLayout = new QHBoxLayout();
-    rotX = new QDoubleSpinBox();
-    rotY = new QDoubleSpinBox();
-    rotZ = new QDoubleSpinBox();
+    rotX = new CustomDoubleSpinBox();
+    rotY = new CustomDoubleSpinBox();
+    rotZ = new CustomDoubleSpinBox();
     rotX->setPrefix("X: ");
     rotY->setPrefix("Y: ");
     rotZ->setPrefix("Z: ");
@@ -89,9 +89,9 @@ void ObjectPanel::setupUI()
     // Scale
     layout->addWidget(new QLabel("SCALE"));
     QHBoxLayout *scaleLayout = new QHBoxLayout();
-    scaleX = new QDoubleSpinBox();
-    scaleY = new QDoubleSpinBox();
-    scaleZ = new QDoubleSpinBox();
+    scaleX = new CustomDoubleSpinBox();
+    scaleY = new CustomDoubleSpinBox();
+    scaleZ = new CustomDoubleSpinBox();
     scaleX->setPrefix("X: ");
     scaleY->setPrefix("Y: ");
     scaleZ->setPrefix("Z: ");

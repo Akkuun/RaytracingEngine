@@ -112,7 +112,7 @@ MenuWindow::MenuWindow(QWidget *parent)
     // put recent projects in the projectsData attribute
     listRecentProjects();
     this->examplesData = {
-        {"Cornell Box", "/home/mathis/Programming/RaytracingEngine/saves/exampleScenes/CornellBox.json"}};
+        {"Cornell Box", "./saves/exampleScenes/CornellBox.json"}};
 
     // Use a folder icon for each project
 
