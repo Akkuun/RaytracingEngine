@@ -335,9 +335,9 @@ GPUCamera Camera::toGPU() const
     gpu_camera.up._padding = 0.0f; // MANDATORY
 
     gpu_camera.fov = m_fovDegree;
-    gpu_camera._padding[0] = 0.0f;
-    gpu_camera._padding[1] = 0.0f;
-    gpu_camera._padding[2] = 0.0f;
+    gpu_camera.nbBounces = m_nb_bounces;
+    gpu_camera.raysPerPixel = m_rays_per_pixel;
+    gpu_camera._padding = 0.0f;
 
     return gpu_camera;
 }
@@ -352,4 +352,13 @@ void Camera::setFOV(float fov)
 {
     m_fovDegree = fov;
     emit fovChanged(fov);
+}
+
+void Camera::setNbBounces(int bounces) {
+    m_nb_bounces = bounces;
+    emit nbBouncesChanged(bounces);
+}
+void Camera::setRaysPerPixel(int rpp) {
+    m_rays_per_pixel = rpp;
+    emit raysPerPixelChanged(rpp);
 }

@@ -20,7 +20,9 @@ typedef struct {
     Vec3 target;      // What the camera is looking at (16 bytes)  
     Vec3 up;          // Up vector (16 bytes)
     float fov;        // Field of view in degrees (4 bytes)
-    float _padding[3]; // Padding for alignment (12 bytes)
+	int nbBounces;    // Number of ray bounces (4 bytes)
+	int raysPerPixel; //  Number of rays per pixel (4 bytes)
+    float _padding;   // Padding for alignment (4 bytes)
 } GPUCamera;
 
 // Helper function to convert Vec3 to float3
@@ -578,7 +580,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 
 	int numLights = sizeof(lights) / sizeof(lights[0]);
 
-	int maxbounce = 10;
+	int maxbounce = camera->nbBounces;
 	
 	// Initialize random seed based on pixel position AND frame count for temporal variation
 	uint seed = (x_coord * 1973 + y_coord * 9277 + frameCount * 26699) | 1;

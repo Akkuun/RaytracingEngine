@@ -28,13 +28,17 @@ typedef struct
     GPUVec3 target;    // What the camera is looking at (16 bytes)
     GPUVec3 up;        // Up vector (16 bytes)
     float fov;         // Field of view in degrees (4 bytes)
-    float _padding[3]; // Padding for alignment (12 bytes)
+	int nbBounces;    // Number of ray bounces (4 bytes)
+	int raysPerPixel; //  Number of rays per pixel (4 bytes)
+    float _padding;   // Padding for alignment (4 bytes)
 } GPUCamera;
 
 // Camera constants
 static const float DEFAULT_FOV = 80.0f;
 static const glm::vec3 DEFAULT_POSITION = glm::vec3(0.0f, 0.0f, -1.0f); // TODO ajust  if needed
 static const glm::vec3 DEFAULT_EULER_ANGLE = glm::vec3(0.0f, 0.0f, 0.0f);
+static const int DEFAULT_BOUNCES = 3;
+static const int DEFAULT_RPP = 1;
 static const bool DEFAULT_ATTACHED = false;
 static const float DEFAULT_TRANSLATION_SPEED = 0.05f;
 static const float DEFAULT_DISTANCE_SPEED = 0.1f;
@@ -65,6 +69,8 @@ signals:
     void positionChanged(float x, float y, float z);
     void rotationChanged(float x, float y, float z); // In degrees
     void fovChanged(float fov);
+    void nbBouncesChanged(int bounces);
+    void raysPerPixelChanged(int rpp);
 
 public:
     void reset();
@@ -101,11 +107,15 @@ public:
     inline float getFOV() const { return m_fovDegree; }
     inline float getNearPlane() const { return m_nearPlane; }
     inline float getFarPlane() const { return m_farPlane; }
+    inline int getNbBounces() const { return m_nb_bounces; }
+    inline int getRaysPerPixel() const { return m_rays_per_pixel; }
 
     // Setters
     void setPosition(const glm::vec3 &position);
     void setRotation(const glm::vec3 &eulerAngles);
     void setFOV(float fov);
+    void setNbBounces(int bounces);
+    void setRaysPerPixel(int rpp);
 
     bool m_attached = DEFAULT_ATTACHED;
 
@@ -115,6 +125,8 @@ private:
     float m_fovDegree{DEFAULT_FOV};
     float m_nearPlane{0.1f};
     float m_farPlane{10000.f};
+    int m_nb_bounces = DEFAULT_BOUNCES;
+    int m_rays_per_pixel = DEFAULT_RPP;
     glm::vec3 m_position{DEFAULT_POSITION};
     glm::vec3 m_eulerAngle{DEFAULT_EULER_ANGLE};
     glm::quat m_rotation{};
