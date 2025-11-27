@@ -20,6 +20,8 @@
 #define KB_UNDO              "undo"
 #define KB_REDO              "redo"
 
+#define KB_SAVE             "save"
+
 #define KB_APPLY_ON_ALL_AXIS "applyOnAllAxis"
 
 #define KB_REBIND_SUCCESS          0
@@ -60,6 +62,10 @@ private:
         // Undo/Redo with standard shortcuts
         keybindsMap[KB_UNDO] = QKeySequence(Qt::CTRL | Qt::Key_Z);
         keybindsMap[KB_REDO] = QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z);
+        
+        // Save
+        keybindsMap[KB_SAVE] = QKeySequence(Qt::CTRL | Qt::Key_S);
+    
     }
     Keybinds(const Keybinds&) = delete;
     Keybinds& operator=(const Keybinds&) = delete;

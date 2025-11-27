@@ -20,5 +20,10 @@ if [ -d "../assets" ]; then
     cp -r ../assets .
 fi
 
+# Copy saves to the build directory
+if [ -d "../saves" ]; then
+    cp -r ../saves .
+fi
+
 # Run the executable (it's now in bin/ subdirectory)
 ./bin/raytrace

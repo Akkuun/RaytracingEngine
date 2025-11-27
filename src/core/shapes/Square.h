@@ -21,6 +21,9 @@ public:
     Square(const vec3 &pos, const vec3 &u, const vec3 &v, const vec3 &norm)
         : Shape(pos, "Square " + std::to_string(nextID), nullptr), u_vec(u), v_vec(v), normal(norm) {}
 
+    Square(const vec3 &pos, const vec3 &u, const vec3 &v, const vec3 &norm, const std::string &name)
+        : Shape(pos, name, nullptr), u_vec(u), v_vec(v), normal(norm) {}
+
     // Méthode pour convertir vers GPU
     GPUSquare toGPU() const;
 
