@@ -183,4 +183,7 @@ private:
 
     // Movement tracking for TAA reset
     bool m_hasMoved = false;
+
+
+    void loadCameraSettings();
 };
