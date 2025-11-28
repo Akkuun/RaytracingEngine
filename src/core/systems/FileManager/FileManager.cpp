@@ -21,7 +21,8 @@ FileManager::~FileManager()
 void FileManager::saveProject()
 {
     // the file is not set, we create a new save dialog to choose the path, and then save the entities into the JSON
-    if (actualProjectPath.empty())
+    // or this file is located at ./saves/exampleScenes/ , we cannot allow to overwrite example scenes, so we create a new save dialog
+    if (actualProjectPath.empty() || actualProjectPath.find("saves/exampleScenes/") != std::string::npos)
     {
         createNewProjectSaveFile();
     }
@@ -73,6 +74,8 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
     currentProjectName = projectName;
     jsonData["project_name"] = projectName;
 
+    std::cout << " old fov: " << jsonData["camera"]["fov"] << std::endl;
+
     // 2 - save camera settings
     Camera &camera = Camera::getInstance();
     jsonData["camera"] = {
@@ -81,6 +84,8 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         {"fov", camera.getFOV()},
         {"near_plane", camera.getNearPlane()},
         {"far_plane", camera.getFarPlane()}};
+
+    std::cout << " new fov: " << jsonData["camera"]["fov"] << std::endl;    
 
     // 3 - save shapes and their properties
 

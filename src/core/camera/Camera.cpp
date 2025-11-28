@@ -6,10 +6,19 @@
 #include <Qt>
 #include <cmath>
 #include <iostream>
+#include "../systems/FileManager/FileManager.h"
+#include "../../../external/json/single_include/nlohmann/json.hpp"
+#include <fstream>
 
 Camera::Camera()
 {
-    init();
+    if(FileManager::getInstance().getIsNewProjectSelected()) 
+    {
+        init();
+    }
+    else{
+        loadCameraSettings();
+    }
 }
 
 Camera::~Camera()
@@ -361,4 +370,45 @@ void Camera::setNbBounces(int bounces) {
 void Camera::setRaysPerPixel(int rpp) {
     m_rays_per_pixel = rpp;
     emit raysPerPixelChanged(rpp);
+}
+
+void Camera::loadCameraSettings()
+{
+
+    std::cout << "Loading camera settings from project file: " << FileManager::getInstance().getActualProjectPath() << std::endl;   
+    // read the JSON data of the scene file located at 'path' with nlohmann::json
+    std::ifstream file(FileManager::getInstance().getActualProjectPath());
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open scene file: " << FileManager::getInstance().getActualProjectPath() << std::endl;
+        return;
+    }
+
+    nlohmann::json jsonData;
+    file >> jsonData;
+
+    // print camera data for debugging
+    std::cout << "Camera data in JSON:" << std::endl;
+    std::cout << jsonData["camera"].dump(4) << std::endl;
+
+    // load camera settings from json
+    if (jsonData.contains("camera"))
+    {
+        auto cam = jsonData["camera"];
+        if (cam.contains("position"))
+        {
+            glm::vec3 pos = {cam["position"][0], cam["position"][1], cam["position"][2]};
+            setPosition(pos);
+        }
+        if (cam.contains("rotation"))
+        {
+            glm::vec3 rot = {cam["rotation"][0], cam["rotation"][1], cam["rotation"][2]};
+            setRotation(rot);
+        }
+        if (cam.contains("fov"))
+        {
+            setFOV(cam["fov"]);
+        }
+        // Note: near_plane and far_plane are loaded but not set as they are constants
+    }
 }
