@@ -58,6 +58,12 @@ void RenderEngine::setupBuffers(int width, int height)
         setupMaterialBuffer();
         materialBufferDirty = false;
     }
+
+    if( bvhBufferDirty )
+    {
+        setupBVHBuffer();
+        bvhBufferDirty = false;
+    }
 }
 
 void RenderEngine::render(int width, int height)
@@ -90,6 +96,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(8, materialBuffer); // Buffer containing all the material data
         kernel.setArg(9, materialCount);  // Number of materials in the scene
         kernel.setArg(10, textureBuffer); // Buffer containing all texture data
+        kernel.setArg(11, bvhCount );     // Number of BVH in the scene
+        kernel.setArg(12, bvhBuffer);     // Buffer containing all BVH data
 
 
         // Use optimal work-group size for better GPU performance
@@ -362,4 +370,45 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials)
                                    dummyData);
         std::cout << "No texture data - created dummy buffer" << std::endl;
     }
+}
+
+void RenderEngine::setupBVHBuffer()
+{
+    SceneManager &sceneManager = SceneManager::getInstance();
+
+    cl::CommandQueue queue = deviceManager->getCommandQueue();
+    cl::Context context = deviceManager->getContext();
+    std::vector<BVH*> bvhList = sceneManager.getBVHLists();
+
+    std::vector<GPUBVH> bvhListGPU;
+
+    // convert each BVH to GPUBVH
+    for (auto* bvh : bvhList)
+    {
+        GPUBVH gpu_bvh = bvh->toGPU();
+        bvhListGPU.push_back(gpu_bvh);
+    }
+
+    bvhCount = static_cast<int>(bvhList.size());
+
+    size_t buffer_size = bvhListGPU.size() * sizeof(GPUBVH);
+
+    if (buffer_size > 0)
+    {
+        bvhBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                  buffer_size,
+                                  bvhListGPU.data());
+        std::cout << "BVH Buffer created or updated successfully! (" << bvhCount << " BVH)" << std::endl;
+    }
+    else
+    {
+        // Create a dummy shape buffer to avoid null buffer issues
+        BVH dummyBVH = {};
+        bvhBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                  sizeof(BVH),
+                                  &dummyBVH);
+        bvhCount = 0;
+        std::cout << "No GPU BVH - created dummy buffer" << std::endl;
+    }
+
 }

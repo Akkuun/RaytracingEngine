@@ -23,6 +23,8 @@ public:
     void markCameraDirty() { cameraBufferDirty = true; frameCount = 0; } // Call when camera changes
     void markMaterialDirty() { materialBufferDirty = true; frameCount = 0; } // Call when a material is modified
     void notifySceneChanged() { shapesBufferDirty = true; materialBufferDirty = true; frameCount = 0; } // MANDATORY , called when the scene or a material has been changed (shapes or material added/removed/modified)
+    void markBVHDirty() { bvhBufferDirty = true; frameCount = 0; } // Call when a mesh is added/removed/modified 
+    // TODO Later
 
 private:
     KernelManager* kernelManager;
@@ -34,6 +36,7 @@ private:
     cl::Buffer cameraBuffer;
     cl::Buffer materialBuffer;
     cl::Buffer textureBuffer;  // Buffer containing all texture data (RGB pixels)
+    cl::Buffer bvhBuffer;      // Buffer containing all BVH data
 
     std::vector<float> imageData;
 
@@ -46,6 +49,8 @@ private:
     bool materialBufferDirty = true;
     int materialCount =0; // Number of GPU material stored in materialBuffer
     bool textureBufferDirty = true; // Track if texture buffer needs update
+    bool bvhBufferDirty = true; // Track if BVH buffer needs update (when a mesh is added/removed/modified)
+    int bvhCount = 0; // Number of BVH stored stored in bvhBuffer
 
     Camera sceneCamera;
 
@@ -53,4 +58,5 @@ private:
     void setupShapesBuffer();
     void setupMaterialBuffer();
     void setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials);
+    void setupBVHBuffer();
 };

@@ -375,7 +375,6 @@ void Camera::setRaysPerPixel(int rpp) {
 void Camera::loadCameraSettings()
 {
 
-    std::cout << "Loading camera settings from project file: " << FileManager::getInstance().getActualProjectPath() << std::endl;   
     // read the JSON data of the scene file located at 'path' with nlohmann::json
     std::ifstream file(FileManager::getInstance().getActualProjectPath());
     if (!file.is_open())
@@ -387,9 +386,7 @@ void Camera::loadCameraSettings()
     nlohmann::json jsonData;
     file >> jsonData;
 
-    // print camera data for debugging
-    std::cout << "Camera data in JSON:" << std::endl;
-    std::cout << jsonData["camera"].dump(4) << std::endl;
+
 
     // load camera settings from json
     if (jsonData.contains("camera"))

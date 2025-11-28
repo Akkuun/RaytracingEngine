@@ -35,6 +35,18 @@ struct Ray{
 	float3 dir;
 };
 
+typedef struct {
+
+}BVHNode;
+
+struct AABB {};
+
+typedef struct  {
+
+} BVH;
+
+
+
 // Simple random number generator (PCG hash)
 uint wang_hash(uint seed)
 {
@@ -559,8 +571,13 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 __kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, 
                            __global GPUShape* shapes, int numShapes,
                            __global GPUCamera* camera, __global GPUMaterial* materials, int numMaterials,
-                           __global unsigned char* textureData)
+                           __global unsigned char* textureData, int numBVH,
+						   __global BVH* bvh
+						   )
+
+
 {
+	
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */
 	int y_coord = work_item_id / width;					/* y-coordinate of the pixel */

@@ -88,3 +88,12 @@ struct __attribute__((aligned(16))) GPUMaterial {
     int normal_map_offset;     // 4 bytes (offset 120)
     int material_id;           // 4 bytes (offset 124)
 };  // Total: 128 bytes
+
+
+struct __attribute__((aligned(16))) GPUBVHNode {
+
+}; 
+
+struct __attribute__((aligned(16))) GPUBVH {
+
+};  
