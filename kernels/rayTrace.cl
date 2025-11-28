@@ -128,19 +128,33 @@ typedef struct __attribute__((aligned(16))) {
 	
 	float texture_scale_y;     // 4 bytes (offset 64)
 	int emissive;              // 4 bytes (offset 68)
-	float _padding1[2];        // 8 bytes (offset 72)
+	float metalness;           // 4 bytes (offset 72)
 	
-	Vec3 light_color;          // 16 bytes (offset 80)
+	Vec3 light_color;          // 16 bytes (offset 76)
 	
-	float light_intensity;     // 4 bytes (offset 96)
-	int has_texture;           // 4 bytes (offset 100)
-	int has_normal_map;        // 4 bytes (offset 104)
-	int texture_width;         // 4 bytes (offset 108)
-	
-	int texture_height;        // 4 bytes (offset 112)
-	int texture_offset;        // 4 bytes (offset 116)
-	int normal_map_offset;     // 4 bytes (offset 120)
-	int material_id;           // 4 bytes (offset 124)
+	float light_intensity;     // 4 bytes (offset 92)
+
+	int has_texture;           // 4 bytes (offset 96)
+	int texture_width;         // 4 bytes (offset 100)
+	int texture_height;        // 4 bytes (offset 104)
+	int texture_offset;        // 4 bytes (offset 108)
+
+	int has_normal_map;        // 4 bytes (offset 112)
+	int normal_map_width;      // 4 bytes (offset 116)
+	int normal_map_height;     // 4 bytes (offset 120)
+	int normal_map_offset;     // 4 bytes (offset 124)
+
+	int has_metal_map;        // 4 bytes (offset 128)
+	int metal_map_width;      // 4 bytes (offset 132)
+	int metal_map_height;     // 4 bytes (offset 136)
+	int metal_map_offset;     // 4 bytes (offset 140)
+
+	int has_emissive_map;        // 4 bytes (offset 144)
+	int emissive_map_width;      // 4 bytes (offset 148)
+	int emissive_map_height;     // 4 bytes (offset 152)
+	int emissive_map_offset;     // 4 bytes (offset 156)
+
+	int material_id;           // 4 bytes (offset 160)
 } GPUMaterial;  // Total: 128 bytes
 
 struct Intersection {
