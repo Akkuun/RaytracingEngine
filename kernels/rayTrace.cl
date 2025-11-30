@@ -228,8 +228,7 @@ float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale
 	}
 }
 
-float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 
-                       __global const unsigned char* textureData, float2 uv)
+int get_shape_material_index(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials)
 {
 	int materialIndex = -1;
 	
@@ -241,6 +240,39 @@ float3 get_shape_color(__global const GPUShape* shape, __global const GPUMateria
 	} else if (shape->type == TRIANGLE) {
 		materialIndex = shape->data.triangle.materialIndex;
 	}
+	
+	// Get material - if not found, return NULL
+	return materialIndex;
+}
+
+float3 reflect(float3 incident, float3 normal)
+{
+	return incident - 2.0f * dot(incident, normal) * normal;
+}
+
+float3 get_reflected_ray(float3 incident, struct Intersection inter, __global const GPUMaterial* material, uint* seed)
+{
+	if (material == NULL) {
+		// Default to diffuse reflection
+		return random_hemisphere_direction(inter.normal, seed);
+	}
+	if (material->metalness > 0.5f) {
+		// Metallic reflection
+		float3 reflected = reflect(incident, inter.normal);
+		// Add some roughness based on metalness
+		float roughness = (1.0f - material->metalness);
+		float3 randomDir = random_hemisphere_direction(inter.normal, seed);
+		return normalize(mix(reflected, randomDir, roughness));
+	} else {
+		// Diffuse reflection
+		return random_hemisphere_direction(inter.normal, seed);
+	}
+} 
+
+float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 
+                       __global const unsigned char* textureData, float2 uv)
+{
+	int materialIndex = get_shape_material_index(shape, materials, numMaterials);
 	
 	// Get material - if not found, use white as default
 	__global const GPUMaterial* material = get_material_by_index(materialIndex, materials, numMaterials);
@@ -521,7 +553,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 
 		// Prepare next ray with random hemisphere sampling (diffuse BRDF)
 		if (bounce < maxBounces - 1) {
-			float3 newDir = random_hemisphere_direction(intersection.normal, seed);
+			float3 newDir = get_reflected_ray(currentRay.dir, intersection, get_material_by_index(get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials), materials, numMaterials), seed);
 			currentRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
 			currentRay.dir = newDir;
 		}

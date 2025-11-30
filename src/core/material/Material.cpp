@@ -164,7 +164,7 @@ GPUMaterial Material::toGPU() const
 
     gpuMat.texture_scale_y = texture_scale_y;
     gpuMat.emissive = emissive ? 1 : 0;
-    gpuMat.metalness = 0.0f; // Default metalness to 0.0f
+    gpuMat.metalness = 1.0f; // Default metalness to 0.0f
 
     // Light properties
     gpuMat.light_color.x = light_color.x;
