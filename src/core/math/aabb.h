@@ -28,4 +28,10 @@ public:
         GrowToInclude(triangle.getV2()); // TODO if swapped v1 and v2 in Triangle is correct
         GrowToInclude(triangle.getV1());
     }
+
+    // return surface area of the AABB
+    float SurfaceArea() const {
+        vec3 extents = maxPoint - minPoint;
+        return 2.0f * (extents.x * extents.y + extents.y * extents.z + extents.z * extents.x);
+    }
 };

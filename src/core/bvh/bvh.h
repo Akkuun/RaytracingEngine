@@ -13,9 +13,10 @@ public:
    
     void build(const Mesh& mesh);
     GPUBVH toGPU() const;
-
+    inline bvhNode* getRoot() const { return root; }
+    void printRecursive(bvhNode* node, int depth = 0) const;
 private:
-    bvhNode* buildRecursive(std::vector<Triangle>::iterator start, std::vector<Triangle>::iterator end, const int &actualDepth = 0);
+    bvhNode* buildRecursive(std::vector<Triangle>::iterator start, std::vector<Triangle>::iterator end, int depth = 0);
     std::vector<Triangle> triangles;
     bvhNode* root = nullptr; // represent the entire mesh unsplit
     AABB boundingBox;
@@ -24,7 +25,6 @@ private:
 
     inline int getAssociatedMeshID() const { return associatedMeshID; }
     inline int getMaxDepth() const { return maxDepth; }
-    inline bvhNode* getRoot() const { return root; }
 
   
 };

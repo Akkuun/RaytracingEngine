@@ -1,7 +1,12 @@
 #include "SceneManager.h"
 #include <algorithm>
 #include "../FileManager/FileManager.h"
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/norm.hpp>
 
 // Singleton getInstance method
 SceneManager &SceneManager::getInstance()
@@ -60,7 +65,7 @@ void SceneManager::buildScene()
     }
     else
     {
-        std::cout<<"load file from path: "<<FileManager::getInstance().getActualProjectPath()<<std::endl;
+        std::cout << "load file from path: " << FileManager::getInstance().getActualProjectPath() << std::endl;
         // create scene from file
         buildScene(FileManager::getInstance().getActualProjectPath());
     }
@@ -116,7 +121,6 @@ void SceneManager::buildScene(const std::string &path)
     nlohmann::json jsonData;
     file >> jsonData;
 
-
     // print shapes data from json for debugging
     for (const auto &shapeJson : jsonData["shapes"])
     {
@@ -126,34 +130,39 @@ void SceneManager::buildScene(const std::string &path)
         vec3 rotation = vec3(shapeJson["rotation"][0], shapeJson["rotation"][1], shapeJson["rotation"][2]);
         vec3 scale = vec3(shapeJson["scale"][0], shapeJson["scale"][1], shapeJson["scale"][2]);
 
-        Shape* shape = nullptr;
-        Material* material = nullptr;
-        if (hasMaterial) {
+        Shape *shape = nullptr;
+        Material *material = nullptr;
+        if (hasMaterial)
+        {
             material = new Material(shapeJson["material"]);
         }
-        if (shapeType == ShapeType::SPHERE) {
+        if (shapeType == ShapeType::SPHERE)
+        {
 
             shape = new Sphere(
                 shapeJson["radius"],
                 vec3(shapeJson["center"][0], shapeJson["center"][1], shapeJson["center"][2]),
                 shapeJson["name"], material);
-        } 
-        else if (shapeType == ShapeType::SQUARE) {
+        }
+        else if (shapeType == ShapeType::SQUARE)
+        {
             shape = new Square(
                 vec3(shapeJson["position"][0], shapeJson["position"][1], shapeJson["position"][2]),
                 vec3(shapeJson["u_vec"][0], shapeJson["u_vec"][1], shapeJson["u_vec"][2]),
                 vec3(shapeJson["v_vec"][0], shapeJson["v_vec"][1], shapeJson["v_vec"][2]),
                 vec3(shapeJson["normal"][0], shapeJson["normal"][1], shapeJson["normal"][2]),
                 shapeJson["name"], material);
-        } 
-        else if (shapeType == ShapeType::TRIANGLE) {
+        }
+        else if (shapeType == ShapeType::TRIANGLE)
+        {
             shape = new Triangle(
                 shapeJson["name"],
                 vec3(shapeJson["vertexA"][0], shapeJson["vertexA"][1], shapeJson["vertexA"][2]),
                 vec3(shapeJson["vertexC"][0], shapeJson["vertexC"][1], shapeJson["vertexC"][2]),
                 vec3(shapeJson["vertexB"][0], shapeJson["vertexB"][1], shapeJson["vertexB"][2]));
-        } 
-        else if (shapeType == ShapeType::MESH) {
+        }
+        else if (shapeType == ShapeType::MESH)
+        {
             Mesh *mesh = new Mesh(shapeJson["file_path"]);
             // specify transformations for mesh
             mesh->scale(scale);
@@ -163,11 +172,12 @@ void SceneManager::buildScene(const std::string &path)
             shape = mesh;
 
             // add BVH for this mesh
-            BVH* bvh = new BVH();
+            BVH *bvh = new BVH();
             bvh->build(*mesh);
             bvhLists.push_back(bvh);
-
-        } else {
+        }
+        else
+        {
             std::cerr << "Unknown shape type: " << shapeType << std::endl;
         }
         addShape(shape);
@@ -175,7 +185,19 @@ void SceneManager::buildScene(const std::string &path)
         shape->setRotation(rotation);
         shape->setScale(scale);
 
-        
+        if (shape->getType() == ShapeType::MESH)
+        {
+            // print the BVH architecture for debugging
+            BVH *meshBVH = bvhLists.front();
+            bvhNode *rootNode = meshBVH->getRoot();
+            vec3 minBB = rootNode->getMinOfBoundingBox();
+            vec3 maxBB = rootNode->getMaxOfBoundingBox();
+            std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
+            std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
+
+            meshBVH->printRecursive(rootNode);
+            
+        }
     }
 }
 

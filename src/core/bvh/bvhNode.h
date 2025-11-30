@@ -20,4 +20,7 @@ public:
         return gpuNode;
     }
 
+    inline vec3 getMinOfBoundingBox() const { return boundingBox.minPoint; }
+    inline vec3 getMaxOfBoundingBox() const { return boundingBox.maxPoint; }
+
 };
