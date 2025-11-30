@@ -12,6 +12,9 @@
 #include "../../core/commands/actionsCommands/materials/SetNormalShape.h"
 #include "../../core/commands/actionsCommands/materials/ClearTextureShape.h"
 #include "../../core/commands/actionsCommands/materials/ClearNormalShape.h"
+#include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 
@@ -429,7 +432,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setMetalness(value);
-                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
+                CommandsManager::getInstance().executeCommand(new MaterialMetalnessCommand(*mat, value));
             }
         }
     });
@@ -440,7 +443,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setTransparency(value);
-                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
+                CommandsManager::getInstance().executeCommand(new MaterialTransparencyCommand(*mat, value));
             }
         }
     });
@@ -463,7 +466,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setIndexMedium(value);
-                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
+                CommandsManager::getInstance().executeCommand(new MaterialIORCommand(*mat, value));
             }
         }
     });
@@ -506,7 +509,7 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
 
     Material *mat = shape->getMaterial();
     if (mat) {
-        reflectionSpinBox->setValue(mat->getSpecular().x);
+        reflectionSpinBox->setValue(mat->getMetalness());
         refractionSpinBox->setValue(mat->getTransparency());
         emissiveSpinBox->setValue(mat->getLightIntensity());
         refractionIndexSpinBox->setValue(mat->getIndexMedium());

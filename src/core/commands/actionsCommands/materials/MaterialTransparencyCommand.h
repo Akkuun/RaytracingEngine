@@ -1,5 +1,4 @@
-#ifndef EB1715B5_3C03_471D_88EB_D5A96A03743A
-#define EB1715B5_3C03_471D_88EB_D5A96A03743A
+#pragma once
 
 #include "../../../material/Material.h"
 #include "../../CommandsManager.h"
@@ -36,6 +35,3 @@ public:
         return commandID;
     }
 };
-
-
-#endif /* EB1715B5_3C03_471D_88EB_D5A96A03743A */

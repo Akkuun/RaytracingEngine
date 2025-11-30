@@ -1,5 +1,4 @@
-#ifndef C72C8348_C156_4C4A_81A9_F9C62C34766A
-#define C72C8348_C156_4C4A_81A9_F9C62C34766A
+#pragma once
 
 #include "../../../material/Material.h"
 #include "../../CommandsManager.h"
@@ -35,16 +34,4 @@ public:
     {
         return commandID;
     }
-    void undo() override
-    {
-        material.setIndexMedium(previousIOR);
-        CommandsManager::getInstance().notifyMaterialChanged();
-    }
-    int getID() const override
-    {
-        return commandID;
-    }
 };
-
-
-#endif /* C72C8348_C156_4C4A_81A9_F9C62C34766A */
