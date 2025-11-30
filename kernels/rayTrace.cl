@@ -362,22 +362,26 @@ float fresnel_schlick(float cosI, float n1, float n2)
     return r0 + (1.0f - r0) * x*x*x*x*x;
 }
 
-float3 get_reflected_ray(float3 incident, struct Intersection inter, __global const GPUMaterial* material, uint* seed)
+float3 get_reflected_ray(float3 incident, struct Intersection inter, __global const GPUShape* shape, __global const GPUMaterial* material, __global const unsigned char* textureData, uint* seed)
 {
 	if (material == NULL) {
 		// Default to diffuse reflection
 		return random_hemisphere_direction(inter.normal, seed);
 	}
+	
+	// Get the perturbed normal (includes normal map if available)
+	float3 normal = get_perturbed_normal(shape, inter, material, textureData);
+	
 	if (material->metalness > 0.5f) {
 		// Metallic reflection
-		float3 reflected = reflect(incident, inter.normal);
+		float3 reflected = reflect(incident, normal);
 		// Add some roughness based on metalness
 		float roughness = (1.0f - material->metalness);
-		float3 randomDir = random_hemisphere_direction(inter.normal, seed);
+		float3 randomDir = random_hemisphere_direction(normal, seed);
 		return normalize(mix(reflected, randomDir, roughness));
 	} else {
 		// Diffuse reflection
-		return random_hemisphere_direction(inter.normal, seed);
+		return random_hemisphere_direction(normal, seed);
 	}
 } 
 
@@ -700,7 +704,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 			} else {
 				// Opaque material - reflection
 				throughput *= diffuse;
-				float3 newDir = get_reflected_ray(currentRay.dir, intersection, material, seed);
+				float3 newDir = get_reflected_ray(currentRay.dir, intersection, &shapes[intersection.hitShapeIndex], material, textureData, seed);
 				currentRay.dir = newDir;
 			}
 			currentRay.origin = intersection.hitpoint + currentRay.dir * EPSILON * 10.0f;
