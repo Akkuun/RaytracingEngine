@@ -10,6 +10,7 @@ Material::Material()
       diffuse_material(vec3(1., 1., 1.)),
       specular_material(vec3(0., 0., 0.)),
       shininess(32.0),
+      metalness(0.0f),
       emissive(false),
       light_color(vec3(1., 1., 1.)),
       light_intensity(1.0),
@@ -19,7 +20,10 @@ Material::Material()
       metalicityMap(),
       texture_scale_x(1.0),
       texture_scale_y(1.0),
-      has_normal_map(false)
+      has_normal_map(false),
+      has_texture(false),
+      has_emissive_map(false),
+      has_metal_map(false)
 {
 }
 
@@ -245,6 +249,10 @@ Material::Material(const nlohmann::json &j) : Material()
     {
         has_normal_map = j["has_normal_map"];
     }
+    if (j.contains("metalness"))
+    {
+        metalness = j["metalness"];
+    }
     if (j.contains("texture_scale_x"))
     {
         texture_scale_x = j["texture_scale_x"];
@@ -283,6 +291,32 @@ Material::Material(const nlohmann::json &j) : Material()
         else
         {
             has_normal_map = false;
+        }
+    }
+    if (j.contains("emissive_map"))
+    {
+        std::string emissiveMapPath = j["emissive_map"];
+        if (!emissiveMapPath.empty())
+        {
+            ppmLoader::load_ppm(emissionMap, emissiveMapPath);
+            has_emissive_map = !emissionMap.data.empty();
+        }
+        else
+        {
+            has_emissive_map = false;
+        }
+    }
+    if (j.contains("metal_map"))
+    {
+        std::string metalMapPath = j["metal_map"];
+        if (!metalMapPath.empty())
+        {
+            ppmLoader::load_ppm(metalicityMap, metalMapPath);
+            has_metal_map = !metalicityMap.data.empty();
+        }
+        else
+        {
+            has_metal_map = false;
         }
     }
 }

@@ -300,6 +300,10 @@ void SceneManager::cornellScene()
         earthMat                                     // Earth texture
     ));
 
+    Material* poolMat = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
+    poolMat->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
+    poolMat->setMetalness(1.0f);
+
     // Floor - white
     addShape(new Square(
         vec3(0.0f, -0.35f, 0.0f), // pos
@@ -307,16 +311,25 @@ void SceneManager::cornellScene()
         vec3(0.0f, 0.0f, 1.5f),   // v_vec
         vec3(0.0f, 1.0f, 0.0f),   // normal
         "Floor",                  // name
-        new Material(std::string("../assets/textures/white_pool_tiles.ppm"))));
+        poolMat));
+    
+    Material* metalMat = new Material(std::string("../assets/textures/metal.ppm"));
+    metalMat->setMetalness(0.55f);
+    metalMat->setNormalsFromPath(std::string("../assets/normals/metal_n.ppm"));
 
-    // Ceiling - white (no name)
+
+        // Ceiling - white (no name)
     addShape(new Square(
         vec3(0.0f, 0.35f, 0.0f), // pos
         vec3(1.5f, 0.0f, 0.0f),  // u_vec
         vec3(0.0f, 0.0f, 1.5f),  // v_vec
         vec3(0.0f, -1.0f, 0.0f), // normal
-        "Ceiling",               // name
-        new Material(std::string("../assets/textures/metal.ppm"))));
+        "Ceiling",              
+        metalMat
+    ));
+            
+    Material *brickwallMat = new Material(std::string("../assets/textures/brickwall.ppm"));
+    brickwallMat->setNormalsFromPath(std::string("../assets/normals/brickwall_n.ppm"));
 
     // Left wall - red
     addShape(new Square(
@@ -325,7 +338,7 @@ void SceneManager::cornellScene()
         vec3(0.0f, 0.0f, 1.5f),   // v_vec
         vec3(1.0f, 0.0f, 0.0f),   // normal
         "Right Wall",             // name
-        new Material(std::string("../assets/textures/brickwall.ppm"))));
+        brickwallMat));
 
     // Right wall - green
     addShape(new Square(
@@ -334,7 +347,7 @@ void SceneManager::cornellScene()
         vec3(0.0f, 0.0f, 1.5f),  // v_vec
         vec3(-1.0f, 0.0f, 0.0f), // normal
         "Left Wall",             // name
-        new Material(std::string("../assets/textures/brickwall.ppm"))));
+        brickwallMat));
 
     // Back wall - white
     addShape(new Square(
@@ -343,7 +356,7 @@ void SceneManager::cornellScene()
         vec3(0.0f, 1.5f, 0.0f),  // v_vec
         vec3(0.0f, 0.0f, -1.0f), // normal
         "Back Wall",             // name
-        new Material(std::string("../assets/textures/white_pool_tiles.ppm")))); // explicit cast to get the correct constructor
+        poolMat));
 
     // Triangle - blue
     addShape(new Triangle(

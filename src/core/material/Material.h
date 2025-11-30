@@ -99,6 +99,15 @@ public:
         normals = img;
         has_normal_map = true;
     }
+    inline void setNormalsFromPath(const std::string &path)
+    {
+        ppmLoader::load_ppm(normals, path);
+        if (!normals.data.empty())
+        {
+            has_normal_map = true;
+            pathFileNormalMap = path;
+        }
+    }
 
     void setPathFileTexture(const std::string &path) { pathFileTexture = path; }
     void setPathFileNormalMap(const std::string &path) { pathFileNormalMap = path; }
