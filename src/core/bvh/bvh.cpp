@@ -1,17 +1,18 @@
 #include "bvh.h"
 #include <algorithm>
 
-
 struct CentroidData
 {
     Triangle *tri;
     vec3 centroid;
 };
 
-void BVH::build(const Mesh& mesh) {
+void BVH::build(const Mesh &mesh)
+{
     triangles = mesh.getTriangles();
     associatedMeshID = mesh.getID();
-    if (triangles.empty()) return;
+    if (triangles.empty())
+        return;
     root = buildRecursive(triangles.begin(), triangles.end()); // setup the division
     boundingBox = root->boundingBox;
 }
@@ -20,6 +21,11 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
                              std::vector<Triangle>::iterator end,
                              int depth)
 {
+    // each time we call this function, we execute the same operation for each node :
+    // 1 - compute the bounding box of the node and store it
+    // 2 - check the stop conditions (max depth or min number of triangles)
+    // 3 - if not leaf, compute the best split using SAH and create child nodes (before it was median split, a naive solution to have balanced tree)
+    // based on best axis choosen, reorder the triangles and call recursively the function for each child
     size_t numTriangles = end - start;
 
     auto node = new bvhNode();
@@ -28,14 +34,15 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
     for (auto it = start; it != end; ++it)
         node->boundingBox.GrowToInclude(*it);
 
-    // Leaf stop conditions
+    // Leaf stop conditions (numtriangles <=4 <=> moore than the last triangle)
     if (depth >= maxDepth || numTriangles <= 4)
     {
         node->triangles.assign(start, end);
         return node;
     }
 
-    // ---- BUILD CENTROID ARRAY ----
+    // Start SAH computation
+    // SAH = Surface Area Heuristic, search for the best split that minimize the cost function instead of just picking the median
     std::vector<CentroidData> centroids;
     centroids.reserve(numTriangles);
 
@@ -45,8 +52,8 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
         centroids.push_back({&(*it), c});
     }
 
-    float bestCost = std::numeric_limits<float>::infinity();
-    int bestAxis = -1;
+    float bestCost = std::numeric_limits<float>::infinity(); // initialize to +inf
+    int bestAxis = -1;                                       // no axis yet
     int bestSplit = -1;
 
     AABB parentBB = node->boundingBox;
@@ -55,7 +62,7 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
     const float C_trav = 1.0f;
     const float C_isect = 1.0f;
 
-    // ---- TEST ALL 3 AXES ----
+    // we test on each axes
     for (int axis = 0; axis < 3; axis++)
     {
 
@@ -87,7 +94,7 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
             rightBB[i] = bb;
         }
 
-        // ---- Evaluate all split positions ----
+        // if we found a better splitScore, we store it and we continue until getting the best one (at the end)
         for (int i = 1; i < numTriangles; i++)
         {
             float SAleft = leftBB[i - 1].SurfaceArea();
@@ -108,20 +115,20 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
         }
     }
 
-    // If no valid SAH split → leaf
+    // if no valid axes found -> no more triangle to split -> become leaf
     if (bestAxis == -1)
     {
         node->triangles.assign(start, end);
         return node;
     }
 
-    // ---- APPLY THE BEST SPLIT ----
     // Reorder original triangles according to the best axis
     std::sort(start, end, [bestAxis](const Triangle &a, const Triangle &b)
               {
-vec3 ca = (a.getV0() + a.getV1() + a.getV2()) / 3.0f;
-vec3 cb = (b.getV0() + b.getV1() + b.getV2()) / 3.0f;
-return ca[bestAxis] < cb[bestAxis]; });
+                  vec3 ca = (a.getV0() + a.getV1() + a.getV2()) / 3.0f;
+                  vec3 cb = (b.getV0() + b.getV1() + b.getV2()) / 3.0f;
+                  return ca[bestAxis] < cb[bestAxis];
+              });
 
     auto mid = start + bestSplit;
 
@@ -131,12 +138,13 @@ return ca[bestAxis] < cb[bestAxis]; });
     return node;
 }
 
-GPUBVH BVH::toGPU() const {
+GPUBVH BVH::toGPU() const
+{
     GPUBVH gpuBVH;
     // TODO serialize the BVH data into gpuBVH
     return gpuBVH;
 }
-
+// debug function to print the BVH structure in terminal
 void BVH::printRecursive(bvhNode *node, int depth) const
 {
     if (!node)
@@ -146,14 +154,14 @@ void BVH::printRecursive(bvhNode *node, int depth) const
     for (int i = 0; i < depth; i++)
         std::cout << "  ";
 
-    // affichage node
+    // node info
     std::cout << "- Node (depth " << depth << ")";
-
+    // if leaf
     if (!node->childA && !node->childB)
     {
         std::cout << " [LEAF] triangles=" << node->triangles.size() << "\n";
     }
-    else
+    else // if internal node
     {
         std::cout << " [INTERNAL]\n";
     }
