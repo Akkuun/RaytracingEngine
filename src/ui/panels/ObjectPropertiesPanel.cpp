@@ -9,7 +9,9 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include "../../core/commands/actionsCommands/materials/SetTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/SetNormalShape.h"
 #include "../../core/commands/actionsCommands/materials/ClearTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/ClearNormalShape.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 
@@ -177,16 +179,14 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-               // commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
-                // TODO CREATE NORMAL MAP COMMANDS
+                commandManager.executeCommand(new SetNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
             }
         }
     });
 
     connect(clearNormalBtn, &QPushButton::clicked, [this, normalPreview, normalNameLabel, flatnormal]()
     {
-        // commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-        // TODO CREATE NORMAL MAP COMMANDS
+        commandManager.executeCommand(new ClearNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
     });
 
     connect(clearNormalBtn, &QPushButton::clicked, [normalPreview, normalNameLabel, flatnormal]()

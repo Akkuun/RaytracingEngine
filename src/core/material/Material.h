@@ -85,8 +85,16 @@ public:
         image.data.clear();
         image.w = 0;
         image.h = 0;
+        has_texture = false;
     }
-    inline void set_normals(const ppmLoader::ImageRGB &img)
+    inline void removeNormals()
+    {
+        normals.data.clear();
+        normals.w = 0;
+        normals.h = 0;
+        has_normal_map = false;
+    }
+    inline void setNormals(const ppmLoader::ImageRGB &img)
     {
         normals = img;
         has_normal_map = true;
