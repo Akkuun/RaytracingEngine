@@ -518,7 +518,24 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
     refractionIndexSpinBox->blockSignals(false);
 
     // Update texture
-    onTextureSelectionChanged(shape->getMaterial());
+    onTextureSelectionChanged(mat);
+}
+
+void defaultTexturePreview(QFrame *frame)
+{
+    QPixmap checkerboard(64, 64);
+    checkerboard.fill(Qt::gray);
+    QPainter painter(&checkerboard);
+    painter.fillRect(0, 0, 32, 32, Qt::darkGray);
+    painter.fillRect(32, 32, 32, 32, Qt::darkGray);
+    frame->findChild<QLabel*>()->setPixmap(checkerboard);
+}
+
+void defaultNormalPreview(QFrame *frame)
+{
+    QPixmap flatnormal(64, 64);
+    flatnormal.fill(QColor(128, 128, 255));
+    frame->findChild<QLabel*>()->setPixmap(flatnormal);
 }
 
 void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
@@ -527,18 +544,27 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
         QImage image(reinterpret_cast<const uchar*>(material->getImage().data.data()), material->getImage().w, material->getImage().h, QImage::Format_RGB888);
         if (!image.isNull()) {
             QPixmap pixmap = QPixmap::fromImage(image);
-            
             texturePreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(texturePreviewFrame->width() - 2, texturePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-            return;
+        } else {
+            defaultTexturePreview(texturePreviewFrame);
         }
+
+        QImage normalimage(reinterpret_cast<const uchar*>(material->getNormals().data.data()), material->getNormals().w, material->getNormals().h, QImage::Format_RGB888);
+        if (!normalimage.isNull()) {
+            QPixmap pixmap = QPixmap::fromImage(normalimage);
+            normalPreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(normalPreviewFrame->width() - 2, normalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            defaultNormalPreview(normalPreviewFrame);
+        }
+
+        // same for metal
+
+        // and emissive
+    } else {
+        // If material is null, set to defaults
+        defaultTexturePreview(texturePreviewFrame);
+        defaultNormalPreview(normalPreviewFrame);
     }
-    // If image is null, set to default checkerboard
-    QPixmap checkerboard(64, 64);
-    checkerboard.fill(Qt::gray);
-    QPainter painter(&checkerboard);
-    painter.fillRect(0, 0, 32, 32, Qt::darkGray);
-    painter.fillRect(32, 32, 32, 32, Qt::darkGray);
-    texturePreviewFrame->findChild<QLabel*>()->setPixmap(checkerboard);
 }
 
 // set true if the key is actually pressed

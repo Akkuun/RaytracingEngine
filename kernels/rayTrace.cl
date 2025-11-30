@@ -203,6 +203,101 @@ float3 sample_texture(__global const unsigned char* textureData, int offset, int
 	return (float3)(r, g, b);
 }
 
+// Sample normal map at UV coordinates
+float3 sample_normal_map(__global const unsigned char* textureData, int offset, int width, int height, float2 uv)
+{
+	if (offset < 0 || width <= 0 || height <= 0) {
+		return (float3)(0.0f, 0.0f, 1.0f); // Default normal pointing up
+	}
+	
+	// Wrap UV coordinates to [0,1]
+	uv.x = uv.x - floor(uv.x);
+	uv.y = uv.y - floor(uv.y);
+	
+	// Convert UV to pixel coordinates
+	int x = (int)(uv.x * width) % width;
+	int y = (int)(uv.y * height) % height;
+	
+	// Calculate pixel index in texture buffer (RGB = 3 bytes per pixel)
+	int pixelIndex = offset + (y * width + x) * 3;
+	
+	// Read RGB values and normalize to [0,1], then remap to [-1,1]
+	float r = ((float)textureData[pixelIndex + 0] / 255.0f) * 2.0f - 1.0f;
+	float g = ((float)textureData[pixelIndex + 1] / 255.0f) * 2.0f - 1.0f;
+	float b = ((float)textureData[pixelIndex + 2] / 255.0f) * 2.0f - 1.0f;
+	
+	return normalize((float3)(r, g, b));
+}
+
+// Compute tangent space basis (TBN matrix) for normal mapping
+void compute_tangent_space(__global const GPUShape* shape, struct Intersection inter, float3* tangent, float3* bitangent, float3* normal)
+{
+	*normal = inter.normal;
+	
+	if (shape->type == SPHERE) {
+		// For spheres, compute tangents from spherical UV mapping
+		float theta = (inter.uv.x - 0.5f) * 2.0f * M_PI;
+		float phi = (0.5f - inter.uv.y) * M_PI;
+		
+		// Tangent in theta direction
+		*tangent = (float3)(-sin(theta), 0.0f, cos(theta));
+		
+		// Bitangent in phi direction  
+		*bitangent = (float3)(cos(theta) * cos(phi), -sin(phi), sin(theta) * cos(phi));
+		
+	} else if (shape->type == SQUARE) {
+		// For squares, use the u_vec and v_vec as tangents
+		float3 u_vec = vec3_to_float3(shape->data.square.u_vec);
+		float3 v_vec = vec3_to_float3(shape->data.square.v_vec);
+		
+		*tangent = normalize(u_vec);
+		*bitangent = normalize(v_vec);
+		
+	} else if (shape->type == TRIANGLE) {
+		// For triangles, we need to compute tangents from UV coordinates
+		// This is a simplified version - in practice you'd want proper tangent calculation
+		// For now, use a simple approximation
+		float3 edge1 = vec3_to_float3(shape->data.triangle.v1) - vec3_to_float3(shape->data.triangle.v0);
+		float3 edge2 = vec3_to_float3(shape->data.triangle.v2) - vec3_to_float3(shape->data.triangle.v0);
+		
+		float2 deltaUV1 = (float2)(inter.uv.x, inter.uv.y) - (float2)(0.0f, 0.0f); // Simplified
+		float2 deltaUV2 = (float2)(0.0f, 0.0f) - (float2)(0.0f, 0.0f); // This is not correct, need proper UVs
+		
+		// Fallback: use arbitrary tangents perpendicular to normal
+		if (fabs(normal->x) > 0.1f) {
+			*tangent = normalize(cross((float3)(0.0f, 1.0f, 0.0f), *normal));
+		} else {
+			*tangent = normalize(cross((float3)(1.0f, 0.0f, 0.0f), *normal));
+		}
+		*bitangent = cross(*normal, *tangent);
+	}
+}
+
+// Get the final normal including normal map perturbation
+float3 get_perturbed_normal(__global const GPUShape* shape, struct Intersection inter, __global const GPUMaterial* material, __global const unsigned char* textureData)
+{
+	float3 geometric_normal = inter.normal;
+	
+	if (material == NULL || !material->has_normal_map) {
+		return geometric_normal;
+	}
+	
+	// Sample normal from normal map (in tangent space)
+	float3 tangent_normal = sample_normal_map(textureData, material->normal_map_offset, 
+	                                         material->normal_map_width, material->normal_map_height, inter.uv);
+	
+	// Compute tangent space basis
+	float3 tangent, bitangent, normal;
+	compute_tangent_space(shape, inter, &tangent, &bitangent, &normal);
+	
+	// Transform tangent space normal to world space
+	float3 world_normal = tangent * tangent_normal.x + 
+	                     bitangent * tangent_normal.y + 
+	                     normal * tangent_normal.z;
+	
+	return normalize(world_normal);
+}
+
 // Get material by materialIndex, searching through materials array by material_id
 __global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* materials, int numMaterials)
 {
