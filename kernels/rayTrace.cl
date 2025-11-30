@@ -250,6 +250,23 @@ float3 reflect(float3 incident, float3 normal)
 	return incident - 2.0f * dot(incident, normal) * normal;
 }
 
+float3 refract_direction(float3 incident, float3 normal, float eta)
+{
+    float cosI = -dot(incident, normal);
+    float sinT2 = eta * eta * (1.0f - cosI * cosI);
+    if (sinT2 > 1.0f) return (float3)(0.0f, 0.0f, 0.0f);
+    float cosT = sqrt(1.0f - sinT2);
+    return eta * incident + (eta * cosI - cosT) * normal;
+}
+
+float fresnel_schlick(float cosI, float n1, float n2)
+{
+    float r0 = (n1 - n2) / (n1 + n2);
+    r0 *= r0;
+    float x = 1.0f - cosI;
+    return r0 + (1.0f - r0) * x*x*x*x*x;
+}
+
 float3 get_reflected_ray(float3 incident, struct Intersection inter, __global const GPUMaterial* material, uint* seed)
 {
 	if (material == NULL) {
@@ -502,6 +519,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
+	float currentIOR = 1.0f;
 	struct Ray currentRay = *initialRay;
 	
 	for (int bounce = 0; bounce < maxBounces; bounce++) {
@@ -544,18 +562,53 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 		// Add direct lighting modulated by throughput
 		accumulatedColor += throughput * directLight;
 
-		// Update throughput for next bounce (material absorption)
-		throughput *= diffuse;
-		
 		// Russian roulette termination for efficiency
 		float maxThroughput = fmax(fmax(throughput.x, throughput.y), throughput.z);
 		if (maxThroughput < 0.01f) break; // Stop if contribution is too small
 
-		// Prepare next ray with random hemisphere sampling (diffuse BRDF)
+		// Prepare next ray
 		if (bounce < maxBounces - 1) {
-			float3 newDir = get_reflected_ray(currentRay.dir, intersection, get_material_by_index(get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials), materials, numMaterials), seed);
-			currentRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
-			currentRay.dir = newDir;
+			__global const GPUMaterial* material = get_material_by_index(get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials), materials, numMaterials);
+			if (material && material->transparency > 0.0f) {
+				// Dielectric material - refraction/reflection
+				float3 normal = intersection.normal;
+				float n1 = currentIOR;
+				float n2 = material->index_medium;
+				bool entering = dot(currentRay.dir, normal) < 0;
+				if (!entering) {
+					normal = -normal;
+					float temp = n1;
+					n1 = n2;
+					n2 = temp;
+				}
+				float eta = n1 / n2;
+				float cosI = -dot(currentRay.dir, normal);
+				cosI = clamp(cosI, 0.0f, 1.0f);
+				float R = fresnel_schlick(cosI, n1, n2);
+				float rand = random_float(seed);
+				float3 newDir;
+				if (rand < R) {
+					// Reflect
+					newDir = reflect(currentRay.dir, normal);
+				} else {
+					// Refract
+					newDir = refract_direction(currentRay.dir, normal, eta);
+					if (length(newDir) < 0.1f) {
+						// Total internal reflection
+						newDir = reflect(currentRay.dir, normal);
+					} else {
+						currentIOR = n2;
+					}
+				}
+				currentRay.dir = normalize(newDir);
+				throughput *= (float3)(1.0f, 1.0f, 1.0f);
+			} else {
+				// Opaque material - reflection
+				throughput *= diffuse;
+				float3 newDir = get_reflected_ray(currentRay.dir, intersection, material, seed);
+				currentRay.dir = newDir;
+			}
+			currentRay.origin = intersection.hitpoint + currentRay.dir * EPSILON * 10.0f;
 		}
 	}
 

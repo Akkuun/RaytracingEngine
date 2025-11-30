@@ -45,6 +45,7 @@ public:
     inline double getShininess() const { return shininess; }
     inline float getIndexMedium() const { return index_medium; }
     inline float getTransparency() const { return transparency; }
+    inline float getMetalness() const { return metalness; }
     inline bool isEmissive() const { return emissive; }
     inline const vec3 &getLightColor() const { return light_color; }
     inline float getLightIntensity() const { return light_intensity; }
@@ -64,6 +65,7 @@ public:
     inline void setShininess(double s) { shininess = s; }
     inline void setIndexMedium(float i) { index_medium = i; }
     inline void setTransparency(float t) { transparency = t; }
+    inline void setMetalness(float m) { metalness = m; }
     inline void setEmissive(bool e) { emissive = e; }
     inline void setLightColor(const vec3 &c) { light_color = c; }
     inline void setLightIntensity(float i) { light_intensity = i; }
@@ -104,6 +106,7 @@ private:
     vec3 specular_material;
     double shininess;
     bool emissive;
+    float metalness;
     vec3 light_color;
     float light_intensity;
     ppmLoader::ImageRGB image;
@@ -114,6 +117,8 @@ private:
     float texture_scale_y = 1.;
     bool has_normal_map = false;
     bool has_texture = false;
+    bool has_emissive_map = false;
+    bool has_metal_map = false;
     int material_id = MaterialId::getInstance().getNewId();
     std::string pathFileTexture = "";
     std::string pathFileNormalMap = "";

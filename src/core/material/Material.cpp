@@ -79,6 +79,7 @@ Material::Material(const vec3 &diffuse_color)
       diffuse_material(diffuse_color),
       specular_material(vec3(0., 0., 0.)),
       shininess(32.0),
+      metalness(0.0f),
       emissive(false),
       light_color(vec3(1., 1., 1.)),
       light_intensity(1.0),
@@ -158,13 +159,15 @@ GPUMaterial Material::toGPU() const
 
     // Material properties
     gpuMat.shininess = static_cast<float>(shininess);
-    gpuMat.index_medium = index_medium;
-    gpuMat.transparency = transparency;
+    gpuMat.index_medium = 1.5f; // index_medium; 
+    gpuMat.transparency = 0.0f; // transparency;
+    std::cout << "Transparency GPU: " << gpuMat.transparency << std::endl; 
     gpuMat.texture_scale_x = texture_scale_x;
 
     gpuMat.texture_scale_y = texture_scale_y;
     gpuMat.emissive = emissive ? 1 : 0;
-    gpuMat.metalness = 1.0f; // Default metalness to 0.0f
+    gpuMat.metalness = 1.0f; // metalness; why does these 3 not go to the gpu correctly ??? huuuuh
+    std::cout << "Metalness GPU: " << gpuMat.metalness << std::endl;
 
     // Light properties
     gpuMat.light_color.x = light_color.x;
