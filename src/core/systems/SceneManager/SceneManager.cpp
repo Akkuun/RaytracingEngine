@@ -280,6 +280,7 @@ void SceneManager::cornellScene()
 
     Material *pinkMat = new Material(vec3(1.f, 0.3f, 1.f));
     pinkMat->setTransparency(1.0f);
+    pinkMat->setIndexMedium(1.5f);
 
     // Sphere 1 - Diffuse Material  PINK
     addShape(new Sphere(

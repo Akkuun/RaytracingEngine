@@ -159,14 +159,14 @@ GPUMaterial Material::toGPU() const
 
     // Material properties
     gpuMat.shininess = static_cast<float>(shininess);
-    gpuMat.index_medium = 1.5f; // index_medium; 
-    gpuMat.transparency = 0.0f; // transparency;
+    gpuMat.index_medium = index_medium; 
+    gpuMat.transparency = transparency;
     std::cout << "Transparency GPU: " << gpuMat.transparency << std::endl; 
     gpuMat.texture_scale_x = texture_scale_x;
 
     gpuMat.texture_scale_y = texture_scale_y;
     gpuMat.emissive = emissive ? 1 : 0;
-    gpuMat.metalness = 1.0f; // metalness; why does these 3 not go to the gpu correctly ??? huuuuh
+    gpuMat.metalness = metalness;
     std::cout << "Metalness GPU: " << gpuMat.metalness << std::endl;
 
     // Light properties
