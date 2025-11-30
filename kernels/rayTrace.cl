@@ -372,17 +372,17 @@ float3 get_reflected_ray(float3 incident, struct Intersection inter, __global co
 	// Get the perturbed normal (includes normal map if available)
 	float3 normal = get_perturbed_normal(shape, inter, material, textureData);
 	
-	if (material->metalness > 0.5f) {
-		// Metallic reflection
-		float3 reflected = reflect(incident, normal);
-		// Add some roughness based on metalness
-		float roughness = (1.0f - material->metalness);
-		float3 randomDir = random_hemisphere_direction(normal, seed);
-		return normalize(mix(reflected, randomDir, roughness));
-	} else {
-		// Diffuse reflection
-		return random_hemisphere_direction(normal, seed);
-	}
+	// Continuous metalness: blend between diffuse and specular reflection
+	float3 diffuse = random_hemisphere_direction(normal, seed);
+	float3 reflected = reflect(incident, normal);
+	
+	// Add roughness based on metalness (higher metalness = lower roughness)
+	float roughness = 1.0f - material->metalness;
+	float3 randomDir = random_hemisphere_direction(normal, seed);
+	float3 roughReflected = normalize(mix(reflected, randomDir, roughness));
+	
+	// Blend between diffuse and rough specular based on metalness
+	return normalize(mix(diffuse, roughReflected, material->metalness));
 } 
 
 float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 

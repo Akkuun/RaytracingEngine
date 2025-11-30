@@ -302,7 +302,7 @@ void SceneManager::cornellScene()
 
     Material* poolMat = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
     poolMat->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
-    poolMat->setMetalness(1.0f);
+    poolMat->setMetalness(0.75f);
 
     // Floor - white
     addShape(new Square(
@@ -314,7 +314,7 @@ void SceneManager::cornellScene()
         poolMat));
     
     Material* metalMat = new Material(std::string("../assets/textures/metal.ppm"));
-    metalMat->setMetalness(0.55f);
+    metalMat->setMetalness(0.9f);
     metalMat->setNormalsFromPath(std::string("../assets/normals/metal_n.ppm"));
 
 

@@ -428,8 +428,8 @@ void ObjectPropertiesPanel::setupUI()
         if (shape) {
             Material *mat = shape->getMaterial();
             if (mat) {
-                mat->setSpecular(vec3(value, value, value));
-                emit materialChanged();
+                mat->setMetalness(value);
+                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
         }
     });
@@ -440,7 +440,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setTransparency(value);
-                emit materialChanged();
+                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
         }
     });
@@ -452,7 +452,7 @@ void ObjectPropertiesPanel::setupUI()
             if (mat) {
                 mat->setLightIntensity(value);
                 mat->setEmissive(value > 0);
-                emit materialChanged();
+                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
         }
     });
@@ -463,7 +463,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setIndexMedium(value);
-                emit materialChanged();
+                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
         }
     });
