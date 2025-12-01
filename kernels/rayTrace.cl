@@ -216,17 +216,19 @@ float3 sample_texture(__global const unsigned char* textureData, int offset, int
 	return (float3)(r, g, b);
 }
 
-// Get material by materialIndex, searching through materials array by material_id
+// Get material by materialIndex - O(1) direct access
+// Materials are stored at their material_id index in the array
 __global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* materials, int numMaterials)
 {
-	if (materialIndex < 0) return NULL;
+	if (materialIndex < 0 || materialIndex >= numMaterials) return NULL;
 	
-	for (int i = 0; i < numMaterials; i++) {
-		if (materials[i].material_id == materialIndex) {
-			return &materials[i];
-		}
-	}
-	return NULL;
+	// Direct access - material is stored at index == material_id
+	__global const GPUMaterial* mat = &materials[materialIndex];
+	
+	// Validate that the slot contains a valid material (material_id != -1)
+	if (mat->material_id < 0) return NULL;
+	
+	return mat;
 }
 
 float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale)
@@ -427,16 +429,14 @@ inline struct Intersection intersect_triangle(__global const GPUTriangle* triang
 
 // AABB-Ray intersection test using slab method
 // Returns true if ray intersects AABB, and sets tMin/tMax to entry/exit distances
-inline bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, float* tMin, float* tMax)
+// invDir should be precomputed as (1/ray.dir.x, 1/ray.dir.y, 1/ray.dir.z)
+inline bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, const float3* invDir, float* tMin, float* tMax)
 {
     float3 aabbMin = vec3_to_float3(aabb->minPoint);
     float3 aabbMax = vec3_to_float3(aabb->maxPoint);
     
-    // Compute inverse direction to avoid division
-    float3 invDir = (float3)(1.0f / ray->dir.x, 1.0f / ray->dir.y, 1.0f / ray->dir.z);
-    
-    float3 t0 = (aabbMin - ray->origin) * invDir;
-    float3 t1 = (aabbMax - ray->origin) * invDir;
+    float3 t0 = (aabbMin - ray->origin) * (*invDir);
+    float3 t1 = (aabbMax - ray->origin) * (*invDir);
     
     // Handle negative directions
     float3 tmin = fmin(t0, t1);
@@ -501,7 +501,10 @@ struct Intersection traverse_bvh(
     closestHit.t = -1.0f;
     *hitMaterialIndex = -1;
     
-    float closestT = 1e20f;
+    // Precompute inverse direction for AABB tests
+    float3 invDir = (float3)(1.0f / ray->dir.x, 1.0f / ray->dir.y, 1.0f / ray->dir.z);
+    
+    float closestT = 1e30f;
     
     // Stack for iterative traversal (max depth typically 32-64 for BVH)
     int stack[64];
@@ -515,33 +518,28 @@ struct Intersection traverse_bvh(
         
         // Test AABB intersection
         float tMin, tMax;
-        if (!intersect_aabb(&node->boundingBox, ray, &tMin, &tMax)) {
-            continue; // Ray misses this node's bounding box
-        }
-        
-        // Early out if this node is farther than closest hit
-        if (tMin > closestT) {
+        if (!intersect_aabb(&node->boundingBox, ray, &invDir, &tMin, &tMax) || tMin > closestT)
             continue;
-        }
         
         if (node->childIndex == -1) {
             // Leaf node: test all triangles
-            for (int i = 0; i < node->triangleCount; i++) {
-                int triIdx = node->triangleStartIdx + i;
+            int start = node->triangleStartIdx;
+            int end = start + node->triangleCount;
+            
+            for (int i = start; i < end; i++) {
                 float t;
-                struct Intersection hit = intersect_bvh_triangle(&triangles[triIdx], ray, &t);
+                struct Intersection hit = intersect_bvh_triangle(&triangles[i], ray, &t);
                 
-                if (hit.t > EPSILON && hit.t < closestT) {
+                if (hit.t > 0.0f && hit.t < closestT) {
                     closestT = hit.t;
                     closestHit = hit;
-                    *hitMaterialIndex = triangles[triIdx].materialIndex;
+                    *hitMaterialIndex = triangles[i].materialIndex;
                 }
             }
         } else {
             // Internal node: push children onto stack
-            // Push right child first so left child is processed first (closer nodes first heuristic)
-            stack[stackPtr++] = node->childIndex + 1; // Right child
-            stack[stackPtr++] = node->childIndex;     // Left child
+            stack[stackPtr++] = node->childIndex;
+            stack[stackPtr++] = node->childIndex + 1;
         }
     }
     
