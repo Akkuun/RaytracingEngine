@@ -191,7 +191,7 @@ typedef struct __attribute__((aligned(16))) {
 } GPUShape;
 
 // Sample texture at UV coordinates
-float3 sample_texture(__global const unsigned char* textureData, int offset, int width, int height, float2 uv)
+inline __attribute__((always_inline)) float3 sample_texture(__global const unsigned char* restrict textureData, int offset, int width, int height, float2 uv)
 {
 	if (offset < 0 || width <= 0 || height <= 0) {
 		return (float3)(1.0f, 1.0f, 1.0f); // White default if no texture
@@ -218,7 +218,7 @@ float3 sample_texture(__global const unsigned char* textureData, int offset, int
 
 // Get material by materialIndex - O(1) direct access
 // Materials are stored at their material_id index in the array
-__global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* materials, int numMaterials)
+inline __attribute__((always_inline)) __global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* restrict materials, int numMaterials)
 {
 	if (materialIndex < 0 || materialIndex >= numMaterials) return NULL;
 	
@@ -231,7 +231,7 @@ __global const GPUMaterial* get_material_by_index(int materialIndex, __global co
 	return mat;
 }
 
-float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale)
+inline __attribute__((always_inline)) float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale)
 {
 	int checkX = (int)(floor(uv.x * scale));
 	int checkY = (int)(floor(uv.y * scale));
@@ -243,8 +243,12 @@ float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale
 	}
 }
 
-float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 
-                       __global const unsigned char* textureData, float2 uv)
+inline __attribute__((always_inline)) float3 get_shape_color(
+	__global const GPUShape* restrict shape,
+	__global const GPUMaterial* restrict materials,
+	int numMaterials, 
+	__global const unsigned char* restrict textureData,
+	float2 uv)
 {
 	int materialIndex = -1;
 	
@@ -274,7 +278,7 @@ float3 get_shape_color(__global const GPUShape* shape, __global const GPUMateria
 	// No texture, use material diffuse color
 	return vec3_to_float3(material->diffuse);
 }
-inline struct Intersection intersect_sphere(__global const GPUSphere* sphere, const struct Ray* ray, float* t)
+inline __attribute__((always_inline)) struct Intersection intersect_sphere(__global const GPUSphere* restrict sphere, const struct Ray* restrict ray, float* restrict t)
 {
 	float3 sphere_pos = vec3_to_float3(sphere->pos);
 	float3 rayToCenter = sphere_pos - ray->origin;
@@ -329,7 +333,7 @@ inline struct Intersection intersect_sphere(__global const GPUSphere* sphere, co
 	return result;
 }
 
-inline struct Intersection intersect_square(__global const GPUSquare* square, const struct Ray* ray, float* t)
+inline __attribute__((always_inline)) struct Intersection intersect_square(__global const GPUSquare* restrict square, const struct Ray* restrict ray, float* restrict t)
 {
     /* calculate intersection of ray with plane of square */
 
@@ -386,7 +390,7 @@ inline struct Intersection intersect_square(__global const GPUSquare* square, co
     return result;
 }
 
-inline struct Intersection intersect_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
+inline __attribute__((always_inline)) struct Intersection intersect_triangle(__global const GPUTriangle* restrict triangle, const struct Ray* restrict ray, float* restrict t)
 {
 	struct Intersection result;
 	result.t = -1.0f; /* default to no intersection */
@@ -429,14 +433,19 @@ inline struct Intersection intersect_triangle(__global const GPUTriangle* triang
 
 // AABB-Ray intersection test using slab method
 // Returns true if ray intersects AABB, and sets tMin/tMax to entry/exit distances
-// invDir should be precomputed as (1/ray.dir.x, 1/ray.dir.y, 1/ray.dir.z)
-inline bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, const float3* invDir, float* tMin, float* tMax)
+// invDir must be precomputed as (1/ray.dir.x, 1/ray.dir.y, 1/ray.dir.z) ONCE per ray
+inline __attribute__((always_inline)) bool intersect_aabb(
+    __global const AABBGPU* restrict aabb,
+    const float3 rayOrigin,
+    const float3 invDir,
+    float* restrict tMin,
+    float* restrict tMax)
 {
     float3 aabbMin = vec3_to_float3(aabb->minPoint);
     float3 aabbMax = vec3_to_float3(aabb->maxPoint);
     
-    float3 t0 = (aabbMin - ray->origin) * (*invDir);
-    float3 t1 = (aabbMax - ray->origin) * (*invDir);
+    float3 t0 = (aabbMin - rayOrigin) * invDir;
+    float3 t1 = (aabbMax - rayOrigin) * invDir;
     
     // Handle negative directions
     float3 tmin = fmin(t0, t1);
@@ -449,7 +458,7 @@ inline bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, 
 }
 
 // Intersect ray with a single triangle from BVH triangle buffer
-struct Intersection intersect_bvh_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
+inline __attribute__((always_inline)) struct Intersection intersect_bvh_triangle(__global const GPUTriangle* restrict triangle, const struct Ray* restrict ray, float* restrict t)
 {
     struct Intersection result;
     result.t = -1.0f;
@@ -490,19 +499,18 @@ struct Intersection intersect_bvh_triangle(__global const GPUTriangle* triangle,
 
 // BVH traversal using iterative stack-based approach
 // Returns the closest intersection with triangles in the BVH
-struct Intersection traverse_bvh(
-    __global const GPUBVHNode* nodes,
-    __global const GPUTriangle* triangles,
+// invDir must be precomputed ONCE per ray before calling this function
+inline __attribute__((always_inline)) struct Intersection traverse_bvh(
+    __global const GPUBVHNode* restrict nodes,
+    __global const GPUTriangle* restrict triangles,
     int rootNodeIndex,
-    const struct Ray* ray,
-    int* hitMaterialIndex)
+    const struct Ray* restrict ray,
+    const float3 invDir,
+    int* restrict hitMaterialIndex)
 {
     struct Intersection closestHit;
     closestHit.t = -1.0f;
     *hitMaterialIndex = -1;
-    
-    // Precompute inverse direction for AABB tests
-    float3 invDir = (float3)(1.0f / ray->dir.x, 1.0f / ray->dir.y, 1.0f / ray->dir.z);
     
     float closestT = 1e30f;
     
@@ -518,7 +526,7 @@ struct Intersection traverse_bvh(
         
         // Test AABB intersection
         float tMin, tMax;
-        if (!intersect_aabb(&node->boundingBox, ray, &invDir, &tMin, &tMax) || tMin > closestT)
+        if (!intersect_aabb(&node->boundingBox, ray->origin, invDir, &tMin, &tMax) || tMin > closestT)
             continue;
         
         if (node->childIndex == -1) {
@@ -547,17 +555,22 @@ struct Intersection traverse_bvh(
 }
 
 // Traverse all BVHs and find the closest intersection
-struct Intersection compute_bvh_intersection(
-    __global const GPUBVH* bvhHeaders,
-    __global const GPUBVHNode* bvhNodes,
-    __global const GPUTriangle* bvhTriangles,
+// Precomputes invDir once for all BVH traversals (avoids redundant divisions)
+inline __attribute__((always_inline)) struct Intersection compute_bvh_intersection(
+    __global const GPUBVH* restrict bvhHeaders,
+    __global const GPUBVHNode* restrict bvhNodes,
+    __global const GPUTriangle* restrict bvhTriangles,
     int numBVH,
-    const struct Ray* ray,
-    int* hitMaterialIndex)
+    const struct Ray* restrict ray,
+    int* restrict hitMaterialIndex)
 {
     struct Intersection closestHit;
     closestHit.t = -1.0f;
     *hitMaterialIndex = -1;
+    
+    // Precompute inverse direction ONCE for all BVH traversals
+    // This eliminates redundant divisions (divisions cost ~20x more than multiplications)
+    float3 invDir = (float3)(1.0f / ray->dir.x, 1.0f / ray->dir.y, 1.0f / ray->dir.z);
     
     float closestT = 1e20f;
     int nodeOffset = 0;
@@ -576,6 +589,7 @@ struct Intersection compute_bvh_intersection(
             bvhTriangles + triangleOffset,
             bvh->rootNodeIndex,
             ray,
+            invDir,
             &matIdx);
         
         if (hit.t > EPSILON && hit.t < closestT) {
@@ -591,7 +605,7 @@ struct Intersection compute_bvh_intersection(
     return closestHit;
 }
 
-struct Intersection intersect_shape(__global const GPUShape* shape, const struct Ray* ray, float* t)
+inline __attribute__((always_inline)) struct Intersection intersect_shape(__global const GPUShape* restrict shape, const struct Ray* restrict ray, float* restrict t)
 {
 	if (shape->type == SPHERE) {
 		return intersect_sphere(&shape->data.sphere, ray, t);
@@ -605,15 +619,15 @@ struct Intersection intersect_shape(__global const GPUShape* shape, const struct
 	return result;
 }
 
-struct Intersection compute_intersection(__global const GPUShape* shapes, int numShapes, const struct Ray* ray)
+inline __attribute__((always_inline)) struct Intersection compute_intersection(__global const GPUShape* restrict shapes, int numShapes, const struct Ray* restrict ray)
 {
-	float t = 1e20;
+	float t = 1e20f;
 	int hitShapeIndex = -1;
 	struct Intersection finalIntersection;
 	finalIntersection.t = -1.0f; /* default to no intersection */
 
 	for (int i = 0; i < numShapes; i++){
-		float t_temp = 1e20;
+		float t_temp = 1e20f;
 		struct Intersection intersection;
 		intersection = intersect_shape(&shapes[i], ray, &t_temp);
 
@@ -628,10 +642,10 @@ struct Intersection compute_intersection(__global const GPUShape* shapes, int nu
 	return finalIntersection;
 }
 
-bool compute_shadow(__global const GPUShape* shapes, int numShapes, const struct Ray* shadowRay, float maxDistance)
+inline __attribute__((always_inline)) bool compute_shadow(__global const GPUShape* restrict shapes, int numShapes, const struct Ray* restrict shadowRay, float maxDistance)
 {
 	for (int i = 0; i < numShapes; i++){
-		float t_temp = 1e20;
+		float t_temp = 1e20f;
 		struct Intersection intersection;
 		intersection = intersect_shape(&shapes[i], shadowRay, &t_temp);
 
@@ -645,7 +659,17 @@ bool compute_shadow(__global const GPUShape* shapes, int numShapes, const struct
 
 // Iterative version to avoid recursion issues with Rusticl driver
 // Uses hemisphere sampling for diffuse materials
-float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed, __global const GPUMaterial* materials, int numMaterials, __global const unsigned char* textureData)
+inline __attribute__((always_inline)) float3 raytrace_iterative(
+	const struct Ray* restrict initialRay,
+	__global const GPUShape* restrict shapes,
+	int numShapes,
+	const struct Light* restrict lights,
+	int numLights,
+	int maxBounces,
+	uint* restrict seed,
+	__global const GPUMaterial* restrict materials,
+	int numMaterials,
+	__global const unsigned char* restrict textureData)
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
