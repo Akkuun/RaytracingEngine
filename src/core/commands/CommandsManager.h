@@ -15,6 +15,7 @@ private:
     std::vector<std::function<void()>> cameraChangedCallbacks;
     std::vector<std::function<void()>> shapesChangedCallbacks;
     std::vector<std::function<void()>> materialChangedCallbacks;
+    std::vector<std::function<void()>> bvhChangedCallbacks;
     
     CommandsManager() = default;
 
@@ -92,6 +93,14 @@ public:
 
     void notifyMaterialChanged() {
         for (const auto& callback : materialChangedCallbacks) {
+            if (callback) {
+                callback();
+            }
+        }
+    }
+
+    void notifyBVHChanged() {
+        for (const auto& callback : bvhChangedCallbacks) {
             if (callback) {
                 callback();
             }

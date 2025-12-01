@@ -5,7 +5,7 @@
 #include "../../shapes/Square.h"
 #include "../../shapes/Triangle.h"
 #include "../../shapes/Mesh.h"
-
+#include "../../bvh/bvh.h"
 class SceneManager
 {
 public:
@@ -22,6 +22,7 @@ public:
     void deleteShape(Shape *shape);
     inline const std::vector<Shape *> &getShapes() { return shapes; }
     inline const std::vector<Material *> &getMaterials() const { return materials; }
+    inline const std::vector<BVH*> &getBVHLists() const { return bvhLists; }
     void updateUniqueMaterials();
     void buildScene();
     void buildScene(const std::string &path);
@@ -32,10 +33,12 @@ public:
     size_t getNumMaterials() const { return materials.size(); }
     Shape *getShapesBuffer() const; // Returns a buffer suitable for GPU consumption
     Shape *getShapeByID(const int &shapeID) const;
+    
 
 private:
     SceneManager(); // Private constructor
     std::vector<Shape *> shapes;
     std::vector<Material *> materials;
+    std::vector<BVH*> bvhLists; // list of all BVH trees , one per mesh
     void clearShapes();
 };

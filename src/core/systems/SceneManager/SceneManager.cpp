@@ -1,7 +1,12 @@
 #include "SceneManager.h"
 #include <algorithm>
 #include "../FileManager/FileManager.h"
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/norm.hpp>
 
 // Singleton getInstance method
 SceneManager &SceneManager::getInstance()
@@ -12,10 +17,7 @@ SceneManager &SceneManager::getInstance()
 
 SceneManager::SceneManager()
 {
-    buildScene(); // TODO create 2nd version with buildScene(path) to get all the shape from a single file
-    // TODO buildScene(FileManager::getInstance().getActualProjectPath());
-    // if path is not empty -> read data from file
-    // else build default scene (square and single sphere)
+    buildScene(); // Initialize with default scene or loaded scene
 }
 
 SceneManager::~SceneManager()
@@ -26,6 +28,13 @@ SceneManager::~SceneManager()
         delete shape;
     }
     shapes.clear();
+
+    // Clean up allocated BVH trees
+    for (BVH *bvh : bvhLists)
+    {
+        delete bvh;
+    }
+    bvhLists.clear();
 }
 
 void SceneManager::addShape(Shape *shape)
@@ -48,6 +57,13 @@ void SceneManager::clearShapes()
         delete shape;
     }
     shapes.clear();
+
+    // Clean up allocated BVH trees
+    for (BVH *bvh : bvhLists)
+    {
+        delete bvh;
+    }
+    bvhLists.clear();
 }
 
 // build the scene ie. Cornell Box
@@ -64,86 +80,9 @@ void SceneManager::buildScene()
     }
     else
     {
-        std::cout<<"load file from path: "<<FileManager::getInstance().getActualProjectPath()<<std::endl;
+        std::cout << "load file from path: " << FileManager::getInstance().getActualProjectPath() << std::endl;
         // create scene from file
         buildScene(FileManager::getInstance().getActualProjectPath());
-
-        /*
-         // Sphere 1 - Diffuse Material  PINK
-         addShape(new Sphere(
-             0.15f,
-             vec3(0.25f, -0.2f, -0.25f),
-             "Boule 1",
-             new Material(vec3(1.f, 0.3f, 1.f))));
-
-         // Sphere 2 - Texture Material
-         addShape(new Sphere(
-             0.1f,                                         // radius
-             vec3(-0.25f, -0.25f, -0.25f),                 // center
-             "Boule 2",                                    // name
-             new Material(std::string("../assets/textures/earth.ppm"))) // Earth texture
-         );
-
-         // Floor - white
-         addShape(new Square(
-             vec3(0.0f, -0.35f, 0.0f), // pos
-             vec3(1.5f, 0.0f, 0.0f),   // u_vec
-             vec3(0.0f, 0.0f, 1.5f),   // v_vec
-             vec3(0.0f, 1.0f, 0.0f),   // normal
-             "Floor",                  // name
-             new Material(std::string("../assets/textures/white_pool_tiles.ppm"))));
-
-         // Ceiling - white (no name)
-         addShape(new Square(
-             vec3(0.0f, 0.35f, 0.0f), // pos
-             vec3(1.5f, 0.0f, 0.0f),  // u_vec
-             vec3(0.0f, 0.0f, 1.5f),  // v_vec
-             vec3(0.0f, -1.0f, 0.0f), // normal
-             "Ceiling",               // name
-             new Material(std::string("../assets/textures/metal.ppm"))));
-
-         // Left wall - red
-         addShape(new Square(
-             vec3(-0.75f, 0.0f, 0.0f), // pos
-             vec3(0.0f, 1.5f, 0.0f),   // u_vec
-             vec3(0.0f, 0.0f, 1.5f),   // v_vec
-             vec3(1.0f, 0.0f, 0.0f),   // normal
-             "Right Wall",             // name
-             new Material(std::string("../assets/textures/brickwall.ppm"))));
-
-         // Right wall - green
-         addShape(new Square(
-             vec3(0.75f, 0.0f, 0.0f), // pos
-             vec3(0.0f, 1.5f, 0.0f),  // u_vec
-             vec3(0.0f, 0.0f, 1.5f),  // v_vec
-             vec3(-1.0f, 0.0f, 0.0f), // normal
-             "Left Wall",             // name
-             new Material(std::string("../assets/textures/brickwall.ppm"))));
-
-         // Back wall - white
-         addShape(new Square(
-             vec3(0.0f, 0.0f, 0.0f),  // pos
-             vec3(1.5f, 0.0f, 0.0f),  // u_vec
-             vec3(0.0f, 1.5f, 0.0f),  // v_vec
-             vec3(0.0f, 0.0f, -1.0f), // normal
-             "Back Wall",             // name
-             new Material(std::string("../assets/textures/white_pool_tiles.ppm")))); // explicit cast to get the correct constructor
-
-         // Triangle - blue
-         addShape(new Triangle(
-             "Triangle",               // name
-             vec3(-0.1f, 0.2f, -0.3f), // vertex A
-             vec3(0.0f, 0.3f, -0.3f),  // vertex C
-             vec3(-0.0f, 0.2f, -0.3f)  // vertex B
-             ));
-
-         Mesh *mesh = new Mesh(std::string("../assets/models3D/tripod.off"));
-         mesh->scale(vec3(0.4f));
-         mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
-         mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
-         mesh->generateCpuTriangles();
-         addShape(mesh);
-         */
     }
 }
 // return the array of shapes suitable for kernel code
@@ -197,7 +136,6 @@ void SceneManager::buildScene(const std::string &path)
     nlohmann::json jsonData;
     file >> jsonData;
 
-
     // print shapes data from json for debugging
     for (const auto &shapeJson : jsonData["shapes"])
     {
@@ -207,34 +145,39 @@ void SceneManager::buildScene(const std::string &path)
         vec3 rotation = vec3(shapeJson["rotation"][0], shapeJson["rotation"][1], shapeJson["rotation"][2]);
         vec3 scale = vec3(shapeJson["scale"][0], shapeJson["scale"][1], shapeJson["scale"][2]);
 
-        Shape* shape = nullptr;
-        Material* material = nullptr;
-        if (hasMaterial) {
+        Shape *shape = nullptr;
+        Material *material = nullptr;
+        if (hasMaterial)
+        {
             material = new Material(shapeJson["material"]);
         }
-        if (shapeType == ShapeType::SPHERE) {
+        if (shapeType == ShapeType::SPHERE)
+        {
 
             shape = new Sphere(
                 shapeJson["radius"],
                 vec3(shapeJson["center"][0], shapeJson["center"][1], shapeJson["center"][2]),
                 shapeJson["name"], material);
-        } 
-        else if (shapeType == ShapeType::SQUARE) {
+        }
+        else if (shapeType == ShapeType::SQUARE)
+        {
             shape = new Square(
                 vec3(shapeJson["position"][0], shapeJson["position"][1], shapeJson["position"][2]),
                 vec3(shapeJson["u_vec"][0], shapeJson["u_vec"][1], shapeJson["u_vec"][2]),
                 vec3(shapeJson["v_vec"][0], shapeJson["v_vec"][1], shapeJson["v_vec"][2]),
                 vec3(shapeJson["normal"][0], shapeJson["normal"][1], shapeJson["normal"][2]),
                 shapeJson["name"], material);
-        } 
-        else if (shapeType == ShapeType::TRIANGLE) {
+        }
+        else if (shapeType == ShapeType::TRIANGLE)
+        {
             shape = new Triangle(
                 shapeJson["name"],
                 vec3(shapeJson["vertexA"][0], shapeJson["vertexA"][1], shapeJson["vertexA"][2]),
                 vec3(shapeJson["vertexC"][0], shapeJson["vertexC"][1], shapeJson["vertexC"][2]),
                 vec3(shapeJson["vertexB"][0], shapeJson["vertexB"][1], shapeJson["vertexB"][2]));
-        } 
-        else if (shapeType == ShapeType::MESH) {
+        }
+        else if (shapeType == ShapeType::MESH)
+        {
             Mesh *mesh = new Mesh(shapeJson["file_path"]);
             // specify transformations for mesh
             mesh->scale(scale);
@@ -242,7 +185,14 @@ void SceneManager::buildScene(const std::string &path)
             mesh->translate(position);
             mesh->generateCpuTriangles();
             shape = mesh;
-        } else {
+
+            // add BVH for this mesh
+            BVH *bvh = new BVH();
+            bvh->build(*mesh);
+            bvhLists.push_back(bvh);
+        }
+        else
+        {
             std::cerr << "Unknown shape type: " << shapeType << std::endl;
         }
         addShape(shape);
@@ -250,7 +200,23 @@ void SceneManager::buildScene(const std::string &path)
         shape->setRotation(rotation);
         shape->setScale(scale);
 
-        
+        if (shape->getType() == ShapeType::MESH)
+        {
+            // print the BVH architecture for debugging
+            BVH *meshBVH = bvhLists.front();
+            bvhNode *rootNode = meshBVH->getRoot();
+            vec3 minBB = rootNode->getMinOfBoundingBox();
+            vec3 maxBB = rootNode->getMaxOfBoundingBox();
+            std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
+            std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
+
+            std::cout << "start printing BVH structure:\n";
+            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+            meshBVH->printRecursive(rootNode);
+            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+            std::chrono::duration<float, std::milli> duration = end - begin;
+            std::cout << "BVH structure printed in: " << duration.count() << " ms\n";   
+        }
     }
 }
 
@@ -340,6 +306,10 @@ void SceneManager::cornellScene()
         "Right Wall",             // name
         brickwallMat));
 
+    // Create a second brickwall material for the other wall (to avoid double-free)
+    Material *brickwallMat2 = new Material(std::string("../assets/textures/brickwall.ppm"));
+    brickwallMat2->setNormalsFromPath(std::string("../assets/normals/brickwall_n.ppm"));
+
     // Right wall - green
     addShape(new Square(
         vec3(0.75f, 0.0f, 0.0f), // pos
@@ -347,7 +317,12 @@ void SceneManager::cornellScene()
         vec3(0.0f, 0.0f, 1.5f),  // v_vec
         vec3(-1.0f, 0.0f, 0.0f), // normal
         "Left Wall",             // name
-        brickwallMat));
+        brickwallMat2));
+
+    // Create a second pool material for the back wall (to avoid double-free)
+    Material* poolMat2 = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
+    poolMat2->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
+    poolMat2->setMetalness(0.75f);
 
     // Back wall - white
     addShape(new Square(
@@ -356,7 +331,7 @@ void SceneManager::cornellScene()
         vec3(0.0f, 1.5f, 0.0f),  // v_vec
         vec3(0.0f, 0.0f, -1.0f), // normal
         "Back Wall",             // name
-        poolMat));
+        poolMat2));
 
     // Triangle - blue
     addShape(new Triangle(
@@ -372,4 +347,9 @@ void SceneManager::cornellScene()
     mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
     mesh->generateCpuTriangles();
     addShape(mesh);
+
+    // Create BVH for the mesh
+    BVH *bvh = new BVH();
+    bvh->build(*mesh);
+    bvhLists.push_back(bvh);
 }

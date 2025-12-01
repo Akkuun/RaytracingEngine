@@ -47,6 +47,9 @@ public:
             vec3 scaleFactor(newScale.x / previousScale.x, newScale.y / previousScale.y, newScale.z / previousScale.z);
             mesh->scale(scaleFactor);
             mesh->generateCpuTriangles();
+
+            // Notify BVH changed since the mesh has scaled
+            CommandsManager::getInstance().notifyBVHChanged();
         }
         if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }
@@ -61,6 +64,9 @@ public:
             vec3 scaleFactor(previousScale.x / newScale.x, previousScale.y / newScale.y, previousScale.z / newScale.z);
             mesh->scale(scaleFactor);
             mesh->generateCpuTriangles();
+
+            // Notify BVH changed since the mesh has scaled
+            CommandsManager::getInstance().notifyBVHChanged();
         }
         if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }

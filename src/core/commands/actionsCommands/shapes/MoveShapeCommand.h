@@ -49,6 +49,9 @@ public:
                 Mesh *mesh = static_cast<Mesh *>(shape);
                 mesh->translate(newPosition - previousPosition); // Move all vertices
                 mesh->generateCpuTriangles();
+
+                // Notify BVH changed since the mesh has moved
+                CommandsManager::getInstance().notifyBVHChanged();
             }
             CommandsManager::getInstance().notifyShapesChanged();
         }
@@ -65,6 +68,9 @@ public:
                 Mesh *mesh = static_cast<Mesh *>(shape);
                 mesh->translate(previousPosition - oldPos); // Move all vertices
                 mesh->generateCpuTriangles();
+
+                // Notify BVH changed since the mesh has moved
+                CommandsManager::getInstance().notifyBVHChanged();
             }
             CommandsManager::getInstance().notifyShapesChanged();
         }

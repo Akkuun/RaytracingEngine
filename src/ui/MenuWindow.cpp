@@ -116,7 +116,6 @@ MenuWindow::MenuWindow(QWidget *parent)
 
     // Use a folder icon for each project
 
-    // TODO : make this in listRecentProjects function
     auto loadProjectList = [projectList, folderIcon](const QList<QPair<QString, QString>> &data)
     {
         projectList->clear();

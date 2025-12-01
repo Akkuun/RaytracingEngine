@@ -102,12 +102,12 @@ struct __attribute__((aligned(16))) GPUMaterial {
     Vec3 ambient;              // 16 bytes (offset 0)
     Vec3 diffuse;              // 16 bytes (offset 16)
     Vec3 specular;             // 16 bytes (offset 32)
-    
+
     float shininess;           // 4 bytes (offset 48)
     float index_medium;        // 4 bytes (offset 52)
     float transparency;        // 4 bytes (offset 56)
     float texture_scale_x;     // 4 bytes (offset 60)
-    
+
     float texture_scale_y;     // 4 bytes (offset 64)
     int emissive;              // 4 bytes (offset 68)
     float metalness;           // 4 bytes (offset 72)
@@ -123,7 +123,7 @@ struct __attribute__((aligned(16))) GPUMaterial {
     int has_normal_map;        // 4 bytes (offset 112)
     int normal_map_width;      // 4 bytes (offset 116)
     int normal_map_height;     // 4 bytes (offset 120)
-    int normal_map_offset;     // 4 bytes (offset 124) 
+    int normal_map_offset;     // 4 bytes (offset 124)
 
     int has_metal_map;         // 4 bytes (offset 128)
     int metal_map_width;       // 4 bytes (offset 132)
@@ -163,13 +163,14 @@ GPUMaterial Material::toGPU() const
 
     // Material properties
     gpuMat.shininess = static_cast<float>(shininess);
-    gpuMat.index_medium = index_medium; 
+    gpuMat.index_medium = index_medium;
     gpuMat.transparency = transparency;
     gpuMat.texture_scale_x = texture_scale_x;
 
     gpuMat.texture_scale_y = texture_scale_y;
     gpuMat.emissive = emissive ? 1 : 0;
     gpuMat.metalness = metalness;
+    gpuMat._padding1 = 0.0f; // Critical padding for alignment
 
     // Light properties
     gpuMat.light_color.x = light_color.x;
@@ -203,6 +204,8 @@ GPUMaterial Material::toGPU() const
 
     // Material ID
     gpuMat.material_id = material_id;
+    gpuMat._padding2[0] = 0; // Padding for 16-byte alignment
+    gpuMat._padding2[1] = 0;
 
     return gpuMat;
 }

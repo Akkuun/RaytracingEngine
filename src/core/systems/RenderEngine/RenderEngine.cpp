@@ -58,6 +58,12 @@ void RenderEngine::setupBuffers(int width, int height)
         setupMaterialBuffer();
         materialBufferDirty = false;
     }
+
+    if (bvhBufferDirty)
+    {
+        setupBVHBuffer();
+        bvhBufferDirty = false;
+    }
 }
 
 void RenderEngine::render(int width, int height)
@@ -86,11 +92,14 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(5, shapesBuffer);
         // Pass the actual number of GPU shapes stored in the shapes buffer
         kernel.setArg(6, shapesCount);
-        kernel.setArg(7, cameraBuffer);   // Use camera buffer instead of direct parameters , somehow it's giving better performance
-        kernel.setArg(8, materialBuffer); // Buffer containing all the material data
-        kernel.setArg(9, materialCount);  // Number of materials in the scene
-        kernel.setArg(10, textureBuffer); // Buffer containing all texture data
-
+        kernel.setArg(7, cameraBuffer);        // Use camera buffer instead of direct parameters , somehow it's giving better performance
+        kernel.setArg(8, materialBuffer);      // Buffer containing all the material data
+        kernel.setArg(9, materialCount);       // Number of materials in the scene
+        kernel.setArg(10, textureBuffer);      // Buffer containing all texture data
+        kernel.setArg(11, bvhCount);           // Number of BVH in the scene
+        kernel.setArg(12, bvhHeaderBuffer);    // BVH headers buffer
+        kernel.setArg(13, bvhNodesBuffer);     // BVH nodes buffer (flattened)
+        kernel.setArg(14, bvhTrianglesBuffer); // BVH triangles buffer
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
@@ -217,6 +226,7 @@ void RenderEngine::setupShapesBuffer()
 }
 
 // setup the buffer that contain all the material
+// Materials are stored at their material_id index for O(1) direct access on GPU
 void RenderEngine::setupMaterialBuffer()
 {
     SceneManager &sceneManager = SceneManager::getInstance();
@@ -225,33 +235,7 @@ void RenderEngine::setupMaterialBuffer()
     cl::CommandQueue queue = deviceManager->getCommandQueue();
     cl::Context context = deviceManager->getContext();
 
-    std::vector<GPUMaterial> gpu_materials;
-
-    for (auto *material : materials)
-    {
-        if (!material) {
-            std::cerr << "Warning: Null material pointer in materials vector, skipping..." << std::endl;
-            continue;
-        }
-        GPUMaterial gpu_material = material->toGPU();
-        gpu_materials.push_back(gpu_material);
-    }
-
-    // Setup texture buffer and update texture offsets in gpu_materials
-    setupTextureBuffer(gpu_materials);
-
-    size_t buffer_size = gpu_materials.size() * sizeof(GPUMaterial);
-    // Update materialCount for kernel use
-    materialCount = static_cast<int>(gpu_materials.size());
-
-    if (buffer_size > 0)
-    {
-        materialBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                    buffer_size,
-                                    gpu_materials.data());
-        std::cout << "Material buffer created or updated successfully! (" << materialCount << " materials)" << std::endl;
-    }
-    else
+    if (materials.empty())
     {
         // Create a dummy material buffer to avoid null buffer issues
         GPUMaterial dummyMaterial = {};
@@ -261,11 +245,61 @@ void RenderEngine::setupMaterialBuffer()
                                     &dummyMaterial);
         materialCount = 0;
         std::cout << "No GPU materials - created dummy buffer" << std::endl;
+        return;
     }
+
+    // Find the maximum material_id to determine array size
+    int maxMaterialId = -1;
+    for (auto *material : materials)
+    {
+        if (material && material->getMaterialId() > maxMaterialId)
+        {
+            maxMaterialId = material->getMaterialId();
+        }
+    }
+
+    // Create array sized to hold all materials at their material_id index
+    // This enables O(1) direct access: materials[materialIndex] instead of linear search
+    std::vector<GPUMaterial> gpu_materials(maxMaterialId + 1);
+
+    // Initialize all slots with invalid material_id (-1)
+    for (auto &mat : gpu_materials)
+    {
+        mat.material_id = -1;
+    }
+
+    // Place each material at its material_id index
+    for (auto *material : materials)
+    {
+        if (!material)
+        {
+            std::cerr << "Warning: Null material pointer in materials vector, skipping..." << std::endl;
+            continue;
+        }
+        int matId = material->getMaterialId();
+        if (matId >= 0 && matId <= maxMaterialId)
+        {
+            gpu_materials[matId] = material->toGPU();
+        }
+    }
+
+    // Setup texture buffer and update texture offsets in gpu_materials
+    setupTextureBuffer(gpu_materials);
+
+    size_t buffer_size = gpu_materials.size() * sizeof(GPUMaterial);
+    // Update materialCount for kernel use (now represents array size, not just count of valid materials)
+    materialCount = static_cast<int>(gpu_materials.size());
+
+    materialBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                buffer_size,
+                                gpu_materials.data());
+    std::cout << "Material buffer created or updated successfully! (" << materialCount << " material slots)" << std::endl;
 }
 
 // Setup texture buffer containing all texture image data
-void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials)
+// gpu_materials is indexed by material_id, so we iterate through the actual materials
+// and update the corresponding slot in gpu_materials
+void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
 {
     SceneManager &sceneManager = SceneManager::getInstance();
     const std::vector<Material *> &materials = sceneManager.getMaterials();
@@ -275,72 +309,71 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials)
     std::vector<unsigned char> allTextureData;
     int currentOffset = 0;
 
-    // Safety check: ensure gpu_materials vector matches materials vector size
-    if (gpu_materials.size() != materials.size()) {
-        std::cerr << "Error: gpu_materials size (" << gpu_materials.size() 
-                  << ") doesn't match materials size (" << materials.size() << ")" << std::endl;
-        return;
-    }
-
-    for (size_t i = 0; i < materials.size(); i++)
+    for (auto *material : materials)
     {
-        Material* material = materials[i];
-        if (!material) {
-            std::cerr << "Warning: Null material at index " << i << std::endl;
-            if (i < gpu_materials.size()) {
-                gpu_materials[i].texture_offset = -1;
-                gpu_materials[i].normal_map_offset = -1;
-            }
+        if (!material)
+        {
+            std::cerr << "Warning: Null material pointer, skipping..." << std::endl;
             continue;
         }
-        
-        try {
-            const ppmLoader::ImageRGB& image = material->getImage();
-            const ppmLoader::ImageRGB& normals = material->getNormals();
+
+        int matId = material->getMaterialId();
+        if (matId < 0 || matId >= static_cast<int>(gpu_materials.size()))
+        {
+            std::cerr << "Warning: Invalid material_id " << matId << ", skipping..." << std::endl;
+            continue;
+        }
+
+        try
+        {
+            const ppmLoader::ImageRGB &image = material->getImage();
+            const ppmLoader::ImageRGB &normals = material->getNormals();
 
             // Add texture data if exists
             if (!image.data.empty() && image.w > 0 && image.h > 0)
             {
-                gpu_materials[i].texture_offset = currentOffset;
-                
+                gpu_materials[matId].texture_offset = currentOffset;
+
                 // Copy RGB data (3 bytes per pixel)
-                for (const auto& pixel : image.data)
+                for (const auto &pixel : image.data)
                 {
                     allTextureData.push_back(pixel.r);
                     allTextureData.push_back(pixel.g);
                     allTextureData.push_back(pixel.b);
                 }
-                
+
                 currentOffset += image.data.size() * 3; // 3 bytes per pixel (RGB)
             }
             else
             {
-                gpu_materials[i].texture_offset = -1; // No texture
+                gpu_materials[matId].texture_offset = -1; // No texture
             }
 
             // Add normal map data if exists
             if (material->hasNormalMap() && !normals.data.empty() && normals.w > 0 && normals.h > 0)
             {
-                gpu_materials[i].normal_map_offset = currentOffset;
-                
+                gpu_materials[matId].normal_map_offset = currentOffset;
+
                 // Copy RGB data for normal map
-                for (const auto& pixel : normals.data)
+                for (const auto &pixel : normals.data)
                 {
                     allTextureData.push_back(pixel.r);
                     allTextureData.push_back(pixel.g);
                     allTextureData.push_back(pixel.b);
                 }
-                
+
                 currentOffset += normals.data.size() * 3; // 3 bytes per pixel (RGB)
             }
             else
             {
-                gpu_materials[i].normal_map_offset = -1; // No normal map
+                gpu_materials[matId].normal_map_offset = -1; // No normal map
             }
-        } catch (const std::exception& e) {
-            std::cerr << "Error processing material " << i << ": " << e.what() << std::endl;
-            gpu_materials[i].texture_offset = -1;
-            gpu_materials[i].normal_map_offset = -1;
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error processing material " << matId << ": " << e.what() << std::endl;
+            gpu_materials[matId].texture_offset = -1;
+            gpu_materials[matId].normal_map_offset = -1;
         }
     }
 
@@ -362,4 +395,78 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial>& gpu_materials)
                                    dummyData);
         std::cout << "No texture data - created dummy buffer" << std::endl;
     }
+}
+
+void RenderEngine::setupBVHBuffer()
+{
+    SceneManager &sceneManager = SceneManager::getInstance();
+
+    cl::CommandQueue queue = deviceManager->getCommandQueue();
+    cl::Context context = deviceManager->getContext();
+    std::vector<BVH *> bvhList = sceneManager.getBVHLists();
+
+    std::vector<GPUBVH> bvhHeaders;
+    std::vector<GPUBVHNode> allNodes;
+    std::vector<GPUTriangle> allTriangles;
+
+    // Convert each BVH to GPU format and collect all nodes/triangles
+    for (auto *bvh : bvhList)
+    {
+        std::vector<GPUBVHNode> nodes;
+        std::vector<GPUTriangle> triangles;
+
+        GPUBVH gpuBvh = bvh->toGPU(nodes, triangles);
+        bvhHeaders.push_back(gpuBvh);
+
+        // Append nodes and triangles to the global arrays
+        allNodes.insert(allNodes.end(), nodes.begin(), nodes.end());
+        allTriangles.insert(allTriangles.end(), triangles.begin(), triangles.end());
+    }
+
+    bvhCount = static_cast<int>(bvhList.size());
+
+    // Create BVH headers buffer
+    size_t headerBufferSize = bvhHeaders.size() * sizeof(GPUBVH);
+    if (headerBufferSize > 0)
+    {
+        bvhHeaderBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                     headerBufferSize, bvhHeaders.data());
+    }
+    else
+    {
+        GPUBVH dummyHeader = {};
+        bvhHeaderBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                     sizeof(GPUBVH), &dummyHeader);
+    }
+
+    // Create BVH nodes buffer
+    size_t nodesBufferSize = allNodes.size() * sizeof(GPUBVHNode);
+    if (nodesBufferSize > 0)
+    {
+        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                    nodesBufferSize, allNodes.data());
+    }
+    else
+    {
+        GPUBVHNode dummyNode = {};
+        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(GPUBVHNode), &dummyNode);
+    }
+
+    // Create BVH triangles buffer
+    size_t trianglesBufferSize = allTriangles.size() * sizeof(GPUTriangle);
+    if (trianglesBufferSize > 0)
+    {
+        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        trianglesBufferSize, allTriangles.data());
+    }
+    else
+    {
+        GPUTriangle dummyTriangle = {};
+        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        sizeof(GPUTriangle), &dummyTriangle);
+    }
+
+    std::cout << "BVH Buffers created successfully! (" << bvhCount << " BVH, "
+              << allNodes.size() << " nodes, " << allTriangles.size() << " triangles)" << std::endl;
 }
