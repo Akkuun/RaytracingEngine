@@ -195,8 +195,12 @@ void SceneManager::buildScene(const std::string &path)
             std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
             std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
 
+            std::cout << "start printing BVH structure:\n";
+            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
             meshBVH->printRecursive(rootNode);
-            
+            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+            std::chrono::duration<float, std::milli> duration = end - begin;
+            std::cout << "BVH structure printed in: " << duration.count() << " ms\n";   
         }
     }
 }
