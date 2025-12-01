@@ -92,11 +92,32 @@ struct __attribute__((aligned(16))) GPUMaterial
     int material_id;       // 4 bytes (offset 124)
 }; // Total: 128 bytes
 
+// GPU-compatible AABB structure
+struct __attribute__((aligned(16))) AABBGPU
+{
+    Vec3 minPoint; // 16 bytes (offset 0)
+    Vec3 maxPoint; // 16 bytes (offset 16)
+}; // Total: 32 bytes
+
+// GPU-compatible BVH Node structure
+// Using a flattened array representation for GPU traversal
+// If childIndex == -1, it's a leaf node and triangleStartIdx/triangleCount are valid
+// Otherwise, childIndex points to the left child (right child is childIndex + 1)
 struct __attribute__((aligned(16))) GPUBVHNode
 {
-};
+    AABBGPU boundingBox;  // 32 bytes (offset 0)
+    int childIndex;       // 4 bytes (offset 32) - index of left child (-1 if leaf)
+    int triangleStartIdx; // 4 bytes (offset 36) - start index in triangle array (for leaves)
+    int triangleCount;    // 4 bytes (offset 40) - number of triangles (for leaves)
+    int _padding;         // 4 bytes (offset 44) - padding for 16-byte alignment
+}; // Total: 48 bytes
 
+// GPU-compatible BVH structure
+// Contains flattened arrays of nodes and triangles
 struct __attribute__((aligned(16))) GPUBVH
 {
-};
-
+    int numNodes;      // 4 bytes (offset 0)
+    int numTriangles;  // 4 bytes (offset 4)
+    int rootNodeIndex; // 4 bytes (offset 8) - always 0 for single BVH
+    int meshID;        // 4 bytes (offset 12) - associated mesh ID
+}; // Total: 16 bytes (header only, nodes and triangles are separate buffers)

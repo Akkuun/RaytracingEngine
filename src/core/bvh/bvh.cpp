@@ -127,8 +127,7 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
               {
                   vec3 ca = (a.getV0() + a.getV1() + a.getV2()) / 3.0f;
                   vec3 cb = (b.getV0() + b.getV1() + b.getV2()) / 3.0f;
-                  return ca[bestAxis] < cb[bestAxis];
-              });
+                  return ca[bestAxis] < cb[bestAxis]; });
 
     auto mid = start + bestSplit;
 
@@ -138,11 +137,86 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
     return node;
 }
 
-GPUBVH BVH::toGPU() const
+GPUBVH BVH::toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles) const
 {
     GPUBVH gpuBVH;
-    // TODO serialize the BVH data into gpuBVH
+    gpuBVH.rootNodeIndex = 0;
+    gpuBVH.meshID = associatedMeshID;
+
+    if (!root)
+    {
+        gpuBVH.numNodes = 0;
+        gpuBVH.numTriangles = 0;
+        return gpuBVH;
+    }
+
+    outNodes.clear();
+    outTriangles.clear();
+
+    int currentNodeIdx = 0;
+    flattenBVH(root, outNodes, outTriangles, currentNodeIdx);
+
+    gpuBVH.numNodes = static_cast<int>(outNodes.size());
+    gpuBVH.numTriangles = static_cast<int>(outTriangles.size());
+
     return gpuBVH;
+}
+
+void BVH::flattenBVH(bvhNode *node, std::vector<GPUBVHNode> &outNodes,
+                     std::vector<GPUTriangle> &outTriangles, int &currentNodeIdx) const
+{
+    if (!node)
+        return;
+
+    int myIndex = currentNodeIdx++;
+
+    // Reserve space for this node (we'll fill it properly after processing children)
+    outNodes.push_back(GPUBVHNode{});
+
+    if (node->isLeaf())
+    {
+        // Leaf node: store triangles
+        int triStartIdx = static_cast<int>(outTriangles.size());
+        int triCount = static_cast<int>(node->triangles.size());
+
+        // Add triangles to the output array
+        for (const Triangle &tri : node->triangles)
+        {
+            GPUTriangle gpuTri;
+            vec3 v0 = tri.getV0();
+            vec3 v1 = tri.getV1();
+            vec3 v2 = tri.getV2();
+
+            gpuTri.v0 = {v0.x, v0.y, v0.z, 0.0f};
+            gpuTri.v1 = {v1.x, v1.y, v1.z, 0.0f};
+            gpuTri.v2 = {v2.x, v2.y, v2.z, 0.0f};
+            gpuTri.materialIndex = (tri.getMaterial() != nullptr) ? tri.getMaterial()->getMaterialId() : -1;
+            gpuTri._padding[0] = 0.0f;
+            gpuTri._padding[1] = 0.0f;
+            gpuTri._padding[2] = 0.0f;
+
+            outTriangles.push_back(gpuTri);
+        }
+
+        // Fill the node with leaf data
+        outNodes[myIndex] = node->toGPU(-1, triStartIdx, triCount);
+    }
+    else
+    {
+        // Internal node: process children first to get their indices
+        int leftChildIdx = currentNodeIdx;
+
+        // Process left child
+        flattenBVH(node->childA, outNodes, outTriangles, currentNodeIdx);
+
+        // Process right child (will be at leftChildIdx + 1 if tree is complete,
+        // but we use currentNodeIdx to handle any case)
+        flattenBVH(node->childB, outNodes, outTriangles, currentNodeIdx);
+
+        // Fill the node with internal node data
+        // childIndex points to left child, right child is always at childIndex + 1
+        outNodes[myIndex] = node->toGPU(leftChildIdx, -1, 0);
+    }
 }
 // debug function to print the BVH structure in terminal
 void BVH::printRecursive(bvhNode *node, int depth) const

@@ -35,15 +35,30 @@ struct Ray{
 	float3 dir;
 };
 
-typedef struct {
+// GPU-compatible AABB structure
+typedef struct __attribute__((aligned(16))) {
+    Vec3 minPoint;  // 16 bytes (offset 0)
+    Vec3 maxPoint;  // 16 bytes (offset 16)
+} AABBGPU;  // Total: 32 bytes
 
-}BVHNode;
+// GPU-compatible BVH Node structure
+// If childIndex == -1, it's a leaf node and triangleStartIdx/triangleCount are valid
+// Otherwise, childIndex points to the left child (right child is childIndex + 1)
+typedef struct __attribute__((aligned(16))) {
+    AABBGPU boundingBox;      // 32 bytes (offset 0)
+    int childIndex;           // 4 bytes (offset 32) - index of left child (-1 if leaf)
+    int triangleStartIdx;     // 4 bytes (offset 36) - start index in triangle array (for leaves)
+    int triangleCount;        // 4 bytes (offset 40) - number of triangles (for leaves)
+    int _padding;             // 4 bytes (offset 44) - padding for 16-byte alignment
+} GPUBVHNode;  // Total: 48 bytes
 
-struct AABB {};
-
-typedef struct  {
-
-} BVH;
+// GPU-compatible BVH header structure (matches CPU-side GPUBVH)
+typedef struct __attribute__((aligned(16))) {
+    int numNodes;           // 4 bytes (offset 0)
+    int numTriangles;       // 4 bytes (offset 4)
+    int rootNodeIndex;      // 4 bytes (offset 8) - always 0 for single BVH
+    int meshID;             // 4 bytes (offset 12) - associated mesh ID
+} GPUBVH;  // Total: 16 bytes
 
 
 
@@ -410,6 +425,174 @@ struct Intersection intersect_triangle(__global const GPUTriangle* triangle, con
 	return result;
 }
 
+// AABB-Ray intersection test using slab method
+// Returns true if ray intersects AABB, and sets tMin/tMax to entry/exit distances
+bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, float* tMin, float* tMax)
+{
+    float3 aabbMin = vec3_to_float3(aabb->minPoint);
+    float3 aabbMax = vec3_to_float3(aabb->maxPoint);
+    
+    // Compute inverse direction to avoid division
+    float3 invDir = (float3)(1.0f / ray->dir.x, 1.0f / ray->dir.y, 1.0f / ray->dir.z);
+    
+    float3 t0 = (aabbMin - ray->origin) * invDir;
+    float3 t1 = (aabbMax - ray->origin) * invDir;
+    
+    // Handle negative directions
+    float3 tmin = fmin(t0, t1);
+    float3 tmax = fmax(t0, t1);
+    
+    *tMin = fmax(fmax(tmin.x, tmin.y), tmin.z);
+    *tMax = fmin(fmin(tmax.x, tmax.y), tmax.z);
+    
+    return *tMax >= *tMin && *tMax >= 0.0f;
+}
+
+// Intersect ray with a single triangle from BVH triangle buffer
+struct Intersection intersect_bvh_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
+{
+    struct Intersection result;
+    result.t = -1.0f;
+    
+    float3 v0 = vec3_to_float3(triangle->v0);
+    float3 v1 = vec3_to_float3(triangle->v1);
+    float3 v2 = vec3_to_float3(triangle->v2);
+    
+    float3 edge1 = v1 - v0;
+    float3 edge2 = v2 - v0;
+    float3 h = cross(ray->dir, edge2);
+    float a = dot(edge1, h);
+    
+    if (a < EPSILON) return result; // Backface culling
+    
+    float f = 1.0f / a;
+    float3 s = ray->origin - v0;
+    float u = f * dot(s, h);
+    
+    if (u < 0.0f || u > 1.0f) return result;
+    
+    float3 q = cross(s, edge1);
+    float v = f * dot(ray->dir, q);
+    
+    if (v < 0.0f || u + v > 1.0f) return result;
+    
+    *t = f * dot(edge2, q);
+    
+    if (*t < EPSILON) return result;
+    
+    result.t = *t;
+    result.hitpoint = ray->origin + ray->dir * (*t);
+    result.normal = normalize(cross(edge1, edge2));
+    result.uv = (float2)(u, v);
+    
+    return result;
+}
+
+// BVH traversal using iterative stack-based approach
+// Returns the closest intersection with triangles in the BVH
+struct Intersection traverse_bvh(
+    __global const GPUBVHNode* nodes,
+    __global const GPUTriangle* triangles,
+    int rootNodeIndex,
+    const struct Ray* ray,
+    int* hitMaterialIndex)
+{
+    struct Intersection closestHit;
+    closestHit.t = -1.0f;
+    *hitMaterialIndex = -1;
+    
+    float closestT = 1e20f;
+    
+    // Stack for iterative traversal (max depth typically 32-64 for BVH)
+    int stack[64];
+    int stackPtr = 0;
+    
+    stack[stackPtr++] = rootNodeIndex;
+    
+    while (stackPtr > 0) {
+        int nodeIdx = stack[--stackPtr];
+        __global const GPUBVHNode* node = &nodes[nodeIdx];
+        
+        // Test AABB intersection
+        float tMin, tMax;
+        if (!intersect_aabb(&node->boundingBox, ray, &tMin, &tMax)) {
+            continue; // Ray misses this node's bounding box
+        }
+        
+        // Early out if this node is farther than closest hit
+        if (tMin > closestT) {
+            continue;
+        }
+        
+        if (node->childIndex == -1) {
+            // Leaf node: test all triangles
+            for (int i = 0; i < node->triangleCount; i++) {
+                int triIdx = node->triangleStartIdx + i;
+                float t;
+                struct Intersection hit = intersect_bvh_triangle(&triangles[triIdx], ray, &t);
+                
+                if (hit.t > EPSILON && hit.t < closestT) {
+                    closestT = hit.t;
+                    closestHit = hit;
+                    *hitMaterialIndex = triangles[triIdx].materialIndex;
+                }
+            }
+        } else {
+            // Internal node: push children onto stack
+            // Push right child first so left child is processed first (closer nodes first heuristic)
+            stack[stackPtr++] = node->childIndex + 1; // Right child
+            stack[stackPtr++] = node->childIndex;     // Left child
+        }
+    }
+    
+    return closestHit;
+}
+
+// Traverse all BVHs and find the closest intersection
+struct Intersection compute_bvh_intersection(
+    __global const GPUBVH* bvhHeaders,
+    __global const GPUBVHNode* bvhNodes,
+    __global const GPUTriangle* bvhTriangles,
+    int numBVH,
+    const struct Ray* ray,
+    int* hitMaterialIndex)
+{
+    struct Intersection closestHit;
+    closestHit.t = -1.0f;
+    *hitMaterialIndex = -1;
+    
+    float closestT = 1e20f;
+    int nodeOffset = 0;
+    int triangleOffset = 0;
+    
+    for (int bvhIdx = 0; bvhIdx < numBVH; bvhIdx++) {
+        __global const GPUBVH* bvh = &bvhHeaders[bvhIdx];
+        
+        if (bvh->numNodes == 0) {
+            continue;
+        }
+        
+        int matIdx;
+        struct Intersection hit = traverse_bvh(
+            bvhNodes + nodeOffset,
+            bvhTriangles + triangleOffset,
+            bvh->rootNodeIndex,
+            ray,
+            &matIdx);
+        
+        if (hit.t > EPSILON && hit.t < closestT) {
+            closestT = hit.t;
+            closestHit = hit;
+            *hitMaterialIndex = matIdx;
+        }
+        
+        nodeOffset += bvh->numNodes;
+        triangleOffset += bvh->numTriangles;
+    }
+    
+    return closestHit;
+}
+
 struct Intersection intersect_shape(__global const GPUShape* shape, const struct Ray* ray, float* t)
 {
 	if (shape->type == SPHERE) {
@@ -572,7 +755,9 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
                            __global GPUShape* shapes, int numShapes,
                            __global GPUCamera* camera, __global GPUMaterial* materials, int numMaterials,
                            __global unsigned char* textureData, int numBVH,
-						   __global BVH* bvh
+						   __global const GPUBVH* bvhHeaders,
+						   __global const GPUBVHNode* bvhNodes,
+						   __global const GPUTriangle* bvhTriangles
 						   )
 
 
