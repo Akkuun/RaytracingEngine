@@ -29,6 +29,10 @@ void Mesh::loadOFF(const std::string &filename)
         unsigned int v0, v1, v2;
         in >> tmp >> v0 >> v1 >> v2; // tmp is the number of vertices per face (should be 3)
         triangles[i] = MeshTriangle(v0, v1, v2, i);
+        
+        // Ignore per face attributes
+        std::string restOfLine;
+        std::getline(in, restOfLine);
     }
 }
 

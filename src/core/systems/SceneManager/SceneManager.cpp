@@ -58,7 +58,8 @@ void SceneManager::buildScene()
 
     if (FileManager::getInstance().getIsNewProjectSelected())
     {
-        defaultScene();
+        //defaultScene();
+        cornellScene();
         return;
     }
     else
@@ -271,4 +272,104 @@ void SceneManager::defaultScene()
         0.15f,
         vec3(0.25f, -0.2f, -0.25f),
         "Boule 1"));
+}
+
+void SceneManager::cornellScene()
+{
+    clearShapes();
+
+    Material *pinkMat = new Material(vec3(1.f, 0.3f, 1.f));
+    pinkMat->setTransparency(1.0f);
+    pinkMat->setIndexMedium(1.5f);
+
+    // Sphere 1 - Diffuse Material  PINK
+    addShape(new Sphere(
+        0.15f,
+        vec3(0.25f, -0.2f, -0.25f),
+        "Boule 1",
+        pinkMat));
+
+    Material *earthMat = new Material(std::string("../assets/textures/earth.ppm"));
+    earthMat->setMetalness(1.0f);
+
+    // Sphere 2 - Texture Material
+    addShape(new Sphere(
+        0.1f,                                         // radius
+        vec3(-0.25f, -0.25f, -0.25f),                 // center
+        "Boule 2",                                    // name
+        earthMat                                     // Earth texture
+    ));
+
+    Material* poolMat = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
+    poolMat->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
+    poolMat->setMetalness(0.75f);
+
+    // Floor - white
+    addShape(new Square(
+        vec3(0.0f, -0.35f, 0.0f), // pos
+        vec3(1.5f, 0.0f, 0.0f),   // u_vec
+        vec3(0.0f, 0.0f, 1.5f),   // v_vec
+        vec3(0.0f, 1.0f, 0.0f),   // normal
+        "Floor",                  // name
+        poolMat));
+    
+    Material* metalMat = new Material(std::string("../assets/textures/metal.ppm"));
+    metalMat->setMetalness(0.9f);
+    metalMat->setNormalsFromPath(std::string("../assets/normals/metal_n.ppm"));
+
+
+        // Ceiling - white (no name)
+    addShape(new Square(
+        vec3(0.0f, 0.35f, 0.0f), // pos
+        vec3(1.5f, 0.0f, 0.0f),  // u_vec
+        vec3(0.0f, 0.0f, 1.5f),  // v_vec
+        vec3(0.0f, -1.0f, 0.0f), // normal
+        "Ceiling",              
+        metalMat
+    ));
+            
+    Material *brickwallMat = new Material(std::string("../assets/textures/brickwall.ppm"));
+    brickwallMat->setNormalsFromPath(std::string("../assets/normals/brickwall_n.ppm"));
+
+    // Left wall - red
+    addShape(new Square(
+        vec3(-0.75f, 0.0f, 0.0f), // pos
+        vec3(0.0f, 1.5f, 0.0f),   // u_vec
+        vec3(0.0f, 0.0f, 1.5f),   // v_vec
+        vec3(1.0f, 0.0f, 0.0f),   // normal
+        "Right Wall",             // name
+        brickwallMat));
+
+    // Right wall - green
+    addShape(new Square(
+        vec3(0.75f, 0.0f, 0.0f), // pos
+        vec3(0.0f, 1.5f, 0.0f),  // u_vec
+        vec3(0.0f, 0.0f, 1.5f),  // v_vec
+        vec3(-1.0f, 0.0f, 0.0f), // normal
+        "Left Wall",             // name
+        brickwallMat));
+
+    // Back wall - white
+    addShape(new Square(
+        vec3(0.0f, 0.0f, 0.0f),  // pos
+        vec3(1.5f, 0.0f, 0.0f),  // u_vec
+        vec3(0.0f, 1.5f, 0.0f),  // v_vec
+        vec3(0.0f, 0.0f, -1.0f), // normal
+        "Back Wall",             // name
+        poolMat));
+
+    // Triangle - blue
+    addShape(new Triangle(
+        "Triangle",               // name
+        vec3(-0.1f, 0.2f, -0.3f), // vertex A
+        vec3(0.0f, 0.3f, -0.3f),  // vertex C
+        vec3(-0.0f, 0.2f, -0.3f)  // vertex B
+        ));
+
+    Mesh *mesh = new Mesh(std::string("../assets/models3D/tripod.off"));
+    mesh->scale(vec3(0.4f));
+    mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
+    mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
+    mesh->generateCpuTriangles();
+    addShape(mesh);
 }

@@ -128,19 +128,33 @@ typedef struct __attribute__((aligned(16))) {
 	
 	float texture_scale_y;     // 4 bytes (offset 64)
 	int emissive;              // 4 bytes (offset 68)
-	float _padding1[2];        // 8 bytes (offset 72)
+	float metalness;           // 4 bytes (offset 72)
 	
-	Vec3 light_color;          // 16 bytes (offset 80)
+	Vec3 light_color;          // 16 bytes (offset 76)
 	
-	float light_intensity;     // 4 bytes (offset 96)
-	int has_texture;           // 4 bytes (offset 100)
-	int has_normal_map;        // 4 bytes (offset 104)
-	int texture_width;         // 4 bytes (offset 108)
-	
-	int texture_height;        // 4 bytes (offset 112)
-	int texture_offset;        // 4 bytes (offset 116)
-	int normal_map_offset;     // 4 bytes (offset 120)
-	int material_id;           // 4 bytes (offset 124)
+	float light_intensity;     // 4 bytes (offset 92)
+
+	int has_texture;           // 4 bytes (offset 96)
+	int texture_width;         // 4 bytes (offset 100)
+	int texture_height;        // 4 bytes (offset 104)
+	int texture_offset;        // 4 bytes (offset 108)
+
+	int has_normal_map;        // 4 bytes (offset 112)
+	int normal_map_width;      // 4 bytes (offset 116)
+	int normal_map_height;     // 4 bytes (offset 120)
+	int normal_map_offset;     // 4 bytes (offset 124)
+
+	int has_metal_map;        // 4 bytes (offset 128)
+	int metal_map_width;      // 4 bytes (offset 132)
+	int metal_map_height;     // 4 bytes (offset 136)
+	int metal_map_offset;     // 4 bytes (offset 140)
+
+	int has_emissive_map;        // 4 bytes (offset 144)
+	int emissive_map_width;      // 4 bytes (offset 148)
+	int emissive_map_height;     // 4 bytes (offset 152)
+	int emissive_map_offset;     // 4 bytes (offset 156)
+
+	int material_id;           // 4 bytes (offset 160)
 } GPUMaterial;  // Total: 128 bytes
 
 struct Intersection {
@@ -189,6 +203,101 @@ float3 sample_texture(__global const unsigned char* textureData, int offset, int
 	return (float3)(r, g, b);
 }
 
+// Sample normal map at UV coordinates
+float3 sample_normal_map(__global const unsigned char* textureData, int offset, int width, int height, float2 uv)
+{
+	if (offset < 0 || width <= 0 || height <= 0) {
+		return (float3)(0.0f, 0.0f, 1.0f); // Default normal pointing up
+	}
+	
+	// Wrap UV coordinates to [0,1]
+	uv.x = uv.x - floor(uv.x);
+	uv.y = uv.y - floor(uv.y);
+	
+	// Convert UV to pixel coordinates
+	int x = (int)(uv.x * width) % width;
+	int y = (int)(uv.y * height) % height;
+	
+	// Calculate pixel index in texture buffer (RGB = 3 bytes per pixel)
+	int pixelIndex = offset + (y * width + x) * 3;
+	
+	// Read RGB values and normalize to [0,1], then remap to [-1,1]
+	float r = ((float)textureData[pixelIndex + 0] / 255.0f) * 2.0f - 1.0f;
+	float g = ((float)textureData[pixelIndex + 1] / 255.0f) * 2.0f - 1.0f;
+	float b = ((float)textureData[pixelIndex + 2] / 255.0f) * 2.0f - 1.0f;
+	
+	return normalize((float3)(r, g, b));
+}
+
+// Compute tangent space basis (TBN matrix) for normal mapping
+void compute_tangent_space(__global const GPUShape* shape, struct Intersection inter, float3* tangent, float3* bitangent, float3* normal)
+{
+	*normal = inter.normal;
+	
+	if (shape->type == SPHERE) {
+		// For spheres, compute tangents from spherical UV mapping
+		float theta = (inter.uv.x - 0.5f) * 2.0f * M_PI;
+		float phi = (0.5f - inter.uv.y) * M_PI;
+		
+		// Tangent in theta direction
+		*tangent = (float3)(-sin(theta), 0.0f, cos(theta));
+		
+		// Bitangent in phi direction  
+		*bitangent = (float3)(cos(theta) * cos(phi), -sin(phi), sin(theta) * cos(phi));
+		
+	} else if (shape->type == SQUARE) {
+		// For squares, use the u_vec and v_vec as tangents
+		float3 u_vec = vec3_to_float3(shape->data.square.u_vec);
+		float3 v_vec = vec3_to_float3(shape->data.square.v_vec);
+		
+		*tangent = normalize(u_vec);
+		*bitangent = normalize(v_vec);
+		
+	} else if (shape->type == TRIANGLE) {
+		// For triangles, we need to compute tangents from UV coordinates
+		// This is a simplified version - in practice you'd want proper tangent calculation
+		// For now, use a simple approximation
+		float3 edge1 = vec3_to_float3(shape->data.triangle.v1) - vec3_to_float3(shape->data.triangle.v0);
+		float3 edge2 = vec3_to_float3(shape->data.triangle.v2) - vec3_to_float3(shape->data.triangle.v0);
+		
+		float2 deltaUV1 = (float2)(inter.uv.x, inter.uv.y) - (float2)(0.0f, 0.0f); // Simplified
+		float2 deltaUV2 = (float2)(0.0f, 0.0f) - (float2)(0.0f, 0.0f); // This is not correct, need proper UVs
+		
+		// Fallback: use arbitrary tangents perpendicular to normal
+		if (fabs(normal->x) > 0.1f) {
+			*tangent = normalize(cross((float3)(0.0f, 1.0f, 0.0f), *normal));
+		} else {
+			*tangent = normalize(cross((float3)(1.0f, 0.0f, 0.0f), *normal));
+		}
+		*bitangent = cross(*normal, *tangent);
+	}
+}
+
+// Get the final normal including normal map perturbation
+float3 get_perturbed_normal(__global const GPUShape* shape, struct Intersection inter, __global const GPUMaterial* material, __global const unsigned char* textureData)
+{
+	float3 geometric_normal = inter.normal;
+	
+	if (material == NULL || !material->has_normal_map) {
+		return geometric_normal;
+	}
+	
+	// Sample normal from normal map (in tangent space)
+	float3 tangent_normal = sample_normal_map(textureData, material->normal_map_offset, 
+	                                         material->normal_map_width, material->normal_map_height, inter.uv);
+	
+	// Compute tangent space basis
+	float3 tangent, bitangent, normal;
+	compute_tangent_space(shape, inter, &tangent, &bitangent, &normal);
+	
+	// Transform tangent space normal to world space
+	float3 world_normal = tangent * tangent_normal.x + 
+	                     bitangent * tangent_normal.y + 
+	                     normal * tangent_normal.z;
+	
+	return normalize(world_normal);
+}
+
 // Get material by materialIndex, searching through materials array by material_id
 __global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* materials, int numMaterials)
 {
@@ -214,8 +323,7 @@ float3 checkerboard_texture(float2 uv, float3 color1, float3 color2, float scale
 	}
 }
 
-float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 
-                       __global const unsigned char* textureData, float2 uv)
+int get_shape_material_index(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials)
 {
 	int materialIndex = -1;
 	
@@ -227,6 +335,60 @@ float3 get_shape_color(__global const GPUShape* shape, __global const GPUMateria
 	} else if (shape->type == TRIANGLE) {
 		materialIndex = shape->data.triangle.materialIndex;
 	}
+	
+	// Get material - if not found, return NULL
+	return materialIndex;
+}
+
+float3 reflect(float3 incident, float3 normal)
+{
+	return incident - 2.0f * dot(incident, normal) * normal;
+}
+
+float3 refract_direction(float3 incident, float3 normal, float eta)
+{
+    float cosI = -dot(incident, normal);
+    float sinT2 = eta * eta * (1.0f - cosI * cosI);
+    if (sinT2 > 1.0f) return (float3)(0.0f, 0.0f, 0.0f);
+    float cosT = sqrt(1.0f - sinT2);
+    return eta * incident + (eta * cosI - cosT) * normal;
+}
+
+float fresnel_schlick(float cosI, float n1, float n2)
+{
+    float r0 = (n1 - n2) / (n1 + n2);
+    r0 *= r0;
+    float x = 1.0f - cosI;
+    return r0 + (1.0f - r0) * x*x*x*x*x;
+}
+
+float3 get_reflected_ray(float3 incident, struct Intersection inter, __global const GPUShape* shape, __global const GPUMaterial* material, __global const unsigned char* textureData, uint* seed)
+{
+	if (material == NULL) {
+		// Default to diffuse reflection
+		return random_hemisphere_direction(inter.normal, seed);
+	}
+	
+	// Get the perturbed normal (includes normal map if available)
+	float3 normal = get_perturbed_normal(shape, inter, material, textureData);
+	
+	// Continuous metalness: blend between diffuse and specular reflection
+	float3 diffuse = random_hemisphere_direction(normal, seed);
+	float3 reflected = reflect(incident, normal);
+	
+	// Add roughness based on metalness (higher metalness = lower roughness)
+	float roughness = 1.0f - material->metalness;
+	float3 randomDir = random_hemisphere_direction(normal, seed);
+	float3 roughReflected = normalize(mix(reflected, randomDir, roughness));
+	
+	// Blend between diffuse and rough specular based on metalness
+	return normalize(mix(diffuse, roughReflected, material->metalness));
+} 
+
+float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 
+                       __global const unsigned char* textureData, float2 uv)
+{
+	int materialIndex = get_shape_material_index(shape, materials, numMaterials);
 	
 	// Get material - if not found, use white as default
 	__global const GPUMaterial* material = get_material_by_index(materialIndex, materials, numMaterials);
@@ -456,6 +618,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
+	float currentIOR = 1.0f;
 	struct Ray currentRay = *initialRay;
 	
 	for (int bounce = 0; bounce < maxBounces; bounce++) {
@@ -498,18 +661,53 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 		// Add direct lighting modulated by throughput
 		accumulatedColor += throughput * directLight;
 
-		// Update throughput for next bounce (material absorption)
-		throughput *= diffuse;
-		
 		// Russian roulette termination for efficiency
 		float maxThroughput = fmax(fmax(throughput.x, throughput.y), throughput.z);
 		if (maxThroughput < 0.01f) break; // Stop if contribution is too small
 
-		// Prepare next ray with random hemisphere sampling (diffuse BRDF)
+		// Prepare next ray
 		if (bounce < maxBounces - 1) {
-			float3 newDir = random_hemisphere_direction(intersection.normal, seed);
-			currentRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
-			currentRay.dir = newDir;
+			__global const GPUMaterial* material = get_material_by_index(get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials), materials, numMaterials);
+			if (material && material->transparency > 0.0f) {
+				// Dielectric material - refraction/reflection
+				float3 normal = intersection.normal;
+				float n1 = currentIOR;
+				float n2 = material->index_medium;
+				bool entering = dot(currentRay.dir, normal) < 0;
+				if (!entering) {
+					normal = -normal;
+					float temp = n1;
+					n1 = n2;
+					n2 = temp;
+				}
+				float eta = n1 / n2;
+				float cosI = -dot(currentRay.dir, normal);
+				cosI = clamp(cosI, 0.0f, 1.0f);
+				float R = fresnel_schlick(cosI, n1, n2);
+				float rand = random_float(seed);
+				float3 newDir;
+				if (rand < R) {
+					// Reflect
+					newDir = reflect(currentRay.dir, normal);
+				} else {
+					// Refract
+					newDir = refract_direction(currentRay.dir, normal, eta);
+					if (length(newDir) < 0.1f) {
+						// Total internal reflection
+						newDir = reflect(currentRay.dir, normal);
+					} else {
+						currentIOR = n2;
+					}
+				}
+				currentRay.dir = normalize(newDir);
+				throughput *= (float3)(1.0f, 1.0f, 1.0f);
+			} else {
+				// Opaque material - reflection
+				throughput *= diffuse;
+				float3 newDir = get_reflected_ray(currentRay.dir, intersection, &shapes[intersection.hitShapeIndex], material, textureData, seed);
+				currentRay.dir = newDir;
+			}
+			currentRay.origin = intersection.hitpoint + currentRay.dir * EPSILON * 10.0f;
 		}
 	}
 
