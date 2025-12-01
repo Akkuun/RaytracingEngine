@@ -30,7 +30,7 @@ private:
     std::vector<Triangle> triangles;
     bvhNode *root = nullptr; // represent the entire mesh unsplit
     AABB boundingBox;
-    int maxDepth = 5;
+    int maxDepth = 24;         // Increased from 5 for better performance with large meshes
     int associatedMeshID = -1; // ID of the mesh this BVH belongs to to avoid to send number of BVH in kernel
 
     inline int getAssociatedMeshID() const { return associatedMeshID; }

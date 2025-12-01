@@ -179,19 +179,11 @@ void RenderEngine::setupShapesBuffer()
         }
         case MESH:
         {
+            // Mesh triangles are handled by BVH - do NOT add them to shapes buffer
+            // This avoids redundant intersection tests (BVH is O(log n) vs O(n) brute force)
             Mesh *mesh = static_cast<Mesh *>(shape);
-            int i = 0;
-            for (const auto &tri : mesh->getTriangles())
-            {
-                gpu_shapes.push_back(GPUShape());
-                GPUShape &mesh_gpu_shape = gpu_shapes.back();
-                mesh_gpu_shape.data.triangle = tri.toGPU();
-                mesh_gpu_shape.data.triangle.materialIndex = mesh->getMaterial() ? mesh->getMaterial()->getMaterialId() : -1;
-                mesh_gpu_shape.type = ShapeType::TRIANGLE;
-                i++;
-            }
-            std::cout << "Mesh with " << i << " triangles added to GPU buffer." << std::endl;
-            continue;
+            std::cout << "Mesh with " << mesh->getTriangles().size() << " triangles handled by BVH" << std::endl;
+            continue; // Skip adding to gpu_shapes
         }
         default:
             std::cerr << "Unknown shape type encountered in setupShapesBuffer: " << type << std::endl;
@@ -469,4 +461,19 @@ void RenderEngine::setupBVHBuffer()
 
     std::cout << "BVH Buffers created successfully! (" << bvhCount << " BVH, "
               << allNodes.size() << " nodes, " << allTriangles.size() << " triangles)" << std::endl;
+
+    // Debug: Print first BVH root node bounding box
+    if (!allNodes.empty())
+    {
+        const GPUBVHNode &root = allNodes[0];
+        std::cout << "BVH Root AABB: min(" << root.boundingBox.minPoint.x << ", "
+                  << root.boundingBox.minPoint.y << ", " << root.boundingBox.minPoint.z
+                  << ") max(" << root.boundingBox.maxPoint.x << ", "
+                  << root.boundingBox.maxPoint.y << ", " << root.boundingBox.maxPoint.z << ")" << std::endl;
+    }
+    if (!allTriangles.empty())
+    {
+        const GPUTriangle &tri = allTriangles[0];
+        std::cout << "First BVH triangle v0: (" << tri.v0.x << ", " << tri.v0.y << ", " << tri.v0.z << ")" << std::endl;
+    }
 }

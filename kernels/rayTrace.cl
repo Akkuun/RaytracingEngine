@@ -659,7 +659,7 @@ inline __attribute__((always_inline)) struct Intersection intersect_bvh_triangle
     return result;
 }
 
-// BVH traversal using iterative stack-based approach
+// BVH traversal using iterative stack-based approach with ordered traversal
 // Returns the closest intersection with triangles in the BVH
 // invDir must be precomputed ONCE per ray before calling this function
 inline __attribute__((always_inline)) struct Intersection traverse_bvh(
@@ -672,6 +672,7 @@ inline __attribute__((always_inline)) struct Intersection traverse_bvh(
 {
     struct Intersection closestHit;
     closestHit.t = -1.0f;
+    closestHit.hitShapeIndex = -1;
     *hitMaterialIndex = -1;
     
     float closestT = 1e30f;
@@ -707,10 +708,29 @@ inline __attribute__((always_inline)) struct Intersection traverse_bvh(
                 }
             }
         } else {
-            // Internal node: push children onto stack
-            // Push right child first so left child is processed first
-            stack[stackPtr++] = node->childIndex + 1;
-            stack[stackPtr++] = node->childIndex;
+            // Internal node: push children onto stack with ordered traversal
+            // For internal nodes: childIndex = left child, triangleStartIdx = right child
+            int leftIdx = node->childIndex;
+            int rightIdx = node->triangleStartIdx;  // Right child stored here for internal nodes
+            
+            float tMinLeft, tMaxLeft, tMinRight, tMaxRight;
+            bool hitLeft = intersect_aabb(&nodes[leftIdx].boundingBox, ray->origin, invDir, &tMinLeft, &tMaxLeft);
+            bool hitRight = intersect_aabb(&nodes[rightIdx].boundingBox, ray->origin, invDir, &tMinRight, &tMaxRight);
+            
+            // Push farther child first so closer child is processed first
+            if (hitLeft && hitRight) {
+                if (tMinLeft < tMinRight) {
+                    stack[stackPtr++] = rightIdx;
+                    stack[stackPtr++] = leftIdx;
+                } else {
+                    stack[stackPtr++] = leftIdx;
+                    stack[stackPtr++] = rightIdx;
+                }
+            } else if (hitLeft) {
+                stack[stackPtr++] = leftIdx;
+            } else if (hitRight) {
+                stack[stackPtr++] = rightIdx;
+            }
         }
     }
     
@@ -807,6 +827,57 @@ inline __attribute__((always_inline)) struct Intersection compute_intersection(_
 	return finalIntersection;
 }
 
+// Combined intersection test: shapes (spheres, squares) + BVH (mesh triangles)
+// This is the main intersection function that should be used for rendering
+inline __attribute__((always_inline)) struct Intersection compute_intersection_with_bvh(
+    __global const GPUShape* restrict shapes, int numShapes,
+    __global const GPUBVH* restrict bvhHeaders,
+    __global const GPUBVHNode* restrict bvhNodes,
+    __global const GPUTriangle* restrict bvhTriangles,
+    int numBVH,
+    const struct Ray* restrict ray,
+    int* restrict hitMaterialIndex,
+    int* restrict hitType)  // 0 = shape, 1 = BVH triangle
+{
+    struct Intersection finalIntersection;
+    finalIntersection.t = -1.0f;
+    finalIntersection.hitShapeIndex = -1;
+    *hitMaterialIndex = -1;
+    *hitType = 0;
+    
+    float closestT = 1e20f;
+    
+    // First test against regular shapes (spheres, squares, standalone triangles)
+    // Note: Mesh triangles should NOT be in the shapes buffer - they're in BVH only
+    for (int i = 0; i < numShapes; i++) {
+        float t_temp = 1e20f;
+        struct Intersection intersection = intersect_shape(&shapes[i], ray, &t_temp);
+        
+        if (intersection.t > EPSILON && intersection.t < closestT) {
+            closestT = intersection.t;
+            finalIntersection = intersection;
+            finalIntersection.hitShapeIndex = i;
+            *hitType = 0;
+        }
+    }
+    
+    // Then test against BVH (mesh triangles) - this is the accelerated path
+    if (numBVH > 0) {
+        int bvhMatIdx;
+        struct Intersection bvhHit = compute_bvh_intersection(
+            bvhHeaders, bvhNodes, bvhTriangles, numBVH, ray, &bvhMatIdx);
+        
+        if (bvhHit.t > EPSILON && bvhHit.t < closestT) {
+            closestT = bvhHit.t;
+            finalIntersection = bvhHit;
+            *hitMaterialIndex = bvhMatIdx;
+            *hitType = 1;
+        }
+    }
+    
+    return finalIntersection;
+}
+
 inline __attribute__((always_inline)) bool compute_shadow(__global const GPUShape* restrict shapes, int numShapes, const struct Ray* restrict shadowRay, float maxDistance)
 {
 	for (int i = 0; i < numShapes; i++){
@@ -822,8 +893,182 @@ inline __attribute__((always_inline)) bool compute_shadow(__global const GPUShap
 	return false; /* not in shadow */
 }
 
+// Shadow test with BVH support for mesh triangles
+inline __attribute__((always_inline)) bool compute_shadow_with_bvh(
+    __global const GPUShape* restrict shapes, int numShapes,
+    __global const GPUBVH* restrict bvhHeaders,
+    __global const GPUBVHNode* restrict bvhNodes,
+    __global const GPUTriangle* restrict bvhTriangles,
+    int numBVH,
+    const struct Ray* restrict shadowRay, float maxDistance)
+{
+    // Test against regular shapes (spheres, squares, standalone triangles)
+    // Note: Mesh triangles should NOT be in the shapes buffer - they're in BVH only
+    for (int i = 0; i < numShapes; i++) {
+        float t_temp = 1e20;
+        struct Intersection intersection = intersect_shape(&shapes[i], shadowRay, &t_temp);
+        
+        if (intersection.t > EPSILON && intersection.t < maxDistance) {
+            return true; // in shadow
+        }
+    }
+    
+    // Test against BVH triangles
+    if (numBVH > 0) {
+        int matIdx;
+        struct Intersection bvhHit = compute_bvh_intersection(
+            bvhHeaders, bvhNodes, bvhTriangles, numBVH, shadowRay, &matIdx);
+        
+        if (bvhHit.t > EPSILON && bvhHit.t < maxDistance) {
+            return true; // in shadow
+        }
+    }
+    
+    return false; // not in shadow
+}
+
 // Iterative version to avoid recursion issues with Rusticl driver
 // Uses hemisphere sampling for diffuse materials
+// NEW VERSION: Uses BVH for mesh triangle acceleration
+float3 raytrace_iterative_bvh(
+    const struct Ray* initialRay,
+    __global const GPUShape* shapes, int numShapes,
+    __global const GPUBVH* bvhHeaders,
+    __global const GPUBVHNode* bvhNodes,
+    __global const GPUTriangle* bvhTriangles,
+    int numBVH,
+    const struct Light* lights, int numLights,
+    int maxBounces, uint* seed,
+    __global const GPUMaterial* materials, int numMaterials,
+    __global const unsigned char* textureData)
+{
+    float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
+    float3 throughput = (float3)(1.0f, 1.0f, 1.0f);
+    float currentIOR = 1.0f;
+    struct Ray currentRay = *initialRay;
+    
+    for (int bounce = 0; bounce < maxBounces; bounce++) {
+        int hitMaterialIndex = -1;
+        int hitType = 0;  // 0 = shape, 1 = BVH triangle
+        
+        struct Intersection intersection = compute_intersection_with_bvh(
+            shapes, numShapes,
+            bvhHeaders, bvhNodes, bvhTriangles, numBVH,
+            &currentRay, &hitMaterialIndex, &hitType);
+        
+        if (intersection.t < EPSILON) {
+            break;
+        }
+        
+        // Get color based on hit type
+        float3 diffuse;
+        __global const GPUMaterial* material = NULL;
+        
+        if (hitType == 0 && intersection.hitShapeIndex >= 0) {
+            // Hit a shape - get color from shape's material
+            diffuse = get_shape_color(&shapes[intersection.hitShapeIndex], materials, numMaterials, textureData, intersection.uv);
+            int matIdx = get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials);
+            material = get_material_by_index(matIdx, materials, numMaterials);
+        } else if (hitType == 1) {
+            // Hit BVH triangle - use hitMaterialIndex
+            material = get_material_by_index(hitMaterialIndex, materials, numMaterials);
+            if (material != NULL) {
+                if (material->has_texture) {
+                    diffuse = sample_texture(textureData, material->texture_offset,
+                                           material->texture_width, material->texture_height, intersection.uv);
+                } else {
+                    diffuse = vec3_to_float3(material->diffuse);
+                }
+            } else {
+                diffuse = checkerboard_texture(intersection.uv, (float3)(0.502f, 0.502f, 0.502f), (float3)(0.627f, 0.627f, 0.643f), 10.0f);
+            }
+        } else {
+            diffuse = (float3)(0.5f, 0.5f, 0.5f);
+        }
+        
+        // Direct lighting contribution
+        float3 directLight = (float3)(0.0f, 0.0f, 0.0f);
+        directLight += diffuse * 0.25f;  // Ambient
+        
+        for (int i = 0; i < numLights; i++) {
+            float3 lightDir = normalize(lights[i].pos - intersection.hitpoint);
+            float dotLN = dot(lightDir, intersection.normal);
+            
+            if (dotLN > EPSILON) {
+                struct Ray shadowRay;
+                shadowRay.origin = intersection.hitpoint + intersection.normal * EPSILON * 10.0f;
+                shadowRay.dir = lightDir;
+                float lightDistance = length(lights[i].pos - intersection.hitpoint);
+                
+                if (!compute_shadow_with_bvh(shapes, numShapes, bvhHeaders, bvhNodes, bvhTriangles, numBVH, &shadowRay, lightDistance - EPSILON)) {
+                    directLight += diffuse * lights[i].color * lights[i].intensity * dotLN;
+                } else {
+                    directLight += diffuse * lights[i].color * lights[i].intensity * dotLN * 0.2f;
+                }
+            }
+        }
+        
+        accumulatedColor += throughput * directLight;
+        
+        // Russian roulette termination
+        float maxThroughput = fmax(fmax(throughput.x, throughput.y), throughput.z);
+        if (maxThroughput < 0.01f) break;
+        
+        // Prepare next ray
+        if (bounce < maxBounces - 1) {
+            if (material && material->transparency > 0.0f) {
+                float3 normal = intersection.normal;
+                float n1 = currentIOR;
+                float n2 = material->index_medium;
+                bool entering = dot(currentRay.dir, normal) < 0;
+                if (!entering) {
+                    normal = -normal;
+                    float temp = n1; n1 = n2; n2 = temp;
+                }
+                float eta = n1 / n2;
+                float cosI = clamp(-dot(currentRay.dir, normal), 0.0f, 1.0f);
+                float R = fresnel_schlick(cosI, n1, n2);
+                float3 newDir;
+                if (random_float(seed) < R) {
+                    newDir = reflect(currentRay.dir, normal);
+                } else {
+                    newDir = refract_direction(currentRay.dir, normal, eta);
+                    if (length(newDir) < 0.1f) {
+                        newDir = reflect(currentRay.dir, normal);
+                    } else {
+                        currentIOR = n2;
+                    }
+                }
+                currentRay.dir = normalize(newDir);
+                throughput *= (float3)(1.0f, 1.0f, 1.0f);
+            } else {
+                throughput *= diffuse;
+                // For BVH hits, we need a dummy shape for get_reflected_ray
+                // Use simpler reflection for BVH triangles
+                if (hitType == 1) {
+                    float3 normal = intersection.normal;
+                    if (material && material->metalness > 0.0f) {
+                        float3 reflected = reflect(currentRay.dir, normal);
+                        float roughness = 1.0f - material->metalness;
+                        float3 randomDir = random_hemisphere_direction(normal, seed);
+                        currentRay.dir = normalize(mix(reflected, randomDir, roughness));
+                    } else {
+                        currentRay.dir = random_hemisphere_direction(normal, seed);
+                    }
+                } else if (intersection.hitShapeIndex >= 0) {
+                    currentRay.dir = get_reflected_ray(currentRay.dir, intersection, &shapes[intersection.hitShapeIndex], material, textureData, seed);
+                } else {
+                    currentRay.dir = random_hemisphere_direction(intersection.normal, seed);
+                }
+            }
+            currentRay.origin = intersection.hitpoint + currentRay.dir * EPSILON * 10.0f;
+        }
+    }
+    
+    return accumulatedColor;
+}
+
+// Legacy version without BVH (kept for compatibility)
 float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed, __global const GPUMaterial* materials, int numMaterials, __global const unsigned char* textureData)
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
@@ -996,7 +1241,16 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	// Initialize random seed based on pixel position AND frame count for temporal variation
 	uint seed = (x_coord * 1973 + y_coord * 9277 + frameCount * 26699) | 1;
 	
-	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData);
+	// Use BVH-accelerated raytracing when BVH data is available
+	float3 outputPixelColor;
+	if (numBVH > 0) {
+		outputPixelColor = raytrace_iterative_bvh(&camray, shapes, numShapes,
+		                                          bvhHeaders, bvhNodes, bvhTriangles, numBVH,
+		                                          lights, numLights, maxbounce, &seed,
+		                                          materials, numMaterials, textureData);
+	} else {
+		outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData);
+	}
 
 	/* If no intersection found, return background colour */
 	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {

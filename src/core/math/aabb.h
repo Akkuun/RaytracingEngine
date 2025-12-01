@@ -33,6 +33,16 @@ public:
         GrowToInclude(triangle.getV1());
     }
 
+    // Expand the AABB to include another AABB
+    void GrowToInclude(const AABB &other)
+    {
+        if (other.minPoint.x < FLT_MAX) // Check if other AABB is valid
+        {
+            GrowToInclude(other.minPoint);
+            GrowToInclude(other.maxPoint);
+        }
+    }
+
     // return surface area of the AABB
     float SurfaceArea() const
     {

@@ -1,12 +1,6 @@
 #include "bvh.h"
 #include <algorithm>
 
-struct CentroidData
-{
-    Triangle *tri;
-    vec3 centroid;
-};
-
 void BVH::build(const Mesh &mesh)
 {
     triangles = mesh.getTriangles();
@@ -34,102 +28,144 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
     for (auto it = start; it != end; ++it)
         node->boundingBox.GrowToInclude(*it);
 
-    // Leaf stop conditions (numtriangles <=4 <=> moore than the last triangle)
-    if (depth >= maxDepth || numTriangles <= 4)
+    // Leaf stop conditions - use larger leaf size for better GPU performance
+    // GPU prefers fewer but larger leaf nodes (reduces divergence)
+    const int MIN_LEAF_TRIANGLES = 8; // Increased from 4 for better GPU performance
+    if (depth >= maxDepth || numTriangles <= MIN_LEAF_TRIANGLES)
     {
         node->triangles.assign(start, end);
         return node;
     }
 
-    // Start SAH computation
-    // SAH = Surface Area Heuristic, search for the best split that minimize the cost function instead of just picking the median
-    std::vector<CentroidData> centroids;
-    centroids.reserve(numTriangles);
+    // Binned SAH for faster build times with large meshes
+    // Instead of testing every split, we use bins to approximate the best split
+    const int NUM_BINS = 16;
 
-    for (auto it = start; it != end; ++it)
-    {
-        vec3 c = (it->getV0() + it->getV1() + it->getV2()) / 3.0f;
-        centroids.push_back({&(*it), c});
-    }
-
-    float bestCost = std::numeric_limits<float>::infinity(); // initialize to +inf
-    int bestAxis = -1;                                       // no axis yet
-    int bestSplit = -1;
+    float bestCost = std::numeric_limits<float>::infinity();
+    int bestAxis = -1;
+    float bestSplitPos = 0.0f;
 
     AABB parentBB = node->boundingBox;
+    float SAparent = parentBB.SurfaceArea();
+
+    if (SAparent < 1e-8f)
+    {
+        // Degenerate case - just make a leaf
+        node->triangles.assign(start, end);
+        return node;
+    }
 
     // SAH constants
     const float C_trav = 1.0f;
     const float C_isect = 1.0f;
 
-    // we test on each axes
+    // Compute centroids once
+    std::vector<vec3> centroids;
+    centroids.reserve(numTriangles);
+    for (auto it = start; it != end; ++it)
+    {
+        centroids.push_back((it->getV0() + it->getV1() + it->getV2()) / 3.0f);
+    }
+
+    // Test each axis with binned SAH
     for (int axis = 0; axis < 3; axis++)
     {
+        float minC = parentBB.minPoint[axis];
+        float maxC = parentBB.maxPoint[axis];
+        float range = maxC - minC;
 
-        // Sort by centroid
-        std::sort(centroids.begin(), centroids.end(),
-                  [axis](const CentroidData &a, const CentroidData &b)
-                  {
-                      return a.centroid[axis] < b.centroid[axis];
-                  });
+        if (range < 1e-6f)
+            continue; // Skip degenerate axes
 
-        // Precompute left and right BBoxes
-        std::vector<AABB> leftBB(numTriangles);
-        std::vector<AABB> rightBB(numTriangles);
-
-        AABB bb;
-
-        // prefix (left boxes)
-        for (int i = 0; i < numTriangles; i++)
+        // Initialize bins
+        struct Bin
         {
-            bb.GrowToInclude(*centroids[i].tri);
-            leftBB[i] = bb;
+            AABB bounds;
+            int count = 0;
+        };
+        std::vector<Bin> bins(NUM_BINS);
+
+        // Assign triangles to bins
+        for (size_t i = 0; i < numTriangles; i++)
+        {
+            float c = centroids[i][axis];
+            int binIdx = std::min(NUM_BINS - 1, (int)((c - minC) / range * NUM_BINS));
+            bins[binIdx].bounds.GrowToInclude(*(start + i));
+            bins[binIdx].count++;
         }
 
-        // suffix (right boxes)
-        bb = AABB();
-        for (int i = numTriangles - 1; i >= 0; i--)
+        // Compute prefix and suffix areas/counts
+        std::vector<float> leftArea(NUM_BINS);
+        std::vector<int> leftCount(NUM_BINS);
+        std::vector<float> rightArea(NUM_BINS);
+        std::vector<int> rightCount(NUM_BINS);
+
+        AABB leftBB, rightBB;
+        int countL = 0, countR = 0;
+
+        for (int i = 0; i < NUM_BINS; i++)
         {
-            bb.GrowToInclude(*centroids[i].tri);
-            rightBB[i] = bb;
+            if (bins[i].count > 0)
+            {
+                leftBB.GrowToInclude(bins[i].bounds.minPoint);
+                leftBB.GrowToInclude(bins[i].bounds.maxPoint);
+            }
+            countL += bins[i].count;
+            leftArea[i] = leftBB.SurfaceArea();
+            leftCount[i] = countL;
         }
 
-        // if we found a better splitScore, we store it and we continue until getting the best one (at the end)
-        for (int i = 1; i < numTriangles; i++)
+        for (int i = NUM_BINS - 1; i >= 0; i--)
         {
-            float SAleft = leftBB[i - 1].SurfaceArea();
-            float SAright = rightBB[i].SurfaceArea();
-            float SAparent = parentBB.SurfaceArea();
+            if (bins[i].count > 0)
+            {
+                rightBB.GrowToInclude(bins[i].bounds.minPoint);
+                rightBB.GrowToInclude(bins[i].bounds.maxPoint);
+            }
+            countR += bins[i].count;
+            rightArea[i] = rightBB.SurfaceArea();
+            rightCount[i] = countR;
+        }
 
-            float cost =
-                C_trav +
-                C_isect * (SAleft / SAparent) * i +
-                C_isect * (SAright / SAparent) * (numTriangles - i);
+        // Find best split position for this axis
+        for (int i = 0; i < NUM_BINS - 1; i++)
+        {
+            if (leftCount[i] == 0 || rightCount[i + 1] == 0)
+                continue;
+
+            float cost = C_trav +
+                         C_isect * (leftArea[i] / SAparent) * leftCount[i] +
+                         C_isect * (rightArea[i + 1] / SAparent) * rightCount[i + 1];
 
             if (cost < bestCost)
             {
                 bestCost = cost;
                 bestAxis = axis;
-                bestSplit = i;
+                bestSplitPos = minC + (i + 1) * range / NUM_BINS;
             }
         }
     }
 
-    // if no valid axes found -> no more triangle to split -> become leaf
-    if (bestAxis == -1)
+    // Check if splitting is worth it (cost should be less than not splitting)
+    float leafCost = C_isect * numTriangles;
+    if (bestAxis == -1 || bestCost >= leafCost)
     {
         node->triangles.assign(start, end);
         return node;
     }
 
-    // Reorder original triangles according to the best axis
-    std::sort(start, end, [bestAxis](const Triangle &a, const Triangle &b)
-              {
-                  vec3 ca = (a.getV0() + a.getV1() + a.getV2()) / 3.0f;
-                  vec3 cb = (b.getV0() + b.getV1() + b.getV2()) / 3.0f;
-                  return ca[bestAxis] < cb[bestAxis]; });
+    // Partition triangles based on best split
+    auto mid = std::partition(start, end, [bestAxis, bestSplitPos](const Triangle &t)
+                              {
+        vec3 c = (t.getV0() + t.getV1() + t.getV2()) / 3.0f;
+        return c[bestAxis] < bestSplitPos; });
 
-    auto mid = start + bestSplit;
+    // Handle edge case where partition puts everything on one side
+    if (mid == start || mid == end)
+    {
+        // Fall back to median split
+        mid = start + numTriangles / 2;
+    }
 
     node->childA = buildRecursive(start, mid, depth + 1);
     node->childB = buildRecursive(mid, end, depth + 1);
@@ -203,19 +239,32 @@ void BVH::flattenBVH(bvhNode *node, std::vector<GPUBVHNode> &outNodes,
     }
     else
     {
-        // Internal node: process children first to get their indices
+        // Internal node: we need to ensure children are placed consecutively
+        // Left child will be at currentNodeIdx, right child at currentNodeIdx + 1
+        // BUT we need to process them in a specific order to achieve this
+
         int leftChildIdx = currentNodeIdx;
 
-        // Process left child
+        // Reserve space for BOTH children first to ensure they're consecutive
+        // We'll use a different approach: store left child index and process breadth-first style
+        // Actually, for depth-first with consecutive children, we need to know subtree sizes
+
+        // Simpler approach: just record where the right child ends up
+        // Process left child first
         flattenBVH(node->childA, outNodes, outTriangles, currentNodeIdx);
 
-        // Process right child (will be at leftChildIdx + 1 if tree is complete,
-        // but we use currentNodeIdx to handle any case)
+        // Right child index is wherever we are now
+        int rightChildIdx = currentNodeIdx;
         flattenBVH(node->childB, outNodes, outTriangles, currentNodeIdx);
 
-        // Fill the node with internal node data
-        // childIndex points to left child, right child is always at childIndex + 1
-        outNodes[myIndex] = node->toGPU(leftChildIdx, -1, 0);
+        // Store the node with left child index
+        // The kernel needs to know both children - let's store left and derive right
+        // Since right is NOT at leftChildIdx + 1, we need to change our approach
+
+        // SOLUTION: Use triangleStartIdx to store rightChildIdx for internal nodes
+        // childIndex = leftChildIdx, triangleStartIdx = rightChildIdx, triangleCount = 0
+        GPUBVHNode gpuNode = node->toGPU(leftChildIdx, rightChildIdx, 0);
+        outNodes[myIndex] = gpuNode;
     }
 }
 // debug function to print the BVH structure in terminal
