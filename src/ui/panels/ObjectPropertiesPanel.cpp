@@ -10,8 +10,10 @@
 #include <QFileInfo>
 #include "../../core/commands/actionsCommands/materials/SetTextureShape.h"
 #include "../../core/commands/actionsCommands/materials/SetNormalShape.h"
+#include "../../core/commands/actionsCommands/materials/SetMetallicShape.h"
 #include "../../core/commands/actionsCommands/materials/ClearTextureShape.h"
 #include "../../core/commands/actionsCommands/materials/ClearNormalShape.h"
+#include "../../core/commands/actionsCommands/materials/ClearMetallicShape.h"
 #include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
@@ -281,16 +283,14 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-               // commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
-                // TODO CREATE METAL MAP COMMANDS
+                commandManager.executeCommand(new SetMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
             }
         }
     });
 
     connect(clearMetalBtn, &QPushButton::clicked, [this, metalPreview, metalNameLabel, blackimage]()
     {
-        // commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-        // TODO CREATE METAL MAP COMMANDS
+        commandManager.executeCommand(new ClearMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
     });
 
     connect(clearMetalBtn, &QPushButton::clicked, [metalPreview, metalNameLabel, blackimage]()
@@ -541,6 +541,13 @@ void defaultNormalPreview(QFrame *frame)
     frame->findChild<QLabel*>()->setPixmap(flatnormal);
 }
 
+void defaultBlackPreview(QFrame *frame)
+{
+    QPixmap blackimage(64, 64);
+    blackimage.fill(Qt::black);
+    frame->findChild<QLabel*>()->setPixmap(blackimage);
+}
+
 void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
 {
     if (material != nullptr) {
@@ -560,13 +567,21 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
             defaultNormalPreview(normalPreviewFrame);
         }
 
-        // same for metal
-
-        // and emissive
+        QImage metallicImage(reinterpret_cast<const uchar*>(material->getMetallic().data.data()), material->getMetallic().w, material->getMetallic().h, QImage::Format_RGB888);
+        if (!metallicImage.isNull()) {
+            QPixmap pixmap = QPixmap::fromImage(metallicImage);
+            metalPreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(metalPreviewFrame->width() - 2, metalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            defaultBlackPreview(metalPreviewFrame);
+        }
+        
+        // same for emissive
+        // TODO
     } else {
         // If material is null, set to defaults
         defaultTexturePreview(texturePreviewFrame);
         defaultNormalPreview(normalPreviewFrame);
+        defaultBlackPreview(metalPreviewFrame);
     }
 }
 
