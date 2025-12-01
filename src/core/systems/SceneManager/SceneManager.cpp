@@ -40,10 +40,31 @@ SceneManager::~SceneManager()
 void SceneManager::addShape(Shape *shape)
 {
     shapes.push_back(shape);
+    // Create BVH for the new shape
+    if (shape->getType() == ShapeType::MESH)
+    {
+        BVH *bvh = new BVH();
+        bvh->build(*static_cast<Mesh *>(shape));
+        bvhLists.push_back(bvh);
+    }
 }
 void SceneManager::deleteShape(Shape *shape)
 {
     shapes.erase(std::remove(shapes.begin(), shapes.end(), shape), shapes.end());
+    // Also remove associated BVH if it's a mesh
+    if (shape->getType() == ShapeType::MESH)
+    {
+        auto it = std::find_if(bvhLists.begin(), bvhLists.end(),
+                               [shape](BVH *bvh)
+                               {
+                                   return bvh->getAssociatedMeshID() == shape->getID();
+                               });
+        if (it != bvhLists.end())
+        {
+            delete *it;
+            bvhLists.erase(it);
+        }
+    }
 }
 
 void SceneManager::clearShapes()
@@ -185,11 +206,6 @@ void SceneManager::buildScene(const std::string &path)
             mesh->translate(position);
             mesh->generateCpuTriangles();
             shape = mesh;
-
-            // add BVH for this mesh
-            BVH *bvh = new BVH();
-            bvh->build(*mesh);
-            bvhLists.push_back(bvh);
         }
         else
         {
@@ -200,23 +216,6 @@ void SceneManager::buildScene(const std::string &path)
         shape->setRotation(rotation);
         shape->setScale(scale);
 
-        if (shape->getType() == ShapeType::MESH)
-        {
-            // print the BVH architecture for debugging
-            BVH *meshBVH = bvhLists.front();
-            bvhNode *rootNode = meshBVH->getRoot();
-            vec3 minBB = rootNode->getMinOfBoundingBox();
-            vec3 maxBB = rootNode->getMaxOfBoundingBox();
-            std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
-            std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
-
-            std::cout << "start printing BVH structure:\n";
-            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-            meshBVH->printRecursive(rootNode);
-            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-            std::chrono::duration<float, std::milli> duration = end - begin;
-            std::cout << "BVH structure printed in: " << duration.count() << " ms\n";   
-        }
     }
 }
 
@@ -348,8 +347,23 @@ void SceneManager::cornellScene()
     mesh->generateCpuTriangles();
     addShape(mesh);
 
-    // Create BVH for the mesh
-    BVH *bvh = new BVH();
-    bvh->build(*mesh);
-    bvhLists.push_back(bvh);
+    // // Create BVH for the mesh
+    // BVH *bvh = new BVH();
+    // bvh->build(*mesh);
+    // bvhLists.push_back(bvh);
+
+    // print BVH
+    BVH *meshBVH = bvhLists.front();
+    bvhNode *rootNode = meshBVH->getRoot();
+    vec3 minBB = rootNode->getMinOfBoundingBox();
+    vec3 maxBB = rootNode->getMaxOfBoundingBox();
+    std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
+    std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
+
+    std::cout << "start printing BVH structure:\n";
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    meshBVH->printRecursive(rootNode);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::chrono::duration<float, std::milli> duration = end - begin;
+    std::cout << "BVH structure printed in: " << duration.count() << " ms\n";
 }

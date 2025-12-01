@@ -19,6 +19,7 @@ public:
 
     inline bvhNode *getRoot() const { return root; }
     void printRecursive(bvhNode *node, int depth = 0) const;
+    inline int getAssociatedMeshID() const { return associatedMeshID; }
 
 private:
     bvhNode *buildRecursive(std::vector<Triangle>::iterator start, std::vector<Triangle>::iterator end, int depth = 0);
@@ -33,6 +34,5 @@ private:
     int maxDepth = 5;
     int associatedMeshID = -1; // ID of the mesh this BVH belongs to to avoid to send number of BVH in kernel
 
-    inline int getAssociatedMeshID() const { return associatedMeshID; }
     inline int getMaxDepth() const { return maxDepth; }
 };
