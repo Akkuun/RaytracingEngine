@@ -272,7 +272,7 @@ float3 get_shape_color(__global const GPUShape* shape, __global const GPUMateria
 	// No texture, use material diffuse color
 	return vec3_to_float3(material->diffuse);
 }
-struct Intersection intersect_sphere(__global const GPUSphere* sphere, const struct Ray* ray, float* t)
+inline struct Intersection intersect_sphere(__global const GPUSphere* sphere, const struct Ray* ray, float* t)
 {
 	float3 sphere_pos = vec3_to_float3(sphere->pos);
 	float3 rayToCenter = sphere_pos - ray->origin;
@@ -327,7 +327,7 @@ struct Intersection intersect_sphere(__global const GPUSphere* sphere, const str
 	return result;
 }
 
-struct Intersection intersect_square(__global const GPUSquare* square, const struct Ray* ray, float* t)
+inline struct Intersection intersect_square(__global const GPUSquare* square, const struct Ray* ray, float* t)
 {
     /* calculate intersection of ray with plane of square */
 
@@ -384,7 +384,7 @@ struct Intersection intersect_square(__global const GPUSquare* square, const str
     return result;
 }
 
-struct Intersection intersect_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
+inline struct Intersection intersect_triangle(__global const GPUTriangle* triangle, const struct Ray* ray, float* t)
 {
 	struct Intersection result;
 	result.t = -1.0f; /* default to no intersection */
@@ -427,7 +427,7 @@ struct Intersection intersect_triangle(__global const GPUTriangle* triangle, con
 
 // AABB-Ray intersection test using slab method
 // Returns true if ray intersects AABB, and sets tMin/tMax to entry/exit distances
-bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, float* tMin, float* tMax)
+inline bool intersect_aabb(__global const AABBGPU* aabb, const struct Ray* ray, float* tMin, float* tMax)
 {
     float3 aabbMin = vec3_to_float3(aabb->minPoint);
     float3 aabbMax = vec3_to_float3(aabb->maxPoint);
