@@ -9,7 +9,12 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include "../../core/commands/actionsCommands/materials/SetTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/SetNormalShape.h"
 #include "../../core/commands/actionsCommands/materials/ClearTextureShape.h"
+#include "../../core/commands/actionsCommands/materials/ClearNormalShape.h"
+#include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 
@@ -177,16 +182,14 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-               // commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
-                // TODO CREATE NORMAL MAP COMMANDS
+                commandManager.executeCommand(new SetNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
             }
         }
     });
 
     connect(clearNormalBtn, &QPushButton::clicked, [this, normalPreview, normalNameLabel, flatnormal]()
     {
-        // commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-        // TODO CREATE NORMAL MAP COMMANDS
+        commandManager.executeCommand(new ClearNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
     });
 
     connect(clearNormalBtn, &QPushButton::clicked, [normalPreview, normalNameLabel, flatnormal]()
@@ -428,8 +431,8 @@ void ObjectPropertiesPanel::setupUI()
         if (shape) {
             Material *mat = shape->getMaterial();
             if (mat) {
-                mat->setSpecular(vec3(value, value, value));
-                emit materialChanged();
+                mat->setMetalness(value);
+                CommandsManager::getInstance().executeCommand(new MaterialMetalnessCommand(*mat, value));
             }
         }
     });
@@ -440,7 +443,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setTransparency(value);
-                emit materialChanged();
+                CommandsManager::getInstance().executeCommand(new MaterialTransparencyCommand(*mat, value));
             }
         }
     });
@@ -452,7 +455,7 @@ void ObjectPropertiesPanel::setupUI()
             if (mat) {
                 mat->setLightIntensity(value);
                 mat->setEmissive(value > 0);
-                emit materialChanged();
+                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
         }
     });
@@ -463,7 +466,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setIndexMedium(value);
-                emit materialChanged();
+                CommandsManager::getInstance().executeCommand(new MaterialIORCommand(*mat, value));
             }
         }
     });
@@ -506,7 +509,7 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
 
     Material *mat = shape->getMaterial();
     if (mat) {
-        reflectionSpinBox->setValue(mat->getSpecular().x);
+        reflectionSpinBox->setValue(mat->getMetalness());
         refractionSpinBox->setValue(mat->getTransparency());
         emissiveSpinBox->setValue(mat->getLightIntensity());
         refractionIndexSpinBox->setValue(mat->getIndexMedium());
@@ -518,7 +521,24 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
     refractionIndexSpinBox->blockSignals(false);
 
     // Update texture
-    onTextureSelectionChanged(shape->getMaterial());
+    onTextureSelectionChanged(mat);
+}
+
+void defaultTexturePreview(QFrame *frame)
+{
+    QPixmap checkerboard(64, 64);
+    checkerboard.fill(Qt::gray);
+    QPainter painter(&checkerboard);
+    painter.fillRect(0, 0, 32, 32, Qt::darkGray);
+    painter.fillRect(32, 32, 32, 32, Qt::darkGray);
+    frame->findChild<QLabel*>()->setPixmap(checkerboard);
+}
+
+void defaultNormalPreview(QFrame *frame)
+{
+    QPixmap flatnormal(64, 64);
+    flatnormal.fill(QColor(128, 128, 255));
+    frame->findChild<QLabel*>()->setPixmap(flatnormal);
 }
 
 void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
@@ -527,18 +547,27 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
         QImage image(reinterpret_cast<const uchar*>(material->getImage().data.data()), material->getImage().w, material->getImage().h, QImage::Format_RGB888);
         if (!image.isNull()) {
             QPixmap pixmap = QPixmap::fromImage(image);
-            
             texturePreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(texturePreviewFrame->width() - 2, texturePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-            return;
+        } else {
+            defaultTexturePreview(texturePreviewFrame);
         }
+
+        QImage normalimage(reinterpret_cast<const uchar*>(material->getNormals().data.data()), material->getNormals().w, material->getNormals().h, QImage::Format_RGB888);
+        if (!normalimage.isNull()) {
+            QPixmap pixmap = QPixmap::fromImage(normalimage);
+            normalPreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(normalPreviewFrame->width() - 2, normalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            defaultNormalPreview(normalPreviewFrame);
+        }
+
+        // same for metal
+
+        // and emissive
+    } else {
+        // If material is null, set to defaults
+        defaultTexturePreview(texturePreviewFrame);
+        defaultNormalPreview(normalPreviewFrame);
     }
-    // If image is null, set to default checkerboard
-    QPixmap checkerboard(64, 64);
-    checkerboard.fill(Qt::gray);
-    QPainter painter(&checkerboard);
-    painter.fillRect(0, 0, 32, 32, Qt::darkGray);
-    painter.fillRect(32, 32, 32, 32, Qt::darkGray);
-    texturePreviewFrame->findChild<QLabel*>()->setPixmap(checkerboard);
 }
 
 // set true if the key is actually pressed

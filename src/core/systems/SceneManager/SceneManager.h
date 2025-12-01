@@ -27,6 +27,7 @@ public:
     void buildScene();
     void buildScene(const std::string &path);
     void defaultScene();
+    void cornellScene();
 
     inline size_t getNumShapes() const { return shapes.size(); }
     size_t getNumMaterials() const { return materials.size(); }
