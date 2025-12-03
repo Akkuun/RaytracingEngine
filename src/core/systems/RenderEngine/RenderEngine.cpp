@@ -151,6 +151,22 @@ void RenderEngine::setupShapesBuffer()
 
     std::vector<GPUShape> gpu_shapes;
 
+    // Pre-calculate total size needed to avoid reallocations
+    size_t estimatedSize = 0;
+    for (auto *shape : shapes)
+    {
+        if (shape->getType() == MESH)
+        {
+            Mesh *mesh = static_cast<Mesh *>(shape);
+            estimatedSize += mesh->getTriangles().size();
+        }
+        else
+        {
+            estimatedSize++;
+        }
+    }
+    gpu_shapes.reserve(estimatedSize);
+
     for (auto *shape : shapes)
     {
         GPUShape gpu_shape;
@@ -180,17 +196,25 @@ void RenderEngine::setupShapesBuffer()
         case MESH:
         {
             Mesh *mesh = static_cast<Mesh *>(shape);
-            int i = 0;
-            for (const auto &tri : mesh->getTriangles())
+            const auto &triangles = mesh->getTriangles();
+            size_t oldSize = gpu_shapes.size();
+            size_t numTriangles = triangles.size();
+
+            // Resize once instead of multiple push_back
+            gpu_shapes.resize(oldSize + numTriangles);
+
+            int materialIndex = mesh->getMaterial() ? mesh->getMaterial()->getMaterialId() : -1;
+
+            // Fill triangles in place
+            for (size_t i = 0; i < numTriangles; ++i)
             {
-                gpu_shapes.push_back(GPUShape());
-                GPUShape &mesh_gpu_shape = gpu_shapes.back();
-                mesh_gpu_shape.data.triangle = tri.toGPU();
-                mesh_gpu_shape.data.triangle.materialIndex = mesh->getMaterial() ? mesh->getMaterial()->getMaterialId() : -1;
+                GPUShape &mesh_gpu_shape = gpu_shapes[oldSize + i];
                 mesh_gpu_shape.type = ShapeType::TRIANGLE;
-                i++;
+                mesh_gpu_shape.data.triangle = triangles[i].toGPU();
+                mesh_gpu_shape.data.triangle.materialIndex = materialIndex;
             }
-            std::cout << "Mesh with " << i << " triangles added to GPU buffer." << std::endl;
+
+            std::cout << "Mesh with " << numTriangles << " triangles added to GPU buffer." << std::endl;
             continue;
         }
         default:
@@ -305,8 +329,30 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
     const std::vector<Material *> &materials = sceneManager.getMaterials();
     cl::Context context = deviceManager->getContext();
 
-    // Collect all texture data into a single buffer
+    // Pre-calculate total size needed for all texture data
+    size_t totalSize = 0;
+    for (auto *material : materials)
+    {
+        if (material)
+        {
+            const ppmLoader::ImageRGB &image = material->getImage();
+            const ppmLoader::ImageRGB &normals = material->getNormals();
+
+            if (!image.data.empty() && image.w > 0 && image.h > 0)
+            {
+                totalSize += image.data.size() * 3; // RGB: 3 bytes per pixel
+            }
+
+            if (material->hasNormalMap() && !normals.data.empty() && normals.w > 0 && normals.h > 0)
+            {
+                totalSize += normals.data.size() * 3; // RGB: 3 bytes per pixel
+            }
+        }
+    }
+
+    // Collect all texture data into a single buffer with pre-allocated space
     std::vector<unsigned char> allTextureData;
+    allTextureData.reserve(totalSize);
     int currentOffset = 0;
 
     for (auto *material : materials)
@@ -334,15 +380,22 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             {
                 gpu_materials[matId].texture_offset = currentOffset;
 
-                // Copy RGB data (3 bytes per pixel)
-                for (const auto &pixel : image.data)
+                // Optimized: Copy RGB data with direct buffer insertion (3 bytes per pixel)
+                size_t pixelCount = image.data.size();
+                size_t oldSize = allTextureData.size();
+                allTextureData.resize(oldSize + pixelCount * 3);
+
+                // Direct indexing for better performance - avoid push_back overhead
+                unsigned char *dest = allTextureData.data() + oldSize;
+                for (size_t i = 0; i < pixelCount; ++i)
                 {
-                    allTextureData.push_back(pixel.r);
-                    allTextureData.push_back(pixel.g);
-                    allTextureData.push_back(pixel.b);
+                    const auto &pixel = image.data[i];
+                    dest[i * 3] = pixel.r;
+                    dest[i * 3 + 1] = pixel.g;
+                    dest[i * 3 + 2] = pixel.b;
                 }
 
-                currentOffset += image.data.size() * 3; // 3 bytes per pixel (RGB)
+                currentOffset += pixelCount * 3; // 3 bytes per pixel (RGB)
             }
             else
             {
@@ -354,15 +407,22 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             {
                 gpu_materials[matId].normal_map_offset = currentOffset;
 
-                // Copy RGB data for normal map
-                for (const auto &pixel : normals.data)
+                // Optimized: Copy RGB data for normal map with direct buffer insertion
+                size_t pixelCount = normals.data.size();
+                size_t oldSize = allTextureData.size();
+                allTextureData.resize(oldSize + pixelCount * 3);
+
+                // Direct indexing for better performance - avoid push_back overhead
+                unsigned char *dest = allTextureData.data() + oldSize;
+                for (size_t i = 0; i < pixelCount; ++i)
                 {
-                    allTextureData.push_back(pixel.r);
-                    allTextureData.push_back(pixel.g);
-                    allTextureData.push_back(pixel.b);
+                    const auto &pixel = normals.data[i];
+                    dest[i * 3] = pixel.r;
+                    dest[i * 3 + 1] = pixel.g;
+                    dest[i * 3 + 2] = pixel.b;
                 }
 
-                currentOffset += normals.data.size() * 3; // 3 bytes per pixel (RGB)
+                currentOffset += pixelCount * 3; // 3 bytes per pixel (RGB)
             }
             else
             {
@@ -416,7 +476,7 @@ void RenderEngine::setupBVHBuffer()
         std::vector<GPUTriangle> triangles;
 
         GPUBVH gpuBvh = bvh->toGPU(nodes, triangles);
-        bvhHeaders.push_back(gpuBvh);
+        bvhHeaders.push_back(std::move(gpuBvh));
 
         // Append nodes and triangles to the global arrays
         allNodes.insert(allNodes.end(), nodes.begin(), nodes.end());

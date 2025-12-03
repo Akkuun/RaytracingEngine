@@ -50,7 +50,10 @@ find_package(OpenCL REQUIRED)
 find_package(OpenMP REQUIRED)
 
 # Find Qt6
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets OpenGL OpenGLWidgets)
+
+# Find OpenGL
+find_package(OpenGL REQUIRED)
 
 # Define OpenCL version to avoid warnings
 add_definitions(-DCL_HPP_TARGET_OPENCL_VERSION=300)
@@ -73,11 +76,9 @@ qt6_wrap_cpp(MOC_SOURCES ${UI_HEADERS})
 
 # Automatically find all source files (excluding external directory)
 file(GLOB SOURCES "*.cpp")
-file(GLOB_RECURSE UI_SOURCES "ui/*.cpp")
-file(GLOB_RECURSE PANEL_SOURCES "panels/*.cpp")
 file(GLOB_RECURSE SRC_SOURCES "src/*.cpp")
 # Combine all sources
-list(APPEND SOURCES ${UI_SOURCES} ${PANEL_SOURCES} ${SRC_SOURCES} ${MOC_SOURCES})
+list(APPEND SOURCES ${SRC_SOURCES} ${MOC_SOURCES})
 
 # Executable
 add_executable(raytrace ${SOURCES})
@@ -91,7 +92,15 @@ target_include_directories(raytrace PRIVATE
 )
 
 # Link
-target_link_libraries(raytrace PRIVATE ${OpenCL_LIBRARIES} Qt6::Widgets OpenMP::OpenMP_CXX)
+target_link_libraries(raytrace PRIVATE 
+    ${OpenCL_LIBRARIES} 
+    Qt6::Core
+    Qt6::Widgets 
+    Qt6::OpenGL 
+    Qt6::OpenGLWidgets 
+    OpenMP::OpenMP_CXX 
+    ${OPENGL_LIBRARIES}
+)
 
 # Copy kernels to output directory
 file(GLOB KERNEL_FILES "${CMAKE_SOURCE_DIR}/kernels/*.cl")

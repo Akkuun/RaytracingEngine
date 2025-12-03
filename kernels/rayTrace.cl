@@ -588,7 +588,6 @@ inline __attribute__((always_inline)) struct Intersection intersect_triangle(__g
 	return result;
 }
 
-// ==================== BVH TRAVERSAL FUNCTIONS ====================
 
 // AABB-Ray intersection test using slab method
 // Returns true if ray intersects AABB, and sets tMin/tMax to entry/exit distances
@@ -768,7 +767,7 @@ inline __attribute__((always_inline)) struct Intersection compute_bvh_intersecti
     return closestHit;
 }
 
-// ==================== END BVH FUNCTIONS ====================
+
 
 inline __attribute__((always_inline)) struct Intersection intersect_shape(__global const GPUShape* restrict shape, const struct Ray* restrict ray, float* restrict t)
 {
@@ -948,7 +947,7 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 	
 	/* Calculate pixel position in camera space */
 	float px = (fx - 0.5f) * 2.0f * tan_half_fov * aspect_ratio;
-	float py = -(fy - 0.5f) * 2.0f * tan_half_fov;  // INVERSION DE L'AXE Y
+	float py = -(fy - 0.5f) * 2.0f * tan_half_fov;  // Invert Y for image coordinates
 	
 	/* Ray direction in world space */
 	float3 ray_dir = normalize(forward + px * right + py * up);
