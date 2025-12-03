@@ -124,15 +124,17 @@ void RenderWidget::setupOpenGLResources()
     shaderProgram->link();
 
     // Fullscreen quad vertices
+    // Note: Y texture coordinates are flipped (1.0 at top, 0.0 at bottom)
+    // to match the top-left origin of the render buffer
     float quadVertices[] = {
         // positions   // texCoords
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f, 0.0f,  // Top-left: Y=0.0
+        -1.0f, -1.0f, 0.0f, 1.0f, // Bottom-left: Y=1.0
+        1.0f, -1.0f, 1.0f, 1.0f,  // Bottom-right: Y=1.0
 
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f};
+        -1.0f, 1.0f, 0.0f, 0.0f, // Top-left: Y=0.0
+        1.0f, -1.0f, 1.0f, 1.0f, // Bottom-right: Y=1.0
+        1.0f, 1.0f, 1.0f, 0.0f}; // Top-right: Y=0.0
 
     vao = new QOpenGLVertexArrayObject(this);
     vao->create();
@@ -297,6 +299,32 @@ void RenderWidget::keyReleaseEvent(QKeyEvent *event)
 
 void RenderWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    // DISABLED: Mouse rotation temporarily disabled
+    // TODO: Re-enable mouse rotation when needed
+    /*
+    if (mousePressed || Camera::getInstance().isFPS())
+    {
+        QPoint currentPos = event->pos();
+        if (!lastMousePos.isNull())
+        {
+            float deltaX = currentPos.x() - lastMousePos.x();
+            float deltaY = currentPos.y() - lastMousePos.y();
+            Camera::getInstance().handleMouseMove(deltaX, deltaY);
+        }
+        lastMousePos = currentPos;
+
+        // Keep mouse centered in FPS mode for continuous rotation
+        if (Camera::getInstance().isFPS())
+        {
+            QPoint center(width / 2, height / 2);
+            if ((currentPos - center).manhattanLength() > 100)
+            {
+                cursor().setPos(mapToGlobal(center));
+                lastMousePos = center;
+            }
+        }
+    }
+    */
     QOpenGLWidget::mouseMoveEvent(event);
 }
 
