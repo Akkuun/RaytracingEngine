@@ -11,7 +11,7 @@
 
 RenderWidget::RenderWidget(QWidget *parent)
     : QOpenGLWidget(parent), isRendering(false), mousePressed(false), deltaTime(0.016f),
-      glInitialized(false), textureID(0), pbo(0), shaderProgram(nullptr), vbo(nullptr), vao(nullptr)
+      glInitialized(false), textureInitialized(false), textureID(0), pbo(0), shaderProgram(nullptr), vbo(nullptr), vao(nullptr)
 {
     renderEngine = new RenderEngine();
 
@@ -171,12 +171,13 @@ void RenderWidget::resizeGL(int w, int h)
     height = h;
     glViewport(0, 0, w, h);
 
-    // Recreate texture with new size
+    // Recreate texture with new size (force full allocation)
     if (textureID && w > 0 && h > 0)
     {
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, w, h, 0, GL_RGB, GL_FLOAT, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
+        textureInitialized = true; // Texture is now allocated
     }
 }
 
@@ -266,9 +267,23 @@ void RenderWidget::updateTextureFromKernel()
         return;
     }
 
-    // Upload data directly to OpenGL texture
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, imageData.data());
+
+    // Optimization: Use glTexSubImage2D after first allocation for better performance
+    // glTexImage2D reallocates the entire texture (slow)
+    // glTexSubImage2D only updates existing data (fast)
+    if (!textureInitialized)
+    {
+        // First time: allocate texture memory with glTexImage2D
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, imageData.data());
+        textureInitialized = true;
+    }
+    else
+    {
+        // Subsequent frames: only update data with glTexSubImage2D (faster)
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_FLOAT, imageData.data());
+    }
+
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

@@ -380,14 +380,19 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             {
                 gpu_materials[matId].texture_offset = currentOffset;
 
-                // Copy RGB data (3 bytes per pixel) - optimized with direct indexing
+                // Optimized: Copy RGB data with direct buffer insertion (3 bytes per pixel)
                 size_t pixelCount = image.data.size();
+                size_t oldSize = allTextureData.size();
+                allTextureData.resize(oldSize + pixelCount * 3);
+
+                // Direct indexing for better performance - avoid push_back overhead
+                unsigned char *dest = allTextureData.data() + oldSize;
                 for (size_t i = 0; i < pixelCount; ++i)
                 {
                     const auto &pixel = image.data[i];
-                    allTextureData.push_back(pixel.r);
-                    allTextureData.push_back(pixel.g);
-                    allTextureData.push_back(pixel.b);
+                    dest[i * 3] = pixel.r;
+                    dest[i * 3 + 1] = pixel.g;
+                    dest[i * 3 + 2] = pixel.b;
                 }
 
                 currentOffset += pixelCount * 3; // 3 bytes per pixel (RGB)
@@ -402,14 +407,19 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             {
                 gpu_materials[matId].normal_map_offset = currentOffset;
 
-                // Copy RGB data for normal map - optimized with direct indexing
+                // Optimized: Copy RGB data for normal map with direct buffer insertion
                 size_t pixelCount = normals.data.size();
+                size_t oldSize = allTextureData.size();
+                allTextureData.resize(oldSize + pixelCount * 3);
+
+                // Direct indexing for better performance - avoid push_back overhead
+                unsigned char *dest = allTextureData.data() + oldSize;
                 for (size_t i = 0; i < pixelCount; ++i)
                 {
                     const auto &pixel = normals.data[i];
-                    allTextureData.push_back(pixel.r);
-                    allTextureData.push_back(pixel.g);
-                    allTextureData.push_back(pixel.b);
+                    dest[i * 3] = pixel.r;
+                    dest[i * 3 + 1] = pixel.g;
+                    dest[i * 3 + 2] = pixel.b;
                 }
 
                 currentOffset += pixelCount * 3; // 3 bytes per pixel (RGB)

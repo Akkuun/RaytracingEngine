@@ -52,6 +52,7 @@ private:
     int frameCount;
     bool isRendering;
     bool glInitialized;
+    bool textureInitialized; // Track if texture has been allocated once
 
     // Mouse tracking for camera
     QPoint lastMousePos;
