@@ -588,7 +588,6 @@ inline __attribute__((always_inline)) struct Intersection intersect_triangle(__g
 	return result;
 }
 
-// ==================== BVH TRAVERSAL FUNCTIONS ====================
 
 // AABB-Ray intersection test using slab method
 // Returns true if ray intersects AABB, and sets tMin/tMax to entry/exit distances
@@ -768,7 +767,7 @@ inline __attribute__((always_inline)) struct Intersection compute_bvh_intersecti
     return closestHit;
 }
 
-// ==================== END BVH FUNCTIONS ====================
+
 
 inline __attribute__((always_inline)) struct Intersection intersect_shape(__global const GPUShape* restrict shape, const struct Ray* restrict ray, float* restrict t)
 {

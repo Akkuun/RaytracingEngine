@@ -1,21 +1,30 @@
 #pragma once
 
-#include <QWidget>
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLShaderProgram>
 #include <QElapsedTimer>
+#include <QOpenGLTexture>
 #include "../core/systems/RenderEngine/RenderEngine.h"
 
-class RenderWidget : public QWidget
+class RenderWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
 public:
     explicit RenderWidget(QWidget *parent = nullptr);
+    ~RenderWidget();
 
 signals:
     void fpsUpdated(int fps);
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
+    void initializeGL() override;
+    void paintGL() override;
+    void resizeGL(int w, int h) override;
+
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -33,9 +42,7 @@ public slots:
 private:
     QElapsedTimer elapsedTimer;
     QElapsedTimer fpsTimer;
-    bool colorToggle;
-    QImage renderedImage; // output image
-    RenderEngine* renderEngine;
+    RenderEngine *renderEngine;
     void renderFrame();
     void updateFPS();
 
@@ -44,9 +51,20 @@ private:
 
     int frameCount;
     bool isRendering;
-    
+    bool glInitialized;
+
     // Mouse tracking for camera
     QPoint lastMousePos;
     bool mousePressed;
     float deltaTime;
+
+    // OpenGL resources
+    GLuint textureID;
+    GLuint pbo; // Pixel Buffer Object
+    QOpenGLShaderProgram *shaderProgram;
+    QOpenGLBuffer *vbo;
+    QOpenGLVertexArrayObject *vao;
+
+    void setupOpenGLResources();
+    void updateTextureFromKernel();
 };
