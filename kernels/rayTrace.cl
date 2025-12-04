@@ -8,6 +8,11 @@
 #define M_PI 3.14159265358979323846f
 #endif
 
+#define BUFFER_IMAGE 0
+#define BUFFER_ALBEDO 1
+#define BUFFER_DEPTH 2
+#define BUFFER_NORMAL 3
+
 // Match CPU-side Vec3 with padding to align to 16 bytes (same as float4)
 typedef struct {
     float x, y, z;
@@ -22,7 +27,7 @@ typedef struct {
     float fov;        // Field of view in degrees (4 bytes)
 	int nbBounces;    // Number of ray bounces (4 bytes)
 	int raysPerPixel; //  Number of rays per pixel (4 bytes)
-    float _padding;   // Padding for alignment (4 bytes)
+    int bufferType;
 } GPUCamera;
 
 // Helper function to convert Vec3 to float3
@@ -1026,11 +1031,40 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	// Initialize random seed based on pixel position AND frame count for temporal variation
 	uint seed = (x_coord * 1973 + y_coord * 9277 + frameCount * 26699) | 1;
 	
-	float3 outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData);
+	float3 outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
+	if (camera->bufferType == BUFFER_IMAGE) {
+		outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData);
 
-	/* If no intersection found, return background colour */
-	if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {
-		outputPixelColor = (float3)(fy * 0.7f, fy * 0.3f, 0.3f);
+		/* If no intersection found, return background colour */
+		if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {
+			outputPixelColor = (float3)(fy * 0.7f, fy * 0.3f, 0.3f);
+		}
+	} else if (camera->bufferType == BUFFER_ALBEDO) {
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray);
+		if (intersection.t > EPSILON) {
+			outputPixelColor = get_shape_color(&shapes[intersection.hitShapeIndex], materials, numMaterials, textureData, intersection.uv);
+		} else {
+			outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
+		}
+	} else if (camera->bufferType == BUFFER_NORMAL) {
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray);
+		if (intersection.t > EPSILON) {
+			float3 normal = get_perturbed_normal(&shapes[intersection.hitShapeIndex], intersection, get_material_by_index(get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials), materials, numMaterials), textureData);
+			outputPixelColor = normal * 0.5f + 0.5f; // Map from [-1,1] to [0,1]
+		} else {
+			outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
+		}
+	} else if (camera->bufferType == BUFFER_DEPTH) {
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray);
+		if (intersection.t > EPSILON) {
+			// Map depth to [0,1] range for visualization
+			float depth = intersection.t;
+			float maxDepth = 4.0f; // Arbitrary max depth for normalization
+			float depthValue = clamp(depth / maxDepth, 0.0f, 1.0f);
+			outputPixelColor = (float3)(depthValue, depthValue, depthValue);
+		} else {
+			outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
+		}
 	}
 	
 	// index *3 for RGB
