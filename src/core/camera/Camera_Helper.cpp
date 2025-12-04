@@ -84,8 +84,6 @@ double Camera_Helper::interpolation(const double &ratio, const InterPolationType
             return (exp(ratio)-1) / (exp(1)-1);
         case LOG:
             return log(ratio + 1) / log(2);
-        case SQUARE:
-            return ratio * ratio;
         case SQRT:
             return sqrt(ratio);
         case CUBIC:

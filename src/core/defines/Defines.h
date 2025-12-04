@@ -17,6 +17,14 @@ enum ShapeType
     MESH = 4
 };
 
+enum BufferType
+{
+    IMAGE = 0,
+    ALBEDO = 1,
+    DEPTH = 2,
+    NORMAL = 3
+};
+
 struct __attribute__((aligned(16))) GPUSphere
 {
     float radius;       // 4 bytes (offset 0)
