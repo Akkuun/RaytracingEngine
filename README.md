@@ -57,7 +57,7 @@ mkdir build && cd build
 cmake -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ..
 ```
 
-### 2b. Install Qt6 (required for GUI)
+### Install Qt6 (required for GUI)
 - On Arch Linux:
   ```bash
   sudo pacman -S qt6-base qt6-tools
@@ -67,7 +67,7 @@ cmake -DBUILD_DOCS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ..
   sudo apt install qt6-base-dev qt6-tools-dev-tools
   ```
 
-### 3. Install dependencies depending on your graphics hardware (NVIDIA or AMD)
+### Install dependencies depending on your graphics hardware (NVIDIA or AMD)
 
 ```bash
 # For NVIDIA GPUs (Ubuntu/Debian)
@@ -90,10 +90,29 @@ sudo pacman -S intel-compute-runtime
 ```
 
 
-
-
 ## Troubleshooting
 - If you get errors about missing `CL/opencl.hpp`, ensure CLHPP is installed and included in your CMake configuration.
 - If you update the submodule, you may need to re-run the CLHPP build/install step.
 - For OpenCL runtime issues, check your GPU drivers and OpenCL ICD loader.
+
+## Keybinds
+
+# Camera controls
+
+- F : toggle pannel
+- Z : move the camera forward
+- S : move the camera backward
+- Q : move the camera to the left
+- D : move the camera to the right
+- right arrow : rotate the camera to the right
+- left arrow : rotate the camera to the left
+- up arrow : rotate the camera to the top
+- down arrow : rotate the camera to the bottom
+
+# Save controls
+- Ctrl + S : save current project
+
+# Commands controls
+- Ctrl + Z : undo action
+- Ctrl + Maj + Z : redo action
 
