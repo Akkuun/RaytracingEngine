@@ -14,7 +14,6 @@ enum InterPolationType
     COS,
     EXP,
     LOG,
-    SQUARE,
     SQRT,
     CUBIC,
     SQRT3

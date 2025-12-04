@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QCheckBox>
+#include <QComboBox>
 #include "../../core/camera/Camera.h"
 #include "../../core/commands/CommandsManager.h"
 #include "../../core/commands/actionsCommands/camera/CameraNbBouncesCommand.h"
@@ -64,6 +65,25 @@ void ParametersPanel::setupUI()
     connect(raysSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newRPP){
         commandManager.executeCommand(new CameraRPPCommand(camera, newRPP));
     });
+
+    QComboBox *bufferOptions = new QComboBox();
+    bufferOptions->addItem("Final Image");
+    bufferOptions->addItem("Albedo");
+    bufferOptions->addItem("Depth");
+    bufferOptions->addItem("Normals");
+
+    connect(bufferOptions, QOverload<int>::of(&QComboBox::currentIndexChanged), [&camera](int index){
+        camera.setBufferType(index);
+    });
+
+    connect(&camera, &Camera::bufferTypeChanged, [bufferOptions](int type){
+        bufferOptions->blockSignals(true);
+        bufferOptions->setCurrentIndex(type);
+        bufferOptions->blockSignals(false);
+    });
+
+    layout->addWidget(bufferOptions);
+
 
     connect(&camera, &Camera::nbBouncesChanged, this, &ParametersPanel::onCameraNBouncesChanged);
     connect(&camera, &Camera::raysPerPixelChanged, this, &ParametersPanel::onCameraRaysPerPixelChanged);

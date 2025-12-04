@@ -7,6 +7,7 @@
 #include <cmath>
 #include <iostream>
 #include "../systems/FileManager/FileManager.h"
+#include "../commands/CommandsManager.h"
 #include "../../../external/json/single_include/nlohmann/json.hpp"
 #include <fstream>
 
@@ -346,9 +347,16 @@ GPUCamera Camera::toGPU() const
     gpu_camera.fov = m_fovDegree;
     gpu_camera.nbBounces = m_nb_bounces;
     gpu_camera.raysPerPixel = m_rays_per_pixel;
-    gpu_camera._padding = 0.0f;
+    gpu_camera.bufferType = m_bufferType;
 
     return gpu_camera;
+}
+
+void Camera::setBufferType(int type)
+{
+    m_bufferType = type;
+    CommandsManager::getInstance().notifyCameraChanged();
+    emit bufferTypeChanged(type);
 }
 
 void Camera::setPosition(const glm::vec3 &position)

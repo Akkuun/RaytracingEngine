@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <QObject>
+#include "../defines/Defines.h"
 
 class QKeyEvent;
 class QMouseEvent;
@@ -32,7 +33,7 @@ typedef struct
     float fov;         // Field of view in degrees (4 bytes)
 	int nbBounces;    // Number of ray bounces (4 bytes)
 	int raysPerPixel; //  Number of rays per pixel (4 bytes)
-    float _padding;   // Padding for alignment (4 bytes)
+    int bufferType;
 } GPUCamera;
 
 // Camera constants
@@ -73,6 +74,7 @@ signals:
     void fovChanged(float fov);
     void nbBouncesChanged(int bounces);
     void raysPerPixelChanged(int rpp);
+    void bufferTypeChanged(int type);
 
 public:
     void reset();
@@ -113,6 +115,7 @@ public:
     inline int getRaysPerPixel() const { return m_rays_per_pixel; }
 
     // Setters
+    void setBufferType(int type);
     void setPosition(const glm::vec3 &position);
     void setRotation(const glm::vec3 &eulerAngles);
     void setFOV(float fov);
@@ -185,6 +188,8 @@ private:
 
     // Movement tracking for TAA reset
     bool m_hasMoved = false;
+
+    int m_bufferType = BufferType::IMAGE;
 
 
     void loadCameraSettings();
