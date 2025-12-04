@@ -279,10 +279,9 @@ void SceneManager::cornellScene()
         "Floor",                  // name
         poolMat));
     
-    Material* metalMat = new Material(std::string("../assets/textures/metal.ppm"));
-    metalMat->setMetalness(0.9f);
-    metalMat->setNormalsFromPath(std::string("../assets/normals/metal_n.ppm"));
-
+    Material* metalMat = new Material(std::string("../assets/textures/rustediron.ppm"));
+    metalMat->setNormalsFromPath(std::string("../assets/normals/rustediron_n.ppm"));
+    metalMat->setMetallicFromPath(std::string("../assets/metallics/rustediron_m.ppm"));
 
         // Ceiling - white (no name)
     addShape(new Square(

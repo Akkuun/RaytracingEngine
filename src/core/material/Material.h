@@ -50,8 +50,10 @@ public:
     inline const vec3 &getLightColor() const { return light_color; }
     inline float getLightIntensity() const { return light_intensity; }
     inline bool hasNormalMap() const { return has_normal_map; }
+    inline bool hasMetallicMap() const { return has_metal_map; }
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
+    inline const ppmLoader::ImageRGB &getMetallic() const { return metalicityMap; }
     inline int getMaterialId() const { return material_id; }
     inline bool hasTexture() const { return  has_texture; }
     inline std::string getPathFileTexture() const { return pathFileTexture; }
@@ -106,6 +108,26 @@ public:
         {
             has_normal_map = true;
             pathFileNormalMap = path;
+        }
+    }
+    inline void removeMetallic()
+    {
+        metalicityMap.data.clear();
+        metalicityMap.w = 0;
+        metalicityMap.h = 0;
+        has_metal_map = false;
+    }
+    inline void setMetallic(const ppmLoader::ImageRGB &img)
+    {
+        metalicityMap = img;
+        has_metal_map = true;
+    }
+    inline void setMetallicFromPath(const std::string &path)
+    {
+        ppmLoader::load_ppm(metalicityMap, path);
+        if (!metalicityMap.data.empty())
+        {
+            has_metal_map = true;
         }
     }
 

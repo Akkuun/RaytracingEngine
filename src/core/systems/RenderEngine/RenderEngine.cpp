@@ -428,6 +428,26 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             {
                 gpu_materials[matId].normal_map_offset = -1; // No normal map
             }
+
+            // Add metal map data if exists
+            if (material->hasMetallicMap() && !material->getMetallic().data.empty())
+            {
+                gpu_materials[matId].metal_map_offset = currentOffset;
+
+                // Copy RGB data for metal map
+                for (const auto &pixel : material->getMetallic().data)
+                {
+                    allTextureData.push_back(pixel.r);
+                    allTextureData.push_back(pixel.g);
+                    allTextureData.push_back(pixel.b);
+                }
+
+                currentOffset += material->getMetallic().data.size() * 3; // 3 bytes per pixel (RGB)
+            }
+            else
+            {
+                gpu_materials[matId].metal_map_offset = -1; // No metal map
+            }
         }
         catch (const std::exception &e)
         {

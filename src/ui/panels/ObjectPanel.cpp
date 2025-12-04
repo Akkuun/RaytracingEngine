@@ -22,6 +22,8 @@
 #include <QKeyEvent>
 #include "./CustomDoubleSpinBox.h"
 
+#define PI 3.14159265358979323846
+
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
     setupUI();
@@ -46,9 +48,9 @@ void ObjectPanel::setupUI()
     posX->setRange(-1000, 1000);
     posY->setRange(-1000, 1000);
     posZ->setRange(-1000, 1000);
-    posX->setSingleStep(0.1);
-    posY->setSingleStep(0.1);
-    posZ->setSingleStep(0.1);
+    posX->setSingleStep(0.01);
+    posY->setSingleStep(0.01);
+    posZ->setSingleStep(0.01);
     posX->setMaximumWidth(90);
     posY->setMaximumWidth(90);
     posZ->setMaximumWidth(90);
@@ -72,9 +74,9 @@ void ObjectPanel::setupUI()
     rotX->setRange(-360, 360);
     rotY->setRange(-360, 360);
     rotZ->setRange(-360, 360);
-    rotX->setSingleStep(1.0);
-    rotY->setSingleStep(1.0);
-    rotZ->setSingleStep(1.0);
+    rotX->setSingleStep(PI/20); // 0.1 degree
+    rotY->setSingleStep(PI/20);
+    rotZ->setSingleStep(PI/20);
     rotX->setValue(initialShape->getRotation().x);
     rotY->setValue(initialShape->getRotation().y);
     rotZ->setValue(initialShape->getRotation().z);

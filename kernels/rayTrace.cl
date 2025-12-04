@@ -255,6 +255,30 @@ float3 sample_normal_map(__global const unsigned char* textureData, int offset, 
 	return normalize((float3)(r, g, b));
 }
 
+// Sample metal map at UV coordinates (returns metalness value [0,1])
+float sample_metal_map(__global const unsigned char* textureData, int offset, int width, int height, float2 uv)
+{
+	if (offset < 0 || width <= 0 || height <= 0) {
+		return 0.0f; // Default metalness if no map
+	}
+	
+	// Wrap UV coordinates to [0,1]
+	uv.x = uv.x - floor(uv.x);
+	uv.y = uv.y - floor(uv.y);
+	
+	// Convert UV to pixel coordinates
+	int x = (int)(uv.x * width) % width;
+	int y = (int)(uv.y * height) % height;
+	
+	// Calculate pixel index in texture buffer (RGB = 3 bytes per pixel)
+	int pixelIndex = offset + (y * width + x) * 3;
+	
+	// Read red channel and normalize to [0,1] (metalness is typically stored in red channel)
+	float metalness = (float)textureData[pixelIndex + 0] / 255.0f;
+	
+	return metalness;
+}
+
 // Compute tangent space basis (TBN matrix) for normal mapping
 void compute_tangent_space(__global const GPUShape* shape, struct Intersection inter, float3* tangent, float3* bitangent, float3* normal)
 {
@@ -398,17 +422,24 @@ float3 get_reflected_ray(float3 incident, struct Intersection inter, __global co
 	// Get the perturbed normal (includes normal map if available)
 	float3 normal = get_perturbed_normal(shape, inter, material, textureData);
 	
+	// Get metalness value - use metal map if available, otherwise use material metalness
+	float metalness = material->metalness;
+	if (material->has_metal_map) {
+		metalness = sample_metal_map(textureData, material->metal_map_offset, 
+		                            material->metal_map_width, material->metal_map_height, inter.uv);
+	}
+	
 	// Continuous metalness: blend between diffuse and specular reflection
 	float3 diffuse = random_hemisphere_direction(normal, seed);
 	float3 reflected = reflect(incident, normal);
 	
 	// Add roughness based on metalness (higher metalness = lower roughness)
-	float roughness = 1.0f - material->metalness;
+	float roughness = 1.0f - metalness;
 	float3 randomDir = random_hemisphere_direction(normal, seed);
 	float3 roughReflected = normalize(mix(reflected, randomDir, roughness));
 	
 	// Blend between diffuse and rough specular based on metalness
-	return normalize(mix(diffuse, roughReflected, material->metalness));
+	return normalize(mix(diffuse, roughReflected, metalness));
 } 
 
 float3 get_shape_color(__global const GPUShape* shape, __global const GPUMaterial* materials, int numMaterials, 

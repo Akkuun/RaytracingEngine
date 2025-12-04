@@ -14,6 +14,8 @@
 class QKeyEvent;
 class QMouseEvent;
 
+#define PI 3.14159265358979323846
+
 // GPU-compatible Vec3 with padding to match kernel
 typedef struct
 {
@@ -40,9 +42,9 @@ static const glm::vec3 DEFAULT_EULER_ANGLE = glm::vec3(0.0f, 0.0f, 0.0f);
 static const int DEFAULT_BOUNCES = 3;
 static const int DEFAULT_RPP = 1;
 static const bool DEFAULT_ATTACHED = false;
-static const float DEFAULT_TRANSLATION_SPEED = 0.05f;
+static const float DEFAULT_TRANSLATION_SPEED = 0.005f;
 static const float DEFAULT_DISTANCE_SPEED = 0.1f;
-static const float DEFAULT_ROTATION_SPEED = 1.0f;
+static const float DEFAULT_ROTATION_SPEED = PI/7.5f;
 static const float KEYS_ROTATION_SPEED_CORRECTION = 1.0f;
 static const glm::vec3 CAMERA_POSITION_RELATIVE_TO_PLAYER = glm::vec3(0.0f, 2.0f, 5.0f);
 static const float DELTA_Y_SNEAK = 0.3f;
