@@ -97,9 +97,11 @@ sudo pacman -S intel-compute-runtime
 
 ## Keybinds
 
+### Pannels control
+- F : toggle pannel
+
 ### Camera controls
 
-- F : toggle pannel
 - Z : move the camera forward
 - S : move the camera backward
 - Q : move the camera to the left
