@@ -95,9 +95,9 @@ sudo pacman -S intel-compute-runtime
 - If you update the submodule, you may need to re-run the CLHPP build/install step.
 - For OpenCL runtime issues, check your GPU drivers and OpenCL ICD loader.
 
-## Keybinds
+# Keybinds
 
-# Camera controls
+## Camera controls
 
 - F : toggle pannel
 - Z : move the camera forward
@@ -109,10 +109,10 @@ sudo pacman -S intel-compute-runtime
 - up arrow : rotate the camera to the top
 - down arrow : rotate the camera to the bottom
 
-# Save controls
+## Save controls
 - Ctrl + S : save current project
 
-# Commands controls
+## Commands controls
 - Ctrl + Z : undo action
 - Ctrl + Maj + Z : redo action
 
