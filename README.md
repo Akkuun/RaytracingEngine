@@ -104,6 +104,9 @@ sudo pacman -S intel-compute-runtime
 - S : move the camera backward
 - Q : move the camera to the left
 - D : move the camera to the right
+- space : move the camera upper
+- C : move the camera below
+
 - right arrow : rotate the camera to the right
 - left arrow : rotate the camera to the left
 - up arrow : rotate the camera to the top
