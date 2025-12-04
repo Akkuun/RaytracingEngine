@@ -1,4 +1,4 @@
-# RaytracingEngine OpenCL Example
+# RaytracingEngine Project
 
 ## Prerequisites
 - Linux system (tested on Arch Linux)
@@ -16,7 +16,26 @@ git clone <your-repo-url>
 cd RaytracingEngine
 ```
 
-### 2. Install OpenCL C++ Bindings (CLHPP)
+### 2. Install external libs via Submodule
+
+```bash
+git submodule update --init --recursive
+```
+
+### 3. Build and Run the Project
+From the project root:
+```bash
+bash build.sh
+```
+This will:
+- Create the build directory
+- Run CMake and make
+- Copy the OpenCL kernel / assets / saves files
+- Launch the GUI of the Raytracing-Engine
+
+### 4. Install Core package (if needed)
+
+### Install OpenCL C++ Bindings (CLHPP)
 If your system does not provide `CL/opencl.hpp`, you need to install the OpenCL C++ bindings:
 
 #### Option A: System package (recommended if available)
@@ -70,23 +89,11 @@ sudo apt install intel-opencl-icd
 sudo pacman -S intel-compute-runtime
 ```
 
-### 4. Build and Run the Project
-From the project root:
-```bash
-bash build.sh
-```
-This will:
-- Create the build directory
-- Run CMake and make
-- Copy the OpenCL kernel / assets / saves files
-- Launch the GUI of the Raytracing-Engine
+
 
 
 ## Troubleshooting
 - If you get errors about missing `CL/opencl.hpp`, ensure CLHPP is installed and included in your CMake configuration.
 - If you update the submodule, you may need to re-run the CLHPP build/install step.
 - For OpenCL runtime issues, check your GPU drivers and OpenCL ICD loader.
-
-## License
-See LICENSE.txt for details.
 
