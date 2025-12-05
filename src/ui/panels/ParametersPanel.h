@@ -4,13 +4,15 @@
 
 class QSpinBox;
 
-
 class ParametersPanel : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit ParametersPanel(QWidget *parent = nullptr);
+
+signals:
+    void screenshotButtonClicked();
 
 private slots:
     void onCameraNBouncesChanged(int bounces);

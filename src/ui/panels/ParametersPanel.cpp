@@ -5,6 +5,7 @@
 #include <QSpinBox>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QPushButton>
 #include "../../core/camera/Camera.h"
 #include "../../core/commands/CommandsManager.h"
 #include "../../core/commands/actionsCommands/camera/CameraNbBouncesCommand.h"
@@ -21,8 +22,8 @@ void ParametersPanel::setupUI()
     layout->setSpacing(8);
     layout->setContentsMargins(5, 5, 5, 5);
 
-    Camera& camera = Camera::getInstance();
-    CommandsManager& commandManager = CommandsManager::getInstance();
+    Camera &camera = Camera::getInstance();
+    CommandsManager &commandManager = CommandsManager::getInstance();
 
     // Rays per pixel
     QHBoxLayout *raysLayout = new QHBoxLayout();
@@ -58,32 +59,33 @@ void ParametersPanel::setupUI()
     denoisingLayout->addStretch();
     layout->addLayout(denoisingLayout);
 
-    connect(reboundsSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newBounces){
-        commandManager.executeCommand(new CameraNbBouncesCommand(camera, newBounces));
-    });
-
-    connect(raysSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newRPP){
-        commandManager.executeCommand(new CameraRPPCommand(camera, newRPP));
-    });
-
     QComboBox *bufferOptions = new QComboBox();
     bufferOptions->addItem("Final Image");
     bufferOptions->addItem("Albedo");
     bufferOptions->addItem("Depth");
     bufferOptions->addItem("Normals");
 
-    connect(bufferOptions, QOverload<int>::of(&QComboBox::currentIndexChanged), [&camera](int index){
-        camera.setBufferType(index);
-    });
+    QPushButton *screenShotButton = new QPushButton("", this);
+    screenShotButton->setIcon(QIcon("assets/app/icons/iconScreenshot.png"));
+    layout->addWidget(screenShotButton);
 
-    connect(&camera, &Camera::bufferTypeChanged, [bufferOptions](int type){
+    connect(reboundsSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newBounces)
+            { commandManager.executeCommand(new CameraNbBouncesCommand(camera, newBounces)); });
+
+    connect(raysSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newRPP)
+            { commandManager.executeCommand(new CameraRPPCommand(camera, newRPP)); });
+    connect(bufferOptions, QOverload<int>::of(&QComboBox::currentIndexChanged), [&camera](int index)
+            { camera.setBufferType(index); });
+
+    connect(&camera, &Camera::bufferTypeChanged, [bufferOptions](int type)
+            {
         bufferOptions->blockSignals(true);
         bufferOptions->setCurrentIndex(type);
-        bufferOptions->blockSignals(false);
-    });
+        bufferOptions->blockSignals(false); });
+
+    connect(screenShotButton, &QPushButton::clicked, this, &ParametersPanel::screenshotButtonClicked);
 
     layout->addWidget(bufferOptions);
-
 
     connect(&camera, &Camera::nbBouncesChanged, this, &ParametersPanel::onCameraNBouncesChanged);
     connect(&camera, &Camera::raysPerPixelChanged, this, &ParametersPanel::onCameraRaysPerPixelChanged);

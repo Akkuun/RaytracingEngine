@@ -372,3 +372,8 @@ void RenderWidget::focusOutEvent(QFocusEvent *event)
     setCursor(Qt::ArrowCursor);
     QOpenGLWidget::focusOutEvent(event);
 }
+
+void RenderWidget::captureScreenshot()
+{
+    std::cout << "screen" << std::endl;
+}

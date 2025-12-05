@@ -53,9 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(resetCameraShortcut, &QShortcut::activated, this, &MainWindow::onResetCamera);
 
     saveFileShortcut = new QShortcut(keybinds.getKeybind(KB_SAVE), this);
-    connect(saveFileShortcut, &QShortcut::activated, this, []() {
-        FileManager::getInstance().saveProject();
-    });
+    connect(saveFileShortcut, &QShortcut::activated, this, []()
+            { FileManager::getInstance().saveProject(); });
 }
 
 MainWindow::~MainWindow() {}
@@ -167,8 +166,11 @@ void MainWindow::setupRightPanel()
 
     // Parameters Panel
     CollapsiblePanel *paramsPanel = new CollapsiblePanel("▼ PARAMETERS");
-    paramsPanel->setContent(new ParametersPanel());
+    ParametersPanel *parametersPanel = new ParametersPanel();
+    paramsPanel->setContent(parametersPanel);
     rightLayout->addWidget(paramsPanel);
+
+    connect(parametersPanel, &ParametersPanel::screenshotButtonClicked, this, &MainWindow::onScreenshotButtonClicked);
 }
 
 void MainWindow::updateOverlayPositions()
@@ -442,4 +444,10 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 void MainWindow::ApplyUniformScaling()
 {
     objectPanel->setApplyOnAllAxis(true);
+}
+
+void MainWindow::onScreenshotButtonClicked()
+{
+    // renderWidget->captureScreenshot();
+    std::cout << "Screenshot button clicked!" << std::endl;
 }
