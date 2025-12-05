@@ -375,5 +375,38 @@ void RenderWidget::focusOutEvent(QFocusEvent *event)
 
 void RenderWidget::captureScreenshot()
 {
-    std::cout << "screen" << std::endl;
+    // Get the image data from render engine (RGB float values)
+    const std::vector<float> &imageData = renderEngine->getImageData();
+
+    if (imageData.empty())
+    {
+        return;
+    }
+
+    // Save as PPM file
+    std::ofstream outFile("../screenshots/screenshot.ppm");
+    if (!outFile)
+    {
+        qWarning() << "Failed to open screenshot.ppm for writing.";
+        return;
+    }
+
+    outFile << "P3\n"
+            << width << " " << height << "\n255\n";
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int index = (y * width + x) * 3;
+            int r = static_cast<int>(std::min(imageData[index] * 255.0f, 255.0f));
+            int g = static_cast<int>(std::min(imageData[index + 1] * 255.0f, 255.0f));
+            int b = static_cast<int>(std::min(imageData[index + 2] * 255.0f, 255.0f));
+            outFile << r << " " << g << " " << b << " ";
+        }
+        outFile << "\n";
+    }
+
+    outFile.close();
+    qDebug() << "Screenshot saved to screenshot.ppm";
 }

@@ -448,6 +448,5 @@ void MainWindow::ApplyUniformScaling()
 
 void MainWindow::onScreenshotButtonClicked()
 {
-    // renderWidget->captureScreenshot();
-    std::cout << "Screenshot button clicked!" << std::endl;
+    renderWidget->captureScreenshot();
 }
