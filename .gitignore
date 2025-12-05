@@ -95,3 +95,4 @@ compile_commands.json
 
 #ignore screenshots files
 /screenshots/*
+!/screenshots/.gitkeep
