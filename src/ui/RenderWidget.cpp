@@ -11,7 +11,7 @@
 #include <fstream>
 
 RenderWidget::RenderWidget(QWidget *parent)
-    : QOpenGLWidget(parent), isRendering(false), mousePressed(false), deltaTime(0.016f),
+    : QOpenGLWidget(parent), isRendering(false), mousePressed(false), skipNextMouseMove(false), deltaTime(0.016f),
       glInitialized(false), textureInitialized(false), textureID(0), pbo(0), shaderProgram(nullptr), vbo(nullptr), vao(nullptr)
 {
     renderEngine = new RenderEngine();
@@ -315,44 +315,68 @@ void RenderWidget::keyReleaseEvent(QKeyEvent *event)
 
 void RenderWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    // DISABLED: Mouse rotation temporarily disabled
-    // TODO: Re-enable mouse rotation when needed
-    /*
-    if (mousePressed || Camera::getInstance().isFPS())
+    QPoint currentPos = event->pos();
+
+    // In FPS mode: use delta from last position for continuous mouse movement
+    if (Camera::getInstance().isFPS())
     {
-        QPoint currentPos = event->pos();
-        if (!lastMousePos.isNull())
+        // Hide cursor in FPS mode
+        if (cursor().shape() != Qt::BlankCursor)
         {
+            setCursor(Qt::BlankCursor);
+            // Initialize lastMousePos when entering FPS mode
+            lastMousePos = currentPos;
+        }
+        else if (!lastMousePos.isNull())
+        {
+            // Calculate delta and update camera
             float deltaX = currentPos.x() - lastMousePos.x();
-            float deltaY = currentPos.y() - lastMousePos.y();
+            float deltaY = lastMousePos.y() - currentPos.y(); // Invert Y axis
             Camera::getInstance().handleMouseMove(deltaX, deltaY);
         }
         lastMousePos = currentPos;
-
-        // Keep mouse centered in FPS mode for continuous rotation
-        if (Camera::getInstance().isFPS())
+    }
+    else
+    {
+        // In third-person mode: only move camera when right mouse button is pressed
+        if (mousePressed)
         {
-            QPoint center(width / 2, height / 2);
-            if ((currentPos - center).manhattanLength() > 100)
+            if (!lastMousePos.isNull())
             {
-                cursor().setPos(mapToGlobal(center));
-                lastMousePos = center;
+                float deltaX = currentPos.x() - lastMousePos.x();
+                float deltaY = lastMousePos.y() - currentPos.y(); // Invert Y axis
+                Camera::getInstance().handleMouseMove(deltaX, deltaY);
             }
+            lastMousePos = currentPos;
         }
     }
-    */
+
     QOpenGLWidget::mouseMoveEvent(event);
 }
 
 void RenderWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
+    if (event->button() == Qt::RightButton && !Camera::getInstance().isFPS())
     {
         mousePressed = true;
         lastMousePos = event->pos();
         setCursor(Qt::BlankCursor);
     }
     QOpenGLWidget::mousePressEvent(event);
+}
+
+void RenderWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        mousePressed = false;
+        if (!Camera::getInstance().isFPS())
+        {
+            setCursor(Qt::ArrowCursor);
+            lastMousePos = QPoint();
+        }
+    }
+    QOpenGLWidget::mouseReleaseEvent(event);
 }
 
 void RenderWidget::wheelEvent(QWheelEvent *event)

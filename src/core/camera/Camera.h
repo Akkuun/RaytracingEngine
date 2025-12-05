@@ -98,6 +98,7 @@ public:
     void setControlMode(int mode); // 0 = mouse, 1 = keyboard
 
     inline bool isFPS() const { return !m_attached; }
+    inline void onToggleFPSMode() { m_attached = !m_attached; }
 
     // Getters
     inline glm::vec3 getFront() const{return glm::rotate(m_rotation, VEC_FRONT);}
