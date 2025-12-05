@@ -5,7 +5,10 @@
 #include "../../shapes/Square.h"
 #include "../../shapes/Triangle.h"
 #include "../../shapes/Mesh.h"
-#include "../../bvh/bvh.h"
+
+// Forward declaration to avoid circular dependency
+class BVH;
+
 class SceneManager
 {
 public:

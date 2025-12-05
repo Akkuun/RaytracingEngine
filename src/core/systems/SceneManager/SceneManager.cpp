@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 #include <algorithm>
 #include "../FileManager/FileManager.h"
+#include "../../bvh/bvh.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>

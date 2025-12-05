@@ -15,7 +15,11 @@ public:
     void build(const Mesh &mesh);
 
     // Convert BVH to GPU format - returns header info and fills the output vectors
-    GPUBVH toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles) const;
+    // nodeOffset: offset into the global node buffer where this BVH's nodes start
+    // triangleOffset: offset into the global triangle buffer where this BVH's triangles start
+    // materialIndex: material index for the entire mesh
+    GPUBVH toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles, 
+                 int nodeOffset, int triangleOffset, int materialIndex) const;
 
     inline bvhNode *getRoot() const { return root; }
     void printRecursive(bvhNode *node, int depth = 0) const;
@@ -33,6 +37,7 @@ private:
     int maxDepth = 5;
     int associatedMeshID = -1; // ID of the mesh this BVH belongs to to avoid to send number of BVH in kernel
 
+public:
     inline int getAssociatedMeshID() const { return associatedMeshID; }
     inline int getMaxDepth() const { return maxDepth; }
 };

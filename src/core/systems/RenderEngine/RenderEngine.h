@@ -57,9 +57,8 @@ private:
     cl::Buffer cameraBuffer;
     cl::Buffer materialBuffer;
     cl::Buffer textureBuffer;      // Buffer containing all texture data (RGB pixels)
-    cl::Buffer bvhHeaderBuffer;    // Buffer containing BVH headers (GPUBVH)
     cl::Buffer bvhNodesBuffer;     // Buffer containing all flattened BVH nodes
-    cl::Buffer bvhTrianglesBuffer; // Buffer containing all BVH triangles
+    cl::Buffer bvhTrianglesBuffer; // Buffer containing all BVH triangles (sent to GPU)
 
     std::vector<float> imageData;
 

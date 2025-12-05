@@ -4,6 +4,7 @@
 #include "../../defines/Defines.h"
 #include "../../shapes/Triangle.h"
 #include "../../shapes/Mesh.h"
+#include "../../bvh/bvh.h"
 
 RenderEngine::RenderEngine()
 {
@@ -96,10 +97,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(8, materialBuffer);      // Buffer containing all the material data
         kernel.setArg(9, materialCount);       // Number of materials in the scene
         kernel.setArg(10, textureBuffer);      // Buffer containing all texture data
-        kernel.setArg(11, bvhCount);           // Number of BVH in the scene
-        kernel.setArg(12, bvhHeaderBuffer);    // BVH headers buffer
-        kernel.setArg(13, bvhNodesBuffer);     // BVH nodes buffer (flattened)
-        kernel.setArg(14, bvhTrianglesBuffer); // BVH triangles buffer
+        kernel.setArg(11, bvhNodesBuffer);     // BVH nodes buffer (flattened)
+        kernel.setArg(12, bvhTrianglesBuffer); // BVH triangles buffer
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
@@ -141,32 +140,19 @@ void RenderEngine::render(int width, int height)
     }
 }
 
-// setup the bugger containing all GPU shapes
+// setup the buffer containing all GPU shapes (including BVHs)
 void RenderEngine::setupShapesBuffer()
 {
     SceneManager &sceneManager = SceneManager::getInstance();
     const std::vector<Shape *> &shapes = sceneManager.getShapes();
+    const std::vector<BVH *> &bvhList = sceneManager.getBVHLists();
     cl::CommandQueue queue = deviceManager->getCommandQueue();
     cl::Context context = deviceManager->getContext();
 
     std::vector<GPUShape> gpu_shapes;
+    std::vector<GPUTriangle> allBVHTriangles;
 
-    // Pre-calculate total size needed to avoid reallocations
-    size_t estimatedSize = 0;
-    for (auto *shape : shapes)
-    {
-        if (shape->getType() == MESH)
-        {
-            Mesh *mesh = static_cast<Mesh *>(shape);
-            estimatedSize += mesh->getTriangles().size();
-        }
-        else
-        {
-            estimatedSize++;
-        }
-    }
-    gpu_shapes.reserve(estimatedSize);
-
+    // First, process regular shapes (non-mesh shapes and standalone triangles)
     for (auto *shape : shapes)
     {
         GPUShape gpu_shape;
@@ -179,54 +165,109 @@ void RenderEngine::setupShapesBuffer()
         {
             Sphere *sphere = static_cast<Sphere *>(shape);
             gpu_shape.data.sphere = sphere->toGPU();
+            gpu_shapes.push_back(gpu_shape);
             break;
         }
         case SQUARE:
         {
             Square *square = static_cast<Square *>(shape);
             gpu_shape.data.square = square->toGPU();
+            gpu_shapes.push_back(gpu_shape);
             break;
         }
         case TRIANGLE:
         {
             Triangle *triangle = static_cast<Triangle *>(shape);
             gpu_shape.data.triangle = triangle->toGPU();
+            gpu_shapes.push_back(gpu_shape);
             break;
         }
         case MESH:
         {
-            Mesh *mesh = static_cast<Mesh *>(shape);
-            const auto &triangles = mesh->getTriangles();
-            size_t oldSize = gpu_shapes.size();
-            size_t numTriangles = triangles.size();
-
-            // Resize once instead of multiple push_back
-            gpu_shapes.resize(oldSize + numTriangles);
-
-            int materialIndex = mesh->getMaterial() ? mesh->getMaterial()->getMaterialId() : -1;
-
-            // Fill triangles in place
-            for (size_t i = 0; i < numTriangles; ++i)
-            {
-                GPUShape &mesh_gpu_shape = gpu_shapes[oldSize + i];
-                mesh_gpu_shape.type = ShapeType::TRIANGLE;
-                mesh_gpu_shape.data.triangle = triangles[i].toGPU();
-                mesh_gpu_shape.data.triangle.materialIndex = materialIndex;
-            }
-
-            std::cout << "Mesh with " << numTriangles << " triangles added to GPU buffer." << std::endl;
+            // Meshes are now handled through BVH shapes below
+            // So we skip adding mesh triangles individually
             continue;
         }
         default:
             std::cerr << "Unknown shape type encountered in setupShapesBuffer: " << type << std::endl;
             break;
         }
-
-        gpu_shapes.push_back(gpu_shape);
     }
 
+    // Now process BVHs and add them as shapes
+    // We need to track both node and triangle offsets
+    std::vector<GPUBVHNode> allBVHNodes;
+    int nodeOffset = 0;
+    int triangleOffset = 0;
+    
+    for (auto *bvh : bvhList)
+    {
+        std::vector<GPUBVHNode> nodes;
+        std::vector<GPUTriangle> triangles;
+        
+        // Find the corresponding mesh to get its material using the associatedMeshID
+        int materialIndex = -1;
+        int meshID = bvh->getAssociatedMeshID();
+        
+        for (auto *shape : shapes)
+        {
+            if (shape->getType() == MESH && shape->getID() == meshID)
+            {
+                Mesh *mesh = static_cast<Mesh *>(shape);
+                materialIndex = mesh->getMaterial() ? mesh->getMaterial()->getMaterialId() : -1;
+                break;
+            }
+        }
+
+        GPUBVH gpuBvh = bvh->toGPU(nodes, triangles, nodeOffset, triangleOffset, materialIndex);
+        
+        // Add BVH as a shape
+        GPUShape bvhShape;
+        bvhShape.type = ShapeType::BVH_SHAPE;
+        bvhShape.data.bvh = gpuBvh;
+        gpu_shapes.push_back(bvhShape);
+
+        // Collect all nodes and triangles for their buffers
+        allBVHNodes.insert(allBVHNodes.end(), nodes.begin(), nodes.end());
+        allBVHTriangles.insert(allBVHTriangles.end(), triangles.begin(), triangles.end());
+        
+        std::cout << "BVH (mesh ID " << meshID << ") added to shapes:" << std::endl;
+        std::cout << "  - numNodes: " << gpuBvh.numNodes << " at offset " << gpuBvh.nodeOffset << std::endl;
+        std::cout << "  - numTriangles: " << gpuBvh.numTriangles << " at offset " << gpuBvh.triangleOffset << std::endl;
+        std::cout << "  - rootNodeIndex: " << gpuBvh.rootNodeIndex << std::endl;
+        std::cout << "  - materialIndex: " << gpuBvh.materialIndex << std::endl;
+        
+        // Debug: print first few nodes
+        for (size_t i = 0; i < std::min(size_t(3), nodes.size()); ++i)
+        {
+            const GPUBVHNode &node = nodes[i];
+            std::cout << "  Node " << i << ": childIndex=" << node.childIndex 
+                      << ", triStart=" << node.triangleStartIdx 
+                      << ", triCount=" << node.triangleCount << std::endl;
+        }
+        
+        nodeOffset += static_cast<int>(nodes.size());
+        triangleOffset += static_cast<int>(triangles.size());
+    }
+    
+    // Create BVH nodes buffer
+    size_t nodesBufferSize = allBVHNodes.size() * sizeof(GPUBVHNode);
+    if (nodesBufferSize > 0)
+    {
+        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                    nodesBufferSize, allBVHNodes.data());
+        std::cout << "BVH nodes buffer created successfully! (" << allBVHNodes.size() << " nodes)" << std::endl;
+    }
+    else
+    {
+        GPUBVHNode dummyNode = {};
+        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(GPUBVHNode), &dummyNode);
+        std::cout << "No BVH nodes - created dummy buffer" << std::endl;
+    }
+
+    // Create shapes buffer
     size_t buffer_size = gpu_shapes.size() * sizeof(GPUShape);
-    // Update shapesCount for kernel use
     shapesCount = static_cast<int>(gpu_shapes.size());
 
     if (buffer_size > 0)
@@ -234,11 +275,10 @@ void RenderEngine::setupShapesBuffer()
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
                                   buffer_size,
                                   gpu_shapes.data());
-        std::cout << "Buffer created or updated successfully! (" << shapesCount << " shapes)" << std::endl;
+        std::cout << "Shapes buffer created successfully! (" << shapesCount << " shapes)" << std::endl;
     }
     else
     {
-        // Create a dummy shape buffer to avoid null buffer issues
         GPUShape dummyShape = {};
         dummyShape.type = UNDEFINED;
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -246,6 +286,22 @@ void RenderEngine::setupShapesBuffer()
                                   &dummyShape);
         shapesCount = 0;
         std::cout << "No GPU shapes - created dummy buffer" << std::endl;
+    }
+
+    // Create BVH triangles buffer
+    size_t trianglesBufferSize = allBVHTriangles.size() * sizeof(GPUTriangle);
+    if (trianglesBufferSize > 0)
+    {
+        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        trianglesBufferSize, allBVHTriangles.data());
+        std::cout << "BVH triangles buffer created successfully! (" << allBVHTriangles.size() << " triangles)" << std::endl;
+    }
+    else
+    {
+        GPUTriangle dummyTriangle = {};
+        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        sizeof(GPUTriangle), &dummyTriangle);
+        std::cout << "No BVH triangles - created dummy buffer" << std::endl;
     }
 }
 
@@ -479,74 +535,13 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
 
 void RenderEngine::setupBVHBuffer()
 {
+    // BVH nodes and triangles are now created in setupShapesBuffer along with the BVH shapes
+    // This function is kept for compatibility but the actual buffer creation happens in setupShapesBuffer
+    // This ensures proper synchronization between BVH shapes and their data
+    
     SceneManager &sceneManager = SceneManager::getInstance();
-
-    cl::CommandQueue queue = deviceManager->getCommandQueue();
-    cl::Context context = deviceManager->getContext();
     std::vector<BVH *> bvhList = sceneManager.getBVHLists();
-
-    std::vector<GPUBVH> bvhHeaders;
-    std::vector<GPUBVHNode> allNodes;
-    std::vector<GPUTriangle> allTriangles;
-
-    // Convert each BVH to GPU format and collect all nodes/triangles
-    for (auto *bvh : bvhList)
-    {
-        std::vector<GPUBVHNode> nodes;
-        std::vector<GPUTriangle> triangles;
-
-        GPUBVH gpuBvh = bvh->toGPU(nodes, triangles);
-        bvhHeaders.push_back(std::move(gpuBvh));
-
-        // Append nodes and triangles to the global arrays
-        allNodes.insert(allNodes.end(), nodes.begin(), nodes.end());
-        allTriangles.insert(allTriangles.end(), triangles.begin(), triangles.end());
-    }
-
     bvhCount = static_cast<int>(bvhList.size());
-
-    // Create BVH headers buffer
-    size_t headerBufferSize = bvhHeaders.size() * sizeof(GPUBVH);
-    if (headerBufferSize > 0)
-    {
-        bvhHeaderBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                     headerBufferSize, bvhHeaders.data());
-    }
-    else
-    {
-        GPUBVH dummyHeader = {};
-        bvhHeaderBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                     sizeof(GPUBVH), &dummyHeader);
-    }
-
-    // Create BVH nodes buffer
-    size_t nodesBufferSize = allNodes.size() * sizeof(GPUBVHNode);
-    if (nodesBufferSize > 0)
-    {
-        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                    nodesBufferSize, allNodes.data());
-    }
-    else
-    {
-        GPUBVHNode dummyNode = {};
-        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                    sizeof(GPUBVHNode), &dummyNode);
-    }
-
-    // Create BVH triangles buffer
-    size_t trianglesBufferSize = allTriangles.size() * sizeof(GPUTriangle);
-    if (trianglesBufferSize > 0)
-    {
-        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                        trianglesBufferSize, allTriangles.data());
-    }
-    else
-    {
-        GPUTriangle dummyTriangle = {};
-        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                        sizeof(GPUTriangle), &dummyTriangle);
-    }
-
-    std::cout << "BVH Buffers created successfully! (" << bvhCount << " BVH, "
-              << allNodes.size() << " nodes, " << allTriangles.size() << " triangles)" << std::endl;
+    
+    std::cout << "BVH buffer setup delegated to setupShapesBuffer (" << bvhCount << " BVH)" << std::endl;
 }

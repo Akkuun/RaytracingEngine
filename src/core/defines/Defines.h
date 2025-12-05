@@ -8,13 +8,27 @@ struct Vec3
     float _padding; // Padding to match OpenCL float3 (16 bytes)
 };
 
+// GPU-compatible BVH structure
+// Contains flattened arrays of nodes and triangles
+struct __attribute__((aligned(16))) GPUBVH
+{
+    int numNodes;        // 4 bytes (offset 0)
+    int numTriangles;    // 4 bytes (offset 4)
+    int nodeOffset;      // 4 bytes (offset 8) - offset into the global node buffer
+    int triangleOffset;  // 4 bytes (offset 12) - offset into the global triangle buffer
+    int rootNodeIndex;   // 4 bytes (offset 16) - always 0 for single BVH (relative to nodeOffset)
+    int materialIndex;   // 4 bytes (offset 20) - material index for the mesh
+    int _padding[2];     // 8 bytes (offset 24) - padding for alignment
+}; // Total: 32 bytes
+
 enum ShapeType
 {
     UNDEFINED = 0, // explicit values
     SPHERE = 1,
     SQUARE = 2,
     TRIANGLE = 3,
-    MESH = 4
+    MESH = 4,
+    BVH_SHAPE = 5
 };
 
 enum BufferType
@@ -63,6 +77,7 @@ typedef struct __attribute__((aligned(16)))
         GPUSphere sphere;
         GPUSquare square;
         GPUTriangle triangle;
+        GPUBVH bvh;
     } data;
 } GPUShape;
 
@@ -135,12 +150,4 @@ struct __attribute__((aligned(16))) GPUBVHNode
     int _padding;         // 4 bytes (offset 44) - padding for 16-byte alignment
 }; // Total: 48 bytes
 
-// GPU-compatible BVH structure
-// Contains flattened arrays of nodes and triangles
-struct __attribute__((aligned(16))) GPUBVH
-{
-    int numNodes;      // 4 bytes (offset 0)
-    int numTriangles;  // 4 bytes (offset 4)
-    int rootNodeIndex; // 4 bytes (offset 8) - always 0 for single BVH
-    int meshID;        // 4 bytes (offset 12) - associated mesh ID
-}; // Total: 16 bytes (header only, nodes and triangles are separate buffers)
+

@@ -137,16 +137,21 @@ bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
     return node;
 }
 
-GPUBVH BVH::toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles) const
+GPUBVH BVH::toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles,
+                  int nodeOffset, int triangleOffset, int materialIndex) const
 {
     GPUBVH gpuBVH;
-    gpuBVH.rootNodeIndex = 0;
-    gpuBVH.meshID = associatedMeshID;
+    gpuBVH.rootNodeIndex = 0;  // Root is always at index 0 relative to nodeOffset
+    gpuBVH.nodeOffset = nodeOffset;
+    gpuBVH.triangleOffset = triangleOffset;
+    gpuBVH.materialIndex = materialIndex;
 
     if (!root)
     {
         gpuBVH.numNodes = 0;
         gpuBVH.numTriangles = 0;
+        gpuBVH._padding[0] = 0;
+        gpuBVH._padding[1] = 0;
         return gpuBVH;
     }
 
@@ -158,6 +163,8 @@ GPUBVH BVH::toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &o
 
     gpuBVH.numNodes = static_cast<int>(outNodes.size());
     gpuBVH.numTriangles = static_cast<int>(outTriangles.size());
+    gpuBVH._padding[0] = 0;
+    gpuBVH._padding[1] = 0;
 
     return gpuBVH;
 }
