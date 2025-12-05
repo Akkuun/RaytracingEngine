@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QDate>
 #include <QOpenGLContext>
 #include <fstream>
 
@@ -377,22 +378,12 @@ void RenderWidget::captureScreenshot()
 {
     // Get the image data from render engine (RGB float values)
     const std::vector<float> &imageData = renderEngine->getImageData();
+    QImage screenshot(width, height, QImage::Format_RGB32);
 
     if (imageData.empty())
     {
         return;
     }
-
-    // Save as PPM file
-    std::ofstream outFile("../screenshots/screenshot.ppm");
-    if (!outFile)
-    {
-        qWarning() << "Failed to open screenshot.ppm for writing.";
-        return;
-    }
-
-    outFile << "P3\n"
-            << width << " " << height << "\n255\n";
 
     for (int y = 0; y < height; ++y)
     {
@@ -402,11 +393,11 @@ void RenderWidget::captureScreenshot()
             int r = static_cast<int>(std::min(imageData[index] * 255.0f, 255.0f));
             int g = static_cast<int>(std::min(imageData[index + 1] * 255.0f, 255.0f));
             int b = static_cast<int>(std::min(imageData[index + 2] * 255.0f, 255.0f));
-            outFile << r << " " << g << " " << b << " ";
+            screenshot.setPixel(x, y, qRgb(r, g, b));
         }
-        outFile << "\n";
     }
 
-    outFile.close();
-    qDebug() << "Screenshot saved to screenshot.ppm";
+    std::string dateTimeStr = QDateTime::currentDateTime().toString("yyyy_ddMM_HHmm").toStdString();
+
+    screenshot.save(QString("../screenshots/screenshot_" + QString::fromStdString(dateTimeStr) + ".png"));
 }
