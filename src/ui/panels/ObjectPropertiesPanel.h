@@ -8,6 +8,8 @@
 #include <QFrame>
 #include <QMap>
 #include <QLabel>
+#include <QLineEdit>
+
 class RenderWidget;
 
 class ObjectPropertiesPanel : public QWidget
@@ -20,13 +22,14 @@ public:
     void handleKeyPress(int key, bool pressed);
 
 public slots:
-    void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget)
+    void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget  
 
 signals:
     void materialChanged();
 
 private:
     void setupUI();
+    void RGBChanged();
     int currentSelectedShapeID;
     CommandsManager &commandManager;
 
@@ -49,6 +52,12 @@ private:
     QPushButton *clearEmissiveBtn;
 
     // Material properties
+    
+    QFrame *colorFrame;
+    QLabel *colorPreview;
+    QSpinBox *redSpinBox;
+    QSpinBox *greenSpinBox;
+    QSpinBox *blueSpinBox;
     QDoubleSpinBox *reflectionSpinBox;
     QDoubleSpinBox *refractionSpinBox;
     QSpinBox *emissiveSpinBox;

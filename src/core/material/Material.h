@@ -4,6 +4,7 @@
 #include "../math/vec3.h"
 #include "../defines/Defines.h"
 #include "../../../external/json/single_include/nlohmann/json.hpp"
+#include <QString>
 
 class MaterialId
 {
@@ -54,6 +55,13 @@ public:
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
     inline const ppmLoader::ImageRGB &getMetallic() const { return metalicityMap; }
+    inline void setDiffuseFromRGB(int r, int g, int b)
+    {
+        float fr = r / 255.0f;
+        float fg = g / 255.0f;
+        float fb = b / 255.0f;
+        diffuse_material = vec3(fr, fg, fb);
+    }
     inline int getMaterialId() const { return material_id; }
     inline bool hasTexture() const { return  has_texture; }
     inline std::string getPathFileTexture() const { return pathFileTexture; }
