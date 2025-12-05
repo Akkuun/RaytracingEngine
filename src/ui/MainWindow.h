@@ -40,6 +40,7 @@ private slots:
     void onRedo();
     void onResetCamera();
     void ApplyUniformScaling();
+    void onScreenshotButtonClicked();
 
 private:
     void setupUI();

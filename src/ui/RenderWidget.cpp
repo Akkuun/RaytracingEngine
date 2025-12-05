@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QDate>
 #include <QOpenGLContext>
 #include <fstream>
 
@@ -371,4 +372,32 @@ void RenderWidget::focusOutEvent(QFocusEvent *event)
     mousePressed = false;
     setCursor(Qt::ArrowCursor);
     QOpenGLWidget::focusOutEvent(event);
+}
+
+void RenderWidget::captureScreenshot()
+{
+    // Get the image data from render engine (RGB float values)
+    const std::vector<float> &imageData = renderEngine->getImageData();
+    QImage screenshot(width, height, QImage::Format_RGB32);
+
+    if (imageData.empty())
+    {
+        return;
+    }
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int index = (y * width + x) * 3;
+            int r = static_cast<int>(std::min(imageData[index] * 255.0f, 255.0f));
+            int g = static_cast<int>(std::min(imageData[index + 1] * 255.0f, 255.0f));
+            int b = static_cast<int>(std::min(imageData[index + 2] * 255.0f, 255.0f));
+            screenshot.setPixel(x, y, qRgb(r, g, b));
+        }
+    }
+
+    std::string dateTimeStr = QDateTime::currentDateTime().toString("yyyy_ddMM_HHmm").toStdString();
+
+    screenshot.save(QString("../screenshots/screenshot_" + QString::fromStdString(dateTimeStr) + ".png"));
 }

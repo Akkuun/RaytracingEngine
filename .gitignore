@@ -92,3 +92,6 @@ compile_commands.json
 !/saves/userSaves/.gitkeep
 #ignore recent project file
 /saves/recentProject.json
+
+#ignore screenshots files
+/screenshots/*

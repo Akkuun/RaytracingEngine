@@ -16,6 +16,7 @@ class RenderWidget : public QOpenGLWidget, protected QOpenGLFunctions
 public:
     explicit RenderWidget(QWidget *parent = nullptr);
     ~RenderWidget();
+    void captureScreenshot();
 
 signals:
     void fpsUpdated(int fps);
