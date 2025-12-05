@@ -98,7 +98,7 @@ sudo pacman -S intel-compute-runtime
 ## Keybinds
 
 ### Pannels control
-- F : toggle pannel
+- F : toggle panels
 
 ### Camera controls
 
