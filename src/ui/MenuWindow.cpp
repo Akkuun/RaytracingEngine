@@ -153,8 +153,8 @@ void MenuWindow::openMainWindow()
 {
     auto *mainWin = new MainWindow();
     mainWin->setWindowModality(Qt::ApplicationModal); // gain focus from the OS
-    mainWin->show();
     this->close();
+    mainWin->show();
 }
 
 void MenuWindow::createNewProject()
