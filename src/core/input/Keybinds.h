@@ -22,6 +22,8 @@
 
 #define KB_SAVE             "save"
 
+#define KB_TOGGLE_FPS_MODE    "toggleFPSMode"
+
 #define KB_APPLY_ON_ALL_AXIS "applyOnAllAxis"
 
 #define KB_REBIND_SUCCESS          0
@@ -65,6 +67,9 @@ private:
         
         // Save
         keybindsMap[KB_SAVE] = QKeySequence(Qt::CTRL | Qt::Key_S);
+
+        // Toggle FPS mode
+        keybindsMap[KB_TOGGLE_FPS_MODE] = QKeySequence(Qt::Key_C);
     
     }
     Keybinds(const Keybinds&) = delete;

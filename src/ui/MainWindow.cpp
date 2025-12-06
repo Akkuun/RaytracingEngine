@@ -55,6 +55,9 @@ MainWindow::MainWindow(QWidget *parent)
     saveFileShortcut = new QShortcut(keybinds.getKeybind(KB_SAVE), this);
     connect(saveFileShortcut, &QShortcut::activated, this, []()
             { FileManager::getInstance().saveProject(); });
+
+    toggleFPSModeShortcut = new QShortcut(keybinds.getKeybind(KB_TOGGLE_FPS_MODE), this);
+    connect(toggleFPSModeShortcut, &QShortcut::activated, this, &MainWindow::toggleFPSMode);
 }
 
 MainWindow::~MainWindow() {}
@@ -449,4 +452,9 @@ void MainWindow::ApplyUniformScaling()
 void MainWindow::onScreenshotButtonClicked()
 {
     renderWidget->captureScreenshot();
+}
+
+void MainWindow::toggleFPSMode()
+{
+    Camera::getInstance().onToggleActivate();
 }

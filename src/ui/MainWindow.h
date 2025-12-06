@@ -41,6 +41,7 @@ private slots:
     void onResetCamera();
     void ApplyUniformScaling();
     void onScreenshotButtonClicked();
+    void toggleFPSMode();
 
 private:
     void setupUI();
@@ -83,6 +84,7 @@ private:
     QShortcut *resetCameraShortcut;
     QShortcut *applyOnAllAxisShortcut;
     QShortcut *saveFileShortcut;
+    QShortcut *toggleFPSModeShortcut;
 
     // OpenCL Device Manager
     DeviceManager *deviceManager;
