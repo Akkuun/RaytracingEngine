@@ -456,5 +456,5 @@ void MainWindow::onScreenshotButtonClicked()
 
 void MainWindow::toggleFPSMode()
 {
-    Camera::getInstance().onToggleFPSMode();
+    Camera::getInstance().onToggleActivate();
 }

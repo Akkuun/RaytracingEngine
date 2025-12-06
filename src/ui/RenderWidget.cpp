@@ -318,7 +318,7 @@ void RenderWidget::mouseMoveEvent(QMouseEvent *event)
     QPoint currentPos = event->pos();
 
     // In FPS mode: use delta from last position for continuous mouse movement
-    if (Camera::getInstance().isFPS())
+    if (Camera::getInstance().isActivated())
     {
         // Hide cursor in FPS mode
         if (cursor().shape() != Qt::BlankCursor)
@@ -338,6 +338,8 @@ void RenderWidget::mouseMoveEvent(QMouseEvent *event)
     }
     else
     {
+        setCursor(Qt::ArrowCursor);
+
         // In third-person mode: only move camera when right mouse button is pressed
         if (mousePressed)
         {

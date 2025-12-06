@@ -98,7 +98,9 @@ public:
     void setControlMode(int mode); // 0 = mouse, 1 = keyboard
 
     inline bool isFPS() const { return !m_attached; }
+    inline bool isActivated() const { return activated; }
     inline void onToggleFPSMode() { m_attached = !m_attached; }
+    inline void onToggleActivate() { activated = !activated; }
 
     // Getters
     inline glm::vec3 getFront() const{return glm::rotate(m_rotation, VEC_FRONT);}
@@ -124,6 +126,7 @@ public:
     void setRaysPerPixel(int rpp);
 
     bool m_attached = DEFAULT_ATTACHED;
+    bool activated =false;
 
 
 private:
