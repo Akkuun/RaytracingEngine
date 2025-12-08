@@ -8,6 +8,7 @@
 #include "../math/aabb.h"
 #include "../math/vec3.h"
 #include "../math/mat3.h"
+#include "../bvh/bvh.h"
 
 struct MeshVertex
 {
@@ -41,6 +42,7 @@ private:
     std::vector<MeshTriangle> triangles;
     std::vector<Triangle> cpuTriangles;
     std::string filename;
+    BVH bvh = BVH(*this);
 
 public:
     Mesh() : Shape() {}
@@ -95,6 +97,7 @@ public:
     void translate(const vec3 &offset);
     // Uses angles in radians
     void rotate(const vec3 &angles);
+    BVH &getBVH() { return bvh; }
 
     std::string getFilename() const { return filename; }
 };

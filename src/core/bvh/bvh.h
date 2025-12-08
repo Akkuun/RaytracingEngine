@@ -10,7 +10,7 @@
 #define QUALITY_HIGH 2
 #define MAX_DEPTH 32
 
-class BVH
+class BVH : public Shape
 {
 public:
     ~BVH() = default;
@@ -23,6 +23,24 @@ public:
         int triangleCount;
 
         Node(AABB box, int start, int count) : boundingBox(box), startIndex(start), triangleCount(count) {}
+    
+        GPUBVHNode toGPU() const
+        {
+            GPUBVHNode gpuNode;
+            gpuNode.minx = boundingBox.minPoint.x;
+            gpuNode.miny = boundingBox.minPoint.y;
+            gpuNode.minz = boundingBox.minPoint.z;
+            gpuNode._padding1 = 0.0f;
+            gpuNode.maxx = boundingBox.maxPoint.x;
+            gpuNode.maxy = boundingBox.maxPoint.y;
+            gpuNode.maxz = boundingBox.maxPoint.z;
+            gpuNode._padding2 = 0.0f;
+            gpuNode.startIndex = startIndex;
+            gpuNode.triangleCount = triangleCount;
+            gpuNode._padding3[0] = 0;
+            gpuNode._padding3[1] = 0;
+            return gpuNode;
+        };
     };
 
     struct BVHTriangle
@@ -72,7 +90,7 @@ public:
     int quality;
 
     BVH(const Mesh &mesh, int qualityLevel = QUALITY_HIGH);
-    
+
 private:
     void split(int parentIndex, int triGlobalStart, int triNum, int depth=0);
     Split chooseSplit(Node node, int start, int count);
