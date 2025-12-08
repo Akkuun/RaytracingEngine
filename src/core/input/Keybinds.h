@@ -22,6 +22,8 @@
 
 #define KB_SAVE             "save"
 
+#define KB_TOGGLE_FPS_MODE    "toggleFPSMode"
+
 #define KB_APPLY_ON_ALL_AXIS "applyOnAllAxis"
 
 #define KB_REBIND_SUCCESS          0
@@ -46,7 +48,7 @@ private:
         keybindsMap[KB_MOVE_LEFT] = QKeySequence(Qt::Key_D);
         keybindsMap[KB_MOVE_RIGHT] = QKeySequence(Qt::Key_Q);
         keybindsMap[KB_MOVE_UP] = QKeySequence(Qt::Key_Space);
-        keybindsMap[KB_MOVE_DOWN] = QKeySequence(Qt::Key_C);
+        keybindsMap[KB_MOVE_DOWN] = QKeySequence(Qt::Key_A);
         
         // Camera rotation keybinds (keyboard mode)
         keybindsMap[KB_CAMERA_LEFT] = QKeySequence(Qt::Key_Left);
@@ -65,6 +67,9 @@ private:
         
         // Save
         keybindsMap[KB_SAVE] = QKeySequence(Qt::CTRL | Qt::Key_S);
+
+        // Toggle FPS mode
+        keybindsMap[KB_TOGGLE_FPS_MODE] = QKeySequence(Qt::Key_C);
     
     }
     Keybinds(const Keybinds&) = delete;
