@@ -7,7 +7,7 @@ Material::Material()
     : transparency(0.0),
       index_medium(1.0),
       ambient_material(vec3(0., 0., 0.)),
-      diffuse_material(vec3(1., 1., 1.)),
+      diffuse_material(vec3(0.5f, 0.5f, 0.5f)),
       specular_material(vec3(0., 0., 0.)),
       shininess(32.0),
       metalness(0.0f),

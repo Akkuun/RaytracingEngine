@@ -243,3 +243,17 @@ int SceneTreeWidget::getSelectedShapeID() const
     }
     return -1;
 }
+
+void SceneTreeWidget::setSelected(int id) {
+    for (int i = 0; i < sceneTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem* item = sceneTree->topLevelItem(i);
+        QVariant shapeData = item->data(0, Qt::UserRole);
+        if (shapeData.isValid()) {
+            Shape* shape = reinterpret_cast<Shape*>(shapeData.value<quintptr>());
+            if (shape && shape->getID() == id) {
+                sceneTree->setCurrentItem(item);
+                return;
+            }
+        }
+    }
+}

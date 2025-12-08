@@ -33,10 +33,10 @@ public:
         material = mat;
     }
 
-    Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(nullptr) {}
+    Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(new Material()) {}
     Shape(const vec3 &pos, const std::string &name, Material *mat) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(mat) {}
-    Shape(const vec3 &pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(nullptr) {}
-    Shape(std::string name) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(nullptr) {}
+    Shape(const vec3 &pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(new Material()) {}
+    Shape(std::string name) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(new Material()) {}
 
     // Don't increment ID when we add triangles that are part of a mesh
     Shape(const vec3 &pos, bool incrementID) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(-1), shapeName(""), material(nullptr)

@@ -8,7 +8,7 @@ public:
     // Default constructor with default values (horizontal square)
     Square()
         : Shape(vec3(-0.05f, 0.0f, -0.3f),
-                "Square " + std::to_string(nextID), nullptr),
+                "Square " + std::to_string(nextID), new Material()),
           u_vec(0.3f, 0.0f, 0.0f),
           v_vec(0.0f, 0.3f, 0.0f),
           normal(0.0f, 0.0f, -1.0f)
@@ -19,10 +19,10 @@ public:
         : Shape(pos, name, mat), u_vec(u), v_vec(v), normal(norm) {}
 
     Square(const vec3 &pos, const vec3 &u, const vec3 &v, const vec3 &norm)
-        : Shape(pos, "Square " + std::to_string(nextID), nullptr), u_vec(u), v_vec(v), normal(norm) {}
+        : Shape(pos, "Square " + std::to_string(nextID), new Material()), u_vec(u), v_vec(v), normal(norm) {}
 
     Square(const vec3 &pos, const vec3 &u, const vec3 &v, const vec3 &norm, const std::string &name)
-        : Shape(pos, name, nullptr), u_vec(u), v_vec(v), normal(norm) {}
+        : Shape(pos, name, new Material()), u_vec(u), v_vec(v), normal(norm) {}
 
     // Méthode pour convertir vers GPU
     GPUSquare toGPU() const;

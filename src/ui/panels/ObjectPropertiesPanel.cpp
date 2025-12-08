@@ -560,12 +560,46 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
     emissiveSpinBox->blockSignals(true);
     refractionIndexSpinBox->blockSignals(true);
 
+
+
     Material *mat = shape->getMaterial();
     if (mat) {
         reflectionSpinBox->setValue(mat->getMetalness());
         refractionSpinBox->setValue(mat->getTransparency());
         emissiveSpinBox->setValue(mat->getLightIntensity());
         refractionIndexSpinBox->setValue(mat->getIndexMedium());
+
+        colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }")
+                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().x * 255))
+                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().y * 255))
+                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().z * 255)));
+    
+
+        redSpinBox->blockSignals(true);
+        greenSpinBox->blockSignals(true);
+        blueSpinBox->blockSignals(true);
+
+        redSpinBox->setValue(static_cast<int>(shape->getMaterial()->getDiffuse().x * 255));
+        greenSpinBox->setValue(static_cast<int>(shape->getMaterial()->getDiffuse().y * 255));
+        blueSpinBox->setValue(static_cast<int>(shape->getMaterial()->getDiffuse().z * 255));
+
+        redSpinBox->blockSignals(false);
+        greenSpinBox->blockSignals(false);
+        blueSpinBox->blockSignals(false);
+    } else {
+        colorPreview->setStyleSheet("QLabel { background-color: rgb(255, 255, 255); border: 1px solid #333; color: #888; }");
+
+        redSpinBox->blockSignals(true);
+        greenSpinBox->blockSignals(true);
+        blueSpinBox->blockSignals(true);
+
+        redSpinBox->setValue(255);
+        greenSpinBox->setValue(255);
+        blueSpinBox->setValue(255);
+
+        redSpinBox->blockSignals(false);
+        greenSpinBox->blockSignals(false);
+        blueSpinBox->blockSignals(false);
     }
 
     reflectionSpinBox->blockSignals(false);
@@ -660,4 +694,10 @@ void ObjectPropertiesPanel::RGBChanged() {
         commandManager.notifyMaterialChanged();
         emit materialChanged();
     }
+}
+
+void ObjectPropertiesPanel::onShapeAdded()
+{
+    currentSelectedShapeID = SceneManager::getInstance().getShapes().back()->getID();
+    onShapeSelectionChanged(currentSelectedShapeID);
 }

@@ -8,10 +8,10 @@ class Sphere : public Shape
 public:
     // Default constructor with default values
     Sphere()
-        : Shape(vec3(-0.05f, 0.0f, -0.3f), "Sphere " + std::to_string(nextID), nullptr), radius(0.15f) {}
+        : Shape(vec3(-0.05f, 0.0f, -0.3f), "Sphere " + std::to_string(nextID), new Material()), radius(0.15f) {}
 
     Sphere(float r, const vec3& center) 
-        : Shape(center, "Sphere "  + std::to_string(nextID), nullptr), radius(r) {}
+        : Shape(center, "Sphere "  + std::to_string(nextID), new Material()), radius(r) {}
 
 
     Sphere(float r, const vec3& center, const std::string& name, Material* mat)
@@ -19,7 +19,7 @@ public:
     Sphere(float r, const vec3 &center, Material *mat)
         : Shape(center, "Sphere " + std::to_string(nextID), mat), radius(r) {}
     Sphere(float r, const vec3 &center, const std::string &name)
-        : Shape(center, name, nullptr), radius(r) {}
+        : Shape(center, name, new Material()), radius(r) {}
 
     GPUSphere toGPU() const;
 

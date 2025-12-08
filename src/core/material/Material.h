@@ -149,7 +149,7 @@ private:
     float transparency = 0.;
     float index_medium;
     vec3 ambient_material;
-    vec3 diffuse_material;
+    vec3 diffuse_material = vec3(0.0f);
     vec3 specular_material;
     double shininess;
     bool emissive;

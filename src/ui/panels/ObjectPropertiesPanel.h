@@ -23,6 +23,7 @@ public:
 
 public slots:
     void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget  
+    void onShapeAdded(); // Receiver of the signal emitted when a new shape is added
 
 signals:
     void materialChanged();
