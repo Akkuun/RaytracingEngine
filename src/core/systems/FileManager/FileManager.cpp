@@ -1,6 +1,7 @@
 #include "FileManager.h"
 #include <iostream>
 #include <QFileDialog>
+#include <QCoreApplication>
 #include "../SceneManager/SceneManager.h"
 #include "../../shapes/Shape.h"
 #include "../../camera/Camera.h"
@@ -44,6 +45,7 @@ void FileManager::createNewProjectSaveFile()
 
     // suggest a default filename
     dialog.selectFile("project.json");
+    dialog.setDirectory(QDir::homePath());
 
     std::string actualProjectPath;
 
