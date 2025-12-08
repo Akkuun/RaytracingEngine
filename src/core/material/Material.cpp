@@ -38,6 +38,11 @@ Material::Material(const std::string &pathFileTexture) : Material()
     {
         image.w = 0;
         image.h = 0;
+        has_texture = false;
+    }
+    else
+    {
+        has_texture = true;
     }
 }
 
@@ -93,7 +98,10 @@ Material::Material(const vec3 &diffuse_color)
       metalicityMap(),
       texture_scale_x(1.0),
       texture_scale_y(1.0),
-      has_normal_map(false)
+      has_normal_map(false),
+      has_texture(false),
+      has_emissive_map(false),
+      has_metal_map(false)
 {
 }
 
@@ -212,13 +220,20 @@ GPUMaterial Material::toGPU() const
 
 Material::Material(const nlohmann::json &j) : Material()
 {
-    if (j.contains("ambient"))
+    // Load material ID
+    if (j.contains("material_id"))
     {
-        ambient_material = vec3(j["ambient"][0], j["ambient"][1], j["ambient"][2]);
+        material_id = j["material_id"];
     }
+
+    // Load base color properties
     if (j.contains("diffuse"))
     {
         diffuse_material = vec3(j["diffuse"][0], j["diffuse"][1], j["diffuse"][2]);
+    }
+    if (j.contains("ambient"))
+    {
+        ambient_material = vec3(j["ambient"][0], j["ambient"][1], j["ambient"][2]);
     }
     if (j.contains("specular"))
     {
@@ -228,6 +243,8 @@ Material::Material(const nlohmann::json &j) : Material()
     {
         shininess = j["shininess"];
     }
+
+    // Load physical properties
     if (j.contains("transparency"))
     {
         transparency = j["transparency"];
@@ -236,6 +253,12 @@ Material::Material(const nlohmann::json &j) : Material()
     {
         index_medium = j["index_medium"];
     }
+    if (j.contains("metalness"))
+    {
+        metalness = j["metalness"];
+    }
+
+    // Load emissive properties
     if (j.contains("emissive"))
     {
         emissive = j["emissive"];
@@ -248,14 +271,8 @@ Material::Material(const nlohmann::json &j) : Material()
     {
         light_intensity = j["light_intensity"];
     }
-    if (j.contains("has_normal_map"))
-    {
-        has_normal_map = j["has_normal_map"];
-    }
-    if (j.contains("metalness"))
-    {
-        metalness = j["metalness"];
-    }
+
+    // Load texture scaling
     if (j.contains("texture_scale_x"))
     {
         texture_scale_x = j["texture_scale_x"];
@@ -264,62 +281,83 @@ Material::Material(const nlohmann::json &j) : Material()
     {
         texture_scale_y = j["texture_scale_y"];
     }
-    if (j.contains("material_id"))
-    {
-        material_id = j["material_id"];
-    }
+
+    // Load texture (albedo/diffuse map)
     if (j.contains("texture"))
     {
         std::string texturePath = j["texture"];
         if (!texturePath.empty())
         {
             ppmLoader::load_ppm(image, texturePath);
-            this->pathFileTexture = texturePath;
+            pathFileTexture = texturePath;
             has_texture = !image.data.empty();
-        }
-        else
-        {
-            has_texture = false;
+
+            if (image.data.empty())
+            {
+                std::cerr << "Warning: Failed to load texture from: " << texturePath << std::endl;
+                image.w = 0;
+                image.h = 0;
+            }
         }
     }
+
+    // Load normal map
     if (j.contains("normal_map"))
     {
         std::string normalMapPath = j["normal_map"];
         if (!normalMapPath.empty())
         {
             ppmLoader::load_ppm(normals, normalMapPath);
-            this->pathFileNormalMap = normalMapPath;
+            pathFileNormalMap = normalMapPath;
             has_normal_map = !normals.data.empty();
-        }
-        else
-        {
-            has_normal_map = false;
-        }
-    }
-    if (j.contains("emissive_map"))
-    {
-        std::string emissiveMapPath = j["emissive_map"];
-        if (!emissiveMapPath.empty())
-        {
-            ppmLoader::load_ppm(emissionMap, emissiveMapPath);
-            has_emissive_map = !emissionMap.data.empty();
-        }
-        else
-        {
-            has_emissive_map = false;
+
+            if (normals.data.empty())
+            {
+                std::cerr << "Warning: Failed to load normal map from: " << normalMapPath << std::endl;
+                normals.w = 0;
+                normals.h = 0;
+                has_normal_map = false;
+            }
         }
     }
+
+    // Load metallic map
     if (j.contains("metal_map"))
     {
         std::string metalMapPath = j["metal_map"];
         if (!metalMapPath.empty())
         {
             ppmLoader::load_ppm(metalicityMap, metalMapPath);
+            pathFileMetalMap = metalMapPath;
             has_metal_map = !metalicityMap.data.empty();
+
+            if (metalicityMap.data.empty())
+            {
+                std::cerr << "Warning: Failed to load metal map from: " << metalMapPath << std::endl;
+                metalicityMap.w = 0;
+                metalicityMap.h = 0;
+                has_metal_map = false;
+            }
         }
-        else
+    }
+
+    // Load emissive map
+    if (j.contains("emissive_map"))
+    {
+        std::string emissiveMapPath = j["emissive_map"];
+        if (!emissiveMapPath.empty())
         {
-            has_metal_map = false;
+            ppmLoader::load_ppm(emissionMap, emissiveMapPath);
+            pathFileEmissiveMap = emissiveMapPath;
+            has_emissive_map = !emissionMap.data.empty();
+
+            if (emissionMap.data.empty())
+            {
+                std::cerr << "Warning: Failed to load emissive map from: " << emissiveMapPath << std::endl;
+                emissionMap.w = 0;
+                emissionMap.h = 0;
+                has_emissive_map = false;
+            }
         }
     }
 }

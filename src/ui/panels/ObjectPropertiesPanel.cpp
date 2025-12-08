@@ -17,12 +17,17 @@
 #include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialDiffuseColorCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 
 ObjectPropertiesPanel::ObjectPropertiesPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
     setupUI();
+
+    // Register callback for material changes (undo/redo)
+    commandManager.addMaterialChangedCallback([this]()
+                                              { this->onMaterialChanged(); });
 }
 
 void ObjectPropertiesPanel::setupUI()
@@ -42,7 +47,6 @@ void ObjectPropertiesPanel::setupUI()
     QVBoxLayout *colorLayout = new QVBoxLayout(colorFrame);
     colorLayout->setSpacing(5);
     colorLayout->setContentsMargins(5, 5, 5, 5);
-
 
     colorPreview = new QLabel();
     colorPreview->setMinimumHeight(60);
@@ -81,8 +85,6 @@ void ObjectPropertiesPanel::setupUI()
     colorControlsLayout->addWidget(blueSpinBox);
 
     colorLayout->addLayout(colorControlsLayout);
-
-    
 
     layout->addWidget(colorFrame);
 
@@ -141,7 +143,7 @@ void ObjectPropertiesPanel::setupUI()
 
     // Connect buttons (basic functionality)
     connect(loadTextureBtn, &QPushButton::clicked, [this, texturePreview, textureNameLabel]()
-    {
+            {
         QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Texture", "", "Image Files (*.ppm)");
         if (!fileName.isEmpty()) {
             QPixmap pixmap(fileName);
@@ -156,13 +158,10 @@ void ObjectPropertiesPanel::setupUI()
                 ppmLoader::load_ppm(image, fileName.toStdString());
                 commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
             }
-        }
-    });
+        } });
 
     connect(clearTextureBtn, &QPushButton::clicked, [this, texturePreview, textureNameLabel, checkerboard]()
-    {
-        commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-    });
+            { commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID))); });
 
     connect(clearTextureBtn, &QPushButton::clicked, [texturePreview, textureNameLabel, checkerboard]()
             {
@@ -224,7 +223,7 @@ void ObjectPropertiesPanel::setupUI()
 
     // Connect buttons (basic functionality)
     connect(loadNormalBtn, &QPushButton::clicked, [this, normalPreview, normalNameLabel]()
-    {
+            {
         QFileDialog dialog(nullptr, "Load Texture", "", "Image Files (*.ppm)");
         dialog.setOption(QFileDialog::DontUseNativeDialog, true);
         QString fileName;
@@ -244,13 +243,10 @@ void ObjectPropertiesPanel::setupUI()
                 ppmLoader::load_ppm(image, fileName.toStdString());
                 commandManager.executeCommand(new SetNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
             }
-        }
-    });
+        } });
 
     connect(clearNormalBtn, &QPushButton::clicked, [this, normalPreview, normalNameLabel, flatnormal]()
-    {
-        commandManager.executeCommand(new ClearNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-    });
+            { commandManager.executeCommand(new ClearNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID))); });
 
     connect(clearNormalBtn, &QPushButton::clicked, [normalPreview, normalNameLabel, flatnormal]()
             {
@@ -258,9 +254,6 @@ void ObjectPropertiesPanel::setupUI()
         normalNameLabel->setText("Default Pattern"); });
 
     layout->addWidget(normalPreviewFrame);
-
-
-
 
     // Reflection / metallicity
     QHBoxLayout *reflectionLayout = new QHBoxLayout();
@@ -328,7 +321,7 @@ void ObjectPropertiesPanel::setupUI()
 
     // Connect buttons (basic functionality)
     connect(loadMetalBtn, &QPushButton::clicked, [this, metalPreview, metalNameLabel]()
-    {
+            {
         QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Texture", "", "Image Files (*.ppm)");
         if (!fileName.isEmpty()) {
             QPixmap pixmap(fileName);
@@ -341,15 +334,12 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-                commandManager.executeCommand(new SetMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
+                commandManager.executeCommand(new SetMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image, fileName.toStdString()));
             }
-        }
-    });
+        } });
 
     connect(clearMetalBtn, &QPushButton::clicked, [this, metalPreview, metalNameLabel, blackimage]()
-    {
-        commandManager.executeCommand(new ClearMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-    });
+            { commandManager.executeCommand(new ClearMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID))); });
 
     connect(clearMetalBtn, &QPushButton::clicked, [metalPreview, metalNameLabel, blackimage]()
             {
@@ -358,10 +348,6 @@ void ObjectPropertiesPanel::setupUI()
 
     layout->addWidget(metalPreviewFrame);
 
-
-
-
-    
     // Emissive
     QHBoxLayout *emissiveLayout = new QHBoxLayout();
     QLabel *emissiveLabel = new QLabel("EMISSIVE:");
@@ -420,7 +406,7 @@ void ObjectPropertiesPanel::setupUI()
     emissivePreviewLayout->addLayout(emissiveControlsLayout);
     // Connect buttons (basic functionality)
     connect(loadEmissiveBtn, &QPushButton::clicked, [this, emissivePreview, emissiveNameLabel]()
-    {
+            {
         QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Texture", "", "Image Files (*.ppm)");
         if (!fileName.isEmpty()) {
             QPixmap pixmap(fileName);
@@ -436,14 +422,13 @@ void ObjectPropertiesPanel::setupUI()
                // commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
                 // TODO CREATE EMISSIVE MAP COMMANDS
             }
-        }
-    });
+        } });
 
     connect(clearEmissiveBtn, &QPushButton::clicked, [this, emissivePreview, emissiveNameLabel, blackimage]()
-    {
-        // commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
-        // TODO CREATE EMISSIVE MAP COMMANDS
-    });
+            {
+                // commandManager.executeCommand(new ClearTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID)));
+                // TODO CREATE EMISSIVE MAP COMMANDS
+            });
 
     connect(clearEmissiveBtn, &QPushButton::clicked, [emissivePreview, emissiveNameLabel, blackimage]()
             {
@@ -484,7 +469,8 @@ void ObjectPropertiesPanel::setupUI()
     setStyleSheet("QLabel { color: white; }");
 
     // Connect material spin boxes
-    connect(reflectionSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value) {
+    connect(reflectionSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value)
+            {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();
@@ -492,10 +478,10 @@ void ObjectPropertiesPanel::setupUI()
                 mat->setMetalness(value);
                 CommandsManager::getInstance().executeCommand(new MaterialMetalnessCommand(*mat, value));
             }
-        }
-    });
+        } });
 
-    connect(refractionSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value) {
+    connect(refractionSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value)
+            {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();
@@ -503,10 +489,10 @@ void ObjectPropertiesPanel::setupUI()
                 mat->setTransparency(value);
                 CommandsManager::getInstance().executeCommand(new MaterialTransparencyCommand(*mat, value));
             }
-        }
-    });
+        } });
 
-    connect(emissiveSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
+    connect(emissiveSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value)
+            {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();
@@ -515,10 +501,10 @@ void ObjectPropertiesPanel::setupUI()
                 mat->setEmissive(value > 0);
                 CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
-        }
-    });
+        } });
 
-    connect(refractionIndexSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value) {
+    connect(refractionIndexSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), [this](double value)
+            {
         Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
         if (shape) {
             Material *mat = shape->getMaterial();
@@ -526,8 +512,7 @@ void ObjectPropertiesPanel::setupUI()
                 mat->setIndexMedium(value);
                 CommandsManager::getInstance().executeCommand(new MaterialIORCommand(*mat, value));
             }
-        }
-    });
+        } });
 }
 
 void ObjectPropertiesPanel::setRenderWidget(RenderWidget *widget)
@@ -565,20 +550,18 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
     emissiveSpinBox->blockSignals(true);
     refractionIndexSpinBox->blockSignals(true);
 
-
-
     Material *mat = shape->getMaterial();
-    if (mat) {
+    if (mat)
+    {
         reflectionSpinBox->setValue(mat->getMetalness());
         refractionSpinBox->setValue(mat->getTransparency());
         emissiveSpinBox->setValue(mat->getLightIntensity());
         refractionIndexSpinBox->setValue(mat->getIndexMedium());
 
         colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }")
-                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().x * 255))
-                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().y * 255))
-                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().z * 255)));
-    
+                                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().x * 255))
+                                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().y * 255))
+                                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().z * 255)));
 
         redSpinBox->blockSignals(true);
         greenSpinBox->blockSignals(true);
@@ -591,7 +574,9 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
         redSpinBox->blockSignals(false);
         greenSpinBox->blockSignals(false);
         blueSpinBox->blockSignals(false);
-    } else {
+    }
+    else
+    {
         colorPreview->setStyleSheet("QLabel { background-color: rgb(255, 255, 255); border: 1px solid #333; color: #888; }");
 
         redSpinBox->blockSignals(true);
@@ -623,53 +608,65 @@ void defaultTexturePreview(QFrame *frame)
     QPainter painter(&checkerboard);
     painter.fillRect(0, 0, 32, 32, Qt::darkGray);
     painter.fillRect(32, 32, 32, 32, Qt::darkGray);
-    frame->findChild<QLabel*>()->setPixmap(checkerboard);
+    frame->findChild<QLabel *>()->setPixmap(checkerboard);
 }
 
 void defaultNormalPreview(QFrame *frame)
 {
     QPixmap flatnormal(64, 64);
     flatnormal.fill(QColor(128, 128, 255));
-    frame->findChild<QLabel*>()->setPixmap(flatnormal);
+    frame->findChild<QLabel *>()->setPixmap(flatnormal);
 }
 
 void defaultBlackPreview(QFrame *frame)
 {
     QPixmap blackimage(64, 64);
     blackimage.fill(Qt::black);
-    frame->findChild<QLabel*>()->setPixmap(blackimage);
+    frame->findChild<QLabel *>()->setPixmap(blackimage);
 }
 
 void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
 {
-    if (material != nullptr) {
-        QImage image(reinterpret_cast<const uchar*>(material->getImage().data.data()), material->getImage().w, material->getImage().h, QImage::Format_RGB888);
-        if (!image.isNull()) {
+    if (material != nullptr)
+    {
+        QImage image(reinterpret_cast<const uchar *>(material->getImage().data.data()), material->getImage().w, material->getImage().h, QImage::Format_RGB888);
+        if (!image.isNull())
+        {
             QPixmap pixmap = QPixmap::fromImage(image);
-            texturePreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(texturePreviewFrame->width() - 2, texturePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        } else {
+            texturePreviewFrame->findChild<QLabel *>()->setPixmap(pixmap.scaled(texturePreviewFrame->width() - 2, texturePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+        else
+        {
             defaultTexturePreview(texturePreviewFrame);
         }
 
-        QImage normalimage(reinterpret_cast<const uchar*>(material->getNormals().data.data()), material->getNormals().w, material->getNormals().h, QImage::Format_RGB888);
-        if (!normalimage.isNull()) {
+        QImage normalimage(reinterpret_cast<const uchar *>(material->getNormals().data.data()), material->getNormals().w, material->getNormals().h, QImage::Format_RGB888);
+        if (!normalimage.isNull())
+        {
             QPixmap pixmap = QPixmap::fromImage(normalimage);
-            normalPreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(normalPreviewFrame->width() - 2, normalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        } else {
+            normalPreviewFrame->findChild<QLabel *>()->setPixmap(pixmap.scaled(normalPreviewFrame->width() - 2, normalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+        else
+        {
             defaultNormalPreview(normalPreviewFrame);
         }
 
-        QImage metallicImage(reinterpret_cast<const uchar*>(material->getMetallic().data.data()), material->getMetallic().w, material->getMetallic().h, QImage::Format_RGB888);
-        if (!metallicImage.isNull()) {
+        QImage metallicImage(reinterpret_cast<const uchar *>(material->getMetallic().data.data()), material->getMetallic().w, material->getMetallic().h, QImage::Format_RGB888);
+        if (!metallicImage.isNull())
+        {
             QPixmap pixmap = QPixmap::fromImage(metallicImage);
-            metalPreviewFrame->findChild<QLabel*>()->setPixmap(pixmap.scaled(metalPreviewFrame->width() - 2, metalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        } else {
+            metalPreviewFrame->findChild<QLabel *>()->setPixmap(pixmap.scaled(metalPreviewFrame->width() - 2, metalPreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+        else
+        {
             defaultBlackPreview(metalPreviewFrame);
         }
-        
+
         // same for emissive
         // TODO
-    } else {
+    }
+    else
+    {
         // If material is null, set to defaults
         defaultTexturePreview(texturePreviewFrame);
         defaultNormalPreview(normalPreviewFrame);
@@ -688,15 +685,24 @@ bool ObjectPropertiesPanel::isShortcutPressed() const
     return keysPressed[Qt::Key_Control];
 }
 
-void ObjectPropertiesPanel::RGBChanged() {
+void ObjectPropertiesPanel::RGBChanged()
+{
     Material *material = SceneManager::getInstance().getShapeByID(currentSelectedShapeID)->getMaterial();
-    if (material) {
+    if (material)
+    {
         int r = redSpinBox->value();
         int g = greenSpinBox->value();
         int b = blueSpinBox->value();
-        material->setDiffuseFromRGB(r, g, b);
+
+        // Convert RGB to vec3 (0-1 range)
+        vec3 newColor(r / 255.0f, g / 255.0f, b / 255.0f);
+
+        // Execute command for undo/redo support
+        commandManager.executeCommand(new MaterialDiffuseColorCommand(*material, newColor));
+
+        // Update color preview
         colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }").arg(r).arg(g).arg(b));
-        commandManager.notifyMaterialChanged();
+
         emit materialChanged();
     }
 }
@@ -705,4 +711,56 @@ void ObjectPropertiesPanel::onShapeAdded()
 {
     currentSelectedShapeID = SceneManager::getInstance().getShapes().back()->getID();
     onShapeSelectionChanged(currentSelectedShapeID);
+}
+
+void ObjectPropertiesPanel::onMaterialChanged()
+{
+    // Update UI widgets when material changes externally (e.g., undo/redo)
+    Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+    if (shape == nullptr)
+    {
+        return;
+    }
+
+    Material *mat = shape->getMaterial();
+    if (mat)
+    {
+        // Block signals to prevent feedback loop
+        redSpinBox->blockSignals(true);
+        greenSpinBox->blockSignals(true);
+        blueSpinBox->blockSignals(true);
+        reflectionSpinBox->blockSignals(true);
+        refractionSpinBox->blockSignals(true);
+        emissiveSpinBox->blockSignals(true);
+        refractionIndexSpinBox->blockSignals(true);
+
+        // Update RGB spinboxes
+        redSpinBox->setValue(static_cast<int>(mat->getDiffuse().x * 255));
+        greenSpinBox->setValue(static_cast<int>(mat->getDiffuse().y * 255));
+        blueSpinBox->setValue(static_cast<int>(mat->getDiffuse().z * 255));
+
+        // Update color preview
+        colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }")
+                                        .arg(static_cast<int>(mat->getDiffuse().x * 255))
+                                        .arg(static_cast<int>(mat->getDiffuse().y * 255))
+                                        .arg(static_cast<int>(mat->getDiffuse().z * 255)));
+
+        // Update other material properties
+        reflectionSpinBox->setValue(mat->getMetalness());
+        refractionSpinBox->setValue(mat->getTransparency());
+        emissiveSpinBox->setValue(mat->getLightIntensity());
+        refractionIndexSpinBox->setValue(mat->getIndexMedium());
+
+        // Unblock signals
+        redSpinBox->blockSignals(false);
+        greenSpinBox->blockSignals(false);
+        blueSpinBox->blockSignals(false);
+        reflectionSpinBox->blockSignals(false);
+        refractionSpinBox->blockSignals(false);
+        emissiveSpinBox->blockSignals(false);
+        refractionIndexSpinBox->blockSignals(false);
+
+        // Update texture previews
+        onTextureSelectionChanged(mat);
+    }
 }
