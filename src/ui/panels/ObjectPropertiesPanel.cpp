@@ -17,6 +17,7 @@
 #include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialDiffuseColorCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 
@@ -694,9 +695,16 @@ void ObjectPropertiesPanel::RGBChanged() {
         int r = redSpinBox->value();
         int g = greenSpinBox->value();
         int b = blueSpinBox->value();
-        material->setDiffuseFromRGB(r, g, b);
+        
+        // Convert RGB to vec3 (0-1 range)
+        vec3 newColor(r / 255.0f, g / 255.0f, b / 255.0f);
+        
+        // Execute command for undo/redo support
+        commandManager.executeCommand(new MaterialDiffuseColorCommand(*material, newColor));
+        
+        // Update color preview
         colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }").arg(r).arg(g).arg(b));
-        commandManager.notifyMaterialChanged();
+        
         emit materialChanged();
     }
 }
