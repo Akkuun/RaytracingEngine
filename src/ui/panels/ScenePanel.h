@@ -13,6 +13,7 @@ class ScenePanel : public QWidget
 
 signals:
     void shapeSelectionChanged(int shapeID);
+    void addedShape();
 
 private:
     SceneTreeWidget *sceneTreeWidget;

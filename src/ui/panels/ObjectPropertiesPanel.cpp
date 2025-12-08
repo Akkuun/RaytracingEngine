@@ -33,6 +33,59 @@ void ObjectPropertiesPanel::setupUI()
     // Diffuse
     layout->addWidget(new QLabel("DIFFUSE"));
 
+    colorFrame = new QFrame();
+    colorFrame->setFrameStyle(QFrame::Box | QFrame::Raised);
+    colorFrame->setMaximumHeight(100);
+    colorFrame->setMinimumHeight(100);
+    colorFrame->setStyleSheet("QFrame { background-color: #2a2a2a; border: 2px solid #555; }");
+
+    QVBoxLayout *colorLayout = new QVBoxLayout(colorFrame);
+    colorLayout->setSpacing(5);
+    colorLayout->setContentsMargins(5, 5, 5, 5);
+
+
+    colorPreview = new QLabel();
+    colorPreview->setMinimumHeight(60);
+    colorPreview->setMaximumHeight(60);
+    colorPreview->setScaledContents(false);
+    colorPreview->setAlignment(Qt::AlignCenter);
+    colorPreview->setStyleSheet("QLabel { background-color: #1a1a1a; border: 1px solid #333; color: #888; }");
+
+    colorLayout->addWidget(colorPreview);
+
+    QHBoxLayout *colorControlsLayout = new QHBoxLayout();
+    // Red spinbox
+    redSpinBox = new QSpinBox();
+    redSpinBox->setRange(0, 255);
+    redSpinBox->setPrefix("R: ");
+    redSpinBox->setValue(255);
+
+    // Green spinbox
+    greenSpinBox = new QSpinBox();
+    greenSpinBox->setRange(0, 255);
+    greenSpinBox->setPrefix("G: ");
+    greenSpinBox->setValue(255);
+
+    // Blue spinbox
+    blueSpinBox = new QSpinBox();
+    blueSpinBox->setRange(0, 255);
+    blueSpinBox->setPrefix("B: ");
+    blueSpinBox->setValue(255);
+
+    connect(redSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(greenSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(blueSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+
+    colorControlsLayout->addWidget(redSpinBox);
+    colorControlsLayout->addWidget(greenSpinBox);
+    colorControlsLayout->addWidget(blueSpinBox);
+
+    colorLayout->addLayout(colorControlsLayout);
+
+    
+
+    layout->addWidget(colorFrame);
+
     // Texture preview block
     texturePreviewFrame = new QFrame();
     texturePreviewFrame->setFrameStyle(QFrame::Box | QFrame::Raised);
@@ -507,12 +560,46 @@ void ObjectPropertiesPanel::onShapeSelectionChanged(int shapeID)
     emissiveSpinBox->blockSignals(true);
     refractionIndexSpinBox->blockSignals(true);
 
+
+
     Material *mat = shape->getMaterial();
     if (mat) {
         reflectionSpinBox->setValue(mat->getMetalness());
         refractionSpinBox->setValue(mat->getTransparency());
         emissiveSpinBox->setValue(mat->getLightIntensity());
         refractionIndexSpinBox->setValue(mat->getIndexMedium());
+
+        colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }")
+                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().x * 255))
+                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().y * 255))
+                        .arg(static_cast<int>(shape->getMaterial()->getDiffuse().z * 255)));
+    
+
+        redSpinBox->blockSignals(true);
+        greenSpinBox->blockSignals(true);
+        blueSpinBox->blockSignals(true);
+
+        redSpinBox->setValue(static_cast<int>(shape->getMaterial()->getDiffuse().x * 255));
+        greenSpinBox->setValue(static_cast<int>(shape->getMaterial()->getDiffuse().y * 255));
+        blueSpinBox->setValue(static_cast<int>(shape->getMaterial()->getDiffuse().z * 255));
+
+        redSpinBox->blockSignals(false);
+        greenSpinBox->blockSignals(false);
+        blueSpinBox->blockSignals(false);
+    } else {
+        colorPreview->setStyleSheet("QLabel { background-color: rgb(255, 255, 255); border: 1px solid #333; color: #888; }");
+
+        redSpinBox->blockSignals(true);
+        greenSpinBox->blockSignals(true);
+        blueSpinBox->blockSignals(true);
+
+        redSpinBox->setValue(255);
+        greenSpinBox->setValue(255);
+        blueSpinBox->setValue(255);
+
+        redSpinBox->blockSignals(false);
+        greenSpinBox->blockSignals(false);
+        blueSpinBox->blockSignals(false);
     }
 
     reflectionSpinBox->blockSignals(false);
@@ -594,4 +681,23 @@ void ObjectPropertiesPanel::handleKeyPress(int key, bool pressed)
 bool ObjectPropertiesPanel::isShortcutPressed() const
 {
     return keysPressed[Qt::Key_Control];
+}
+
+void ObjectPropertiesPanel::RGBChanged() {
+    Material *material = SceneManager::getInstance().getShapeByID(currentSelectedShapeID)->getMaterial();
+    if (material) {
+        int r = redSpinBox->value();
+        int g = greenSpinBox->value();
+        int b = blueSpinBox->value();
+        material->setDiffuseFromRGB(r, g, b);
+        colorPreview->setStyleSheet(QString("QLabel { background-color: rgb(%1, %2, %3); border: 1px solid #333; color: #888; }").arg(r).arg(g).arg(b));
+        commandManager.notifyMaterialChanged();
+        emit materialChanged();
+    }
+}
+
+void ObjectPropertiesPanel::onShapeAdded()
+{
+    currentSelectedShapeID = SceneManager::getInstance().getShapes().back()->getID();
+    onShapeSelectionChanged(currentSelectedShapeID);
 }

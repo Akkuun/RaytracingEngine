@@ -133,6 +133,8 @@ void MainWindow::setupLeftPanel()
 
     connect(scenePanel, &ScenePanel::shapeSelectionChanged,
             objectPropertiesPanel, &ObjectPropertiesPanel::onShapeSelectionChanged);
+    connect(scenePanel, &ScenePanel::addedShape,
+            objectPropertiesPanel, &ObjectPropertiesPanel::onShapeAdded);
 
     // FPS Chart Panel
     FPSChart *fpsChart = new FPSChart();

@@ -113,18 +113,24 @@ void ScenePanel::onAddSphere()
 {
     Shape *sphere = new Sphere(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(sphere));
+    emit addedShape();
+    sceneTreeWidget->setSelected(SceneManager::getInstance().getShapes().back()->getID());
 }
 
 void ScenePanel::onAddSquare()
 {
     Shape *square = new Square(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(square));
+    emit addedShape();
+    sceneTreeWidget->setSelected(SceneManager::getInstance().getShapes().back()->getID());
 }
 
 void ScenePanel::onAddTriangle()
 {
     Shape *triangle = new Triangle(); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(triangle));
+    emit addedShape();
+    sceneTreeWidget->setSelected(SceneManager::getInstance().getShapes().back()->getID());
 }
 
 void ScenePanel::onAddMesh()
@@ -133,5 +139,7 @@ void ScenePanel::onAddMesh()
     QString filePath = QFileDialog::getOpenFileName(this, "Select Mesh File", "", "Mesh Files (*.off)");
     if (!filePath.isEmpty()) {
         commandManager.executeCommand(new AddShapeCommand(new Mesh(filePath.toStdString())));
+        emit addedShape();
+        sceneTreeWidget->setSelected(SceneManager::getInstance().getShapes().back()->getID());
     }
 }

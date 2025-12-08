@@ -21,6 +21,7 @@ public:
     explicit SceneTreeWidget(QWidget *parent = nullptr);
     void updateSceneTree();
     void updateUndoRedoButtons();
+    void setSelected(int id);
 
 signals:
     void shapeSelectionChanged(int shapeID);    
