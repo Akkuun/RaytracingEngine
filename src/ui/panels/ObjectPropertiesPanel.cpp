@@ -225,7 +225,12 @@ void ObjectPropertiesPanel::setupUI()
     // Connect buttons (basic functionality)
     connect(loadNormalBtn, &QPushButton::clicked, [this, normalPreview, normalNameLabel]()
     {
-        QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Texture", "", "Image Files (*.ppm)");
+        QFileDialog dialog(nullptr, "Load Texture", "", "Image Files (*.ppm)");
+        dialog.setOption(QFileDialog::DontUseNativeDialog, true);
+        QString fileName;
+        if (dialog.exec()) {
+            fileName = dialog.selectedFiles().first();
+        }
         if (!fileName.isEmpty()) {
             QPixmap pixmap(fileName);
             if (!pixmap.isNull()) {

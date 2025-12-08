@@ -35,12 +35,27 @@ void FileManager::saveProject()
 
 void FileManager::createNewProjectSaveFile()
 {
-    // open QDialog to choose the path and name of the new save file
-    // then call saveProjectAs with the chosen path
-    QString newPath = QFileDialog::getSaveFileName(nullptr, "Save Project As", "", "JSON Files (*.json)");
-    if (!newPath.isEmpty())
+    QFileDialog dialog(nullptr, "Save Project As");
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setNameFilter("JSON Files (*.json)");
+
+    // Force Qt's non-native dialog
+    dialog.setOption(QFileDialog::DontUseNativeDialog, true);
+
+    // suggest a default filename
+    dialog.selectFile("project.json");
+
+    std::string actualProjectPath;
+
+    if (dialog.exec() == QDialog::Accepted)
     {
-        actualProjectPath = newPath.toStdString() + ".json"; // add .json extension
+        QString newPath = dialog.selectedFiles().first();
+
+        // Ensure the .json extension is present
+        if (!newPath.endsWith(".json", Qt::CaseInsensitive))
+            newPath += ".json";
+
+        actualProjectPath = newPath.toStdString();
         saveProjectAs(actualProjectPath);
     }
 }

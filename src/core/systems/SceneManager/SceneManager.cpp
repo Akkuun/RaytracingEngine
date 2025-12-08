@@ -340,15 +340,15 @@ void SceneManager::cornellScene()
         vec3(-0.0f, 0.2f, -0.3f)  // vertex B
         ));
 
-    Mesh *mesh = new Mesh(std::string("../assets/models3D/tripod.off"));
-    mesh->scale(vec3(0.4f));
-    mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
-    mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
-    mesh->generateCpuTriangles();
-    addShape(mesh);
+    // Mesh *mesh = new Mesh(std::string("../assets/models3D/tripod.off"));
+    // mesh->scale(vec3(0.4f));
+    // mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
+    // mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
+    // mesh->generateCpuTriangles();
+    // addShape(mesh);
 
-    // Create BVH for the mesh
-    BVH *bvh = new BVH();
-    bvh->build(*mesh);
-    bvhLists.push_back(bvh);
+    // // Create BVH for the mesh
+    // BVH *bvh = new BVH();
+    // bvh->build(*mesh);
+    // bvhLists.push_back(bvh);
 }

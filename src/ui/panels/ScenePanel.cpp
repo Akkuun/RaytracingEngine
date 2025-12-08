@@ -135,11 +135,30 @@ void ScenePanel::onAddTriangle()
 
 void ScenePanel::onAddMesh()
 {
-    // open file dialog to select mesh file (.off only)
-    QString filePath = QFileDialog::getOpenFileName(this, "Select Mesh File", "", "Mesh Files (*.off)");
-    if (!filePath.isEmpty()) {
-        commandManager.executeCommand(new AddShapeCommand(new Mesh(filePath.toStdString())));
-        emit addedShape();
-        sceneTreeWidget->setSelected(SceneManager::getInstance().getShapes().back()->getID());
+    QFileDialog dialog(this, "Select Mesh File");
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setNameFilter("Mesh Files (*.off)");
+
+    // Force Qt's non-native dialog
+    dialog.setOption(QFileDialog::DontUseNativeDialog, true);
+
+    // Optional: allow only existing files
+    dialog.setFileMode(QFileDialog::ExistingFile);
+
+    QString filePath;
+
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        filePath = dialog.selectedFiles().first();
+
+        if (!filePath.isEmpty()) {
+            commandManager.executeCommand(
+                new AddShapeCommand(new Mesh(filePath.toStdString()))
+            );
+            emit addedShape();
+            sceneTreeWidget->setSelected(
+                SceneManager::getInstance().getShapes().back()->getID()
+            );
+        }
     }
 }
