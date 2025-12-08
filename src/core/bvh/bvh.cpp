@@ -32,9 +32,10 @@ BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel) {
         nodesList.nodes[0].triangleCount = static_cast<int>(triangles.size());
     }
     else {
-        // split
+        this->split(0, 0, static_cast<int>(buildTriangles.size()));
     }
     
+    triangles.resize(buildTriangles.size());
 
 }
 
@@ -101,8 +102,20 @@ void BVH::split(int parentIndex, int triGlobalStart, int triNum, int depth=0) {
         int childIndexLeft = nodesList.add(childLeft);
         int childIndexRight = nodesList.add(childRight);
 
-        // TODO JEN ETAIS LA
-        // https://github.com/SebLague/Ray-Tracing/blob/main/Assets/Scripts/Types/BVH.cs#L162C2-L167C30
+        // Update parent
+        parentNode->startIndex = childIndexLeft;
+        nodesList.nodes[parentIndex] = *parentNode;
+
+        // Recursively split children
+        this->split(childIndexLeft, triStartLeft, numOnLeft, depth + 1);
+        this->split(childIndexRight, triStartRight, numOnRight, depth + 1);
+    }
+    else
+    {
+        // Parent is a leaf, assign triangles to it
+        parentNode->startIndex = triGlobalStart;
+        parentNode->triangleCount = triNum;
+        nodesList.nodes[parentIndex] = *parentNode;
     }
 }
 

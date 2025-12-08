@@ -14,7 +14,8 @@ enum ShapeType
     SPHERE = 1,
     SQUARE = 2,
     TRIANGLE = 3,
-    MESH = 4
+    MESH = 4,
+    BVH = 5
 };
 
 enum BufferType

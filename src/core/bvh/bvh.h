@@ -71,30 +71,8 @@ public:
     std::vector<BVHTriangle> buildTriangles;
     int quality;
 
-    BVH(const Mesh &mesh, int qualityLevel = QUALITY_HIGH) : quality(qualityLevel) {
-        nodesList.index = 0;
-
-        buildTriangles.reserve(mesh.getTriangles().size());
-
-        AABB globalBox;
-        for (const auto &tri : mesh.getTriangles()) {
-            buildTriangles.emplace_back(new BVHTriangle(tri));
-            globalBox.GrowToInclude(tri);
-        }
-
-        nodesList.add(Node(globalBox, -1, -1)); // root node
-
-        if (quality == QUALITY_DISABLED)
-        {
-            nodesList.nodes[0].startIndex = 0;
-            nodesList.nodes[0].triangleCount = static_cast<int>(triangles.size());
-        }
-        else {
-            // split
-        }
-        
+    BVH(const Mesh &mesh, int qualityLevel = QUALITY_HIGH);
     
-    }
 private:
     void split(int parentIndex, int triGlobalStart, int triNum, int depth=0);
     Split chooseSplit(Node node, int start, int count);
