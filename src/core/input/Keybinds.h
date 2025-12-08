@@ -48,7 +48,7 @@ private:
         keybindsMap[KB_MOVE_LEFT] = QKeySequence(Qt::Key_D);
         keybindsMap[KB_MOVE_RIGHT] = QKeySequence(Qt::Key_Q);
         keybindsMap[KB_MOVE_UP] = QKeySequence(Qt::Key_Space);
-        keybindsMap[KB_MOVE_DOWN] = QKeySequence(Qt::Key_C);
+        keybindsMap[KB_MOVE_DOWN] = QKeySequence(Qt::Key_A);
         
         // Camera rotation keybinds (keyboard mode)
         keybindsMap[KB_CAMERA_LEFT] = QKeySequence(Qt::Key_Left);
