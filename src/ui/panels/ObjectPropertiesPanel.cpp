@@ -341,7 +341,7 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-                commandManager.executeCommand(new SetMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
+                commandManager.executeCommand(new SetMetallicShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image, fileName.toStdString()));
             }
         }
     });
