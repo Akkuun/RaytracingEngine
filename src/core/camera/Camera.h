@@ -27,13 +27,14 @@ typedef struct
 // GPU-compatible camera structure
 typedef struct
 {
-    GPUVec3 origin;    // Camera position (16 bytes)
-    GPUVec3 target;    // What the camera is looking at (16 bytes)
-    GPUVec3 up;        // Up vector (16 bytes)
-    float fov;         // Field of view in degrees (4 bytes)
-	int nbBounces;    // Number of ray bounces (4 bytes)
-	int raysPerPixel; //  Number of rays per pixel (4 bytes)
-    int bufferType;
+    GPUVec3 origin;   // Camera position (16 bytes)
+    GPUVec3 target;   // What the camera is looking at (16 bytes)
+    GPUVec3 up;       // Up vector (16 bytes)
+    float fov;        // Field of view in degrees (4 bytes)
+    int nbBounces;    // Number of ray bounces (4 bytes)
+    int raysPerPixel; //  Number of rays per pixel (4 bytes)
+    int bufferType;   // Buffer type (4 bytes)
+    int denoise;      // Temporal denoising enabled (4 bytes)
 } GPUCamera;
 
 // Camera constants
@@ -45,7 +46,7 @@ static const int DEFAULT_RPP = 1;
 static const bool DEFAULT_ATTACHED = false;
 static const float DEFAULT_TRANSLATION_SPEED = 0.005f;
 static const float DEFAULT_DISTANCE_SPEED = 0.1f;
-static const float DEFAULT_ROTATION_SPEED = PI/7.5f;
+static const float DEFAULT_ROTATION_SPEED = PI / 7.5f;
 static const float KEYS_ROTATION_SPEED_CORRECTION = 1.0f;
 static const glm::vec3 CAMERA_POSITION_RELATIVE_TO_PLAYER = glm::vec3(0.0f, 2.0f, 5.0f);
 static const float DELTA_Y_SNEAK = 0.3f;
@@ -83,7 +84,7 @@ public:
     void setTarget(const glm::vec3 &target);
     void updateTarget(const glm::vec3 &target);
     void setPlayerMotions(bool sprinting, bool sneaking);
-    
+
     // Convert to GPU format
     GPUCamera toGPU() const;
 
@@ -103,7 +104,7 @@ public:
     inline void onToggleActivate() { activated = !activated; }
 
     // Getters
-    inline glm::vec3 getFront() const{return glm::rotate(m_rotation, VEC_FRONT);}
+    inline glm::vec3 getFront() const { return glm::rotate(m_rotation, VEC_FRONT); }
     inline glm::vec3 getPosition() const { return m_position; }
     inline glm::vec3 getRotationEuler() const { return m_eulerAngle; }
     inline glm::quat getRotation() const { return m_rotation; }
@@ -116,6 +117,7 @@ public:
     inline float getFarPlane() const { return m_farPlane; }
     inline int getNbBounces() const { return m_nb_bounces; }
     inline int getRaysPerPixel() const { return m_rays_per_pixel; }
+    inline bool getDenoise() const { return m_denoise; }
 
     // Setters
     void setBufferType(int type);
@@ -124,10 +126,10 @@ public:
     void setFOV(float fov);
     void setNbBounces(int bounces);
     void setRaysPerPixel(int rpp);
+    void setDenoise(bool denoise);
 
     bool m_attached = DEFAULT_ATTACHED;
-    bool activated =false;
-
+    bool activated = false;
 
 private:
     // Camera parameters
@@ -136,6 +138,7 @@ private:
     float m_farPlane{10000.f};
     int m_nb_bounces = DEFAULT_BOUNCES;
     int m_rays_per_pixel = DEFAULT_RPP;
+    bool m_denoise = true; // Temporal denoising enabled by default
     glm::vec3 m_position{DEFAULT_POSITION};
     glm::vec3 m_eulerAngle{DEFAULT_EULER_ANGLE};
     glm::quat m_rotation{};
@@ -194,7 +197,6 @@ private:
     bool m_hasMoved = false;
 
     int m_bufferType = BufferType::IMAGE;
-
 
     void loadCameraSettings();
 };

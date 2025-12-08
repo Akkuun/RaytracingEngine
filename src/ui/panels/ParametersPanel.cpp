@@ -53,9 +53,10 @@ void ParametersPanel::setupUI()
     QHBoxLayout *denoisingLayout = new QHBoxLayout();
     QLabel *denoisingLabel = new QLabel("DENOISING");
     denoisingLabel->setStyleSheet("QLabel { font-size: 9px; }");
-    QCheckBox *denoisingCheck = new QCheckBox();
+    denoiseCheck = new QCheckBox();
+    denoiseCheck->setChecked(camera.getDenoise());
     denoisingLayout->addWidget(denoisingLabel);
-    denoisingLayout->addWidget(denoisingCheck);
+    denoisingLayout->addWidget(denoiseCheck);
     denoisingLayout->addStretch();
     layout->addLayout(denoisingLayout);
 
@@ -74,6 +75,10 @@ void ParametersPanel::setupUI()
 
     connect(raysSpin, QOverload<int>::of(&QSpinBox::valueChanged), [this, &camera, &commandManager](int newRPP)
             { commandManager.executeCommand(new CameraRPPCommand(camera, newRPP)); });
+
+    connect(denoiseCheck, &QCheckBox::stateChanged, [&camera](int state)
+            { camera.setDenoise(state == Qt::Checked); });
+
     connect(bufferOptions, QOverload<int>::of(&QComboBox::currentIndexChanged), [&camera](int index)
             { camera.setBufferType(index); });
 
