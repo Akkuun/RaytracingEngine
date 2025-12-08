@@ -29,14 +29,20 @@ BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel) {
     if (quality == QUALITY_DISABLED)
     {
         nodesList.nodes[0].startIndex = 0;
-        nodesList.nodes[0].triangleCount = static_cast<int>(triangles.size());
+        nodesList.nodes[0].triangleCount = static_cast<int>(buildTriangles.size());
     }
     else {
         this->split(0, 0, static_cast<int>(buildTriangles.size()));
     }
     
+    // Finalize data for GPU transfer
     triangles.resize(buildTriangles.size());
-
+    const auto& meshTriangles = mesh.getTriangles();
+    for (size_t i = 0; i < buildTriangles.size(); ++i) {
+        triangles[i] = meshTriangles[buildTriangles[i].index];
+    }
+    
+    nodes = nodesList.nodes;
 }
 
 void BVH::split(int parentIndex, int triGlobalStart, int triNum, int depth=0) {
