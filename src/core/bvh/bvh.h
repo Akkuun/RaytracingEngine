@@ -2,37 +2,102 @@
 #include <vector>
 #include "../shapes/Triangle.h"
 #include "../shapes/Mesh.h"
-#include "bvhNode.h"
 #include "../math/aabb.h"
 #include "../defines/Defines.h"
+
+#define QUALITY_DISABLED -1
+#define QUALITY_LOW 0
+#define QUALITY_HIGH 2
+#define MAX_DEPTH 32
 
 class BVH
 {
 public:
-    BVH() = default;
     ~BVH() = default;
 
-    void build(const Mesh &mesh);
+    struct Node 
+    {
+        AABB boundingBox;
 
-    // Convert BVH to GPU format - returns header info and fills the output vectors
-    GPUBVH toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles) const;
+        int startIndex; // Index of 1st child (if triangle count is negative) otherwise index of first triangle
+        int triangleCount;
 
-    inline bvhNode *getRoot() const { return root; }
-    void printRecursive(bvhNode *node, int depth = 0) const;
+        Node(AABB box, int start, int count) : boundingBox(box), startIndex(start), triangleCount(count) {}
+    };
 
-private:
-    bvhNode *buildRecursive(std::vector<Triangle>::iterator start, std::vector<Triangle>::iterator end, int depth = 0);
+    struct BVHTriangle
+    {
+        vec3 center;
+        AABB box;
+        int index;
 
-    // Helper for flattening the BVH tree into arrays
-    void flattenBVH(bvhNode *node, std::vector<GPUBVHNode> &outNodes,
-                    std::vector<GPUTriangle> &outTriangles, int &currentNodeIdx) const;
+        BVHTriangle(const Triangle &tri)
+        {
+            center = (tri.getV0() + tri.getV1() + tri.getV2()) / 3.0f;
+            box.GrowToInclude(tri);
+            index = tri.getID();
+        }
 
+        
+    };
+
+    struct NodeList
+    {
+        std::vector<Node> nodes;
+        int index;
+
+        int add(Node node)
+        {
+            nodes.push_back(node);
+            return index++;
+        }
+
+        int nodeCount() const { return static_cast<int>(nodes.size()); }
+    };
+
+    struct Split
+    {
+        int axis;
+        float pos;
+        float cost;
+    };
+
+
+public:
     std::vector<Triangle> triangles;
-    bvhNode *root = nullptr; // represent the entire mesh unsplit
-    AABB boundingBox;
-    int maxDepth = 5;
-    int associatedMeshID = -1; // ID of the mesh this BVH belongs to to avoid to send number of BVH in kernel
+    std::vector<Node> nodes;
 
-    inline int getAssociatedMeshID() const { return associatedMeshID; }
-    inline int getMaxDepth() const { return maxDepth; }
+    NodeList nodesList;
+    std::vector<BVHTriangle> buildTriangles;
+    int quality;
+
+    BVH(const Mesh &mesh, int qualityLevel = QUALITY_HIGH) : quality(qualityLevel) {
+        nodesList.index = 0;
+
+        buildTriangles.reserve(mesh.getTriangles().size());
+
+        AABB globalBox;
+        for (const auto &tri : mesh.getTriangles()) {
+            buildTriangles.emplace_back(new BVHTriangle(tri));
+            globalBox.GrowToInclude(tri);
+        }
+
+        nodesList.add(Node(globalBox, -1, -1)); // root node
+
+        if (quality == QUALITY_DISABLED)
+        {
+            nodesList.nodes[0].startIndex = 0;
+            nodesList.nodes[0].triangleCount = static_cast<int>(triangles.size());
+        }
+        else {
+            // split
+        }
+        
+    
+    }
+private:
+    void split(int parentIndex, int triGlobalStart, int triNum, int depth=0);
+    Split chooseSplit(Node node, int start, int count);
+    float evaluateSplit(int splitAxis, float splitPos, int start, int count);
+    float NodeCost(vec3 size, int numTris);
 };
