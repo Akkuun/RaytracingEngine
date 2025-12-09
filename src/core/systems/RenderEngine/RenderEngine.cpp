@@ -92,7 +92,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(10, textureBuffer);      // Buffer containing all texture data
         kernel.setArg(11, bvhCount);           // Number of BVH in the scene
         kernel.setArg(12, bvhNodesBuffer);     // BVH nodes buffer (flattened)
-        kernel.setArg(13, bvhTrianglesBuffer); // BVH triangles buffer
+        kernel.setArg(13, bvhTrianglesCount); // Number of BVH triangles
+        kernel.setArg(14, bvhTrianglesBuffer); // BVH triangles buffer
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
