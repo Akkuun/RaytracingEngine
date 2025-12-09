@@ -58,12 +58,6 @@ void RenderEngine::setupBuffers(int width, int height)
         setupMaterialBuffer();
         materialBufferDirty = false;
     }
-
-    if (bvhBufferDirty)
-    {
-        setupBVHBuffer();
-        bvhBufferDirty = false;
-    }
 }
 
 void RenderEngine::render(int width, int height)
@@ -97,9 +91,8 @@ void RenderEngine::render(int width, int height)
         kernel.setArg(9, materialCount);       // Number of materials in the scene
         kernel.setArg(10, textureBuffer);      // Buffer containing all texture data
         kernel.setArg(11, bvhCount);           // Number of BVH in the scene
-        kernel.setArg(12, bvhHeaderBuffer);    // BVH headers buffer
-        kernel.setArg(13, bvhNodesBuffer);     // BVH nodes buffer (flattened)
-        kernel.setArg(14, bvhTrianglesBuffer); // BVH triangles buffer
+        kernel.setArg(12, bvhNodesBuffer);     // BVH nodes buffer (flattened)
+        kernel.setArg(13, bvhTrianglesBuffer); // BVH triangles buffer
 
         // Use optimal work-group size for better GPU performance
         size_t globalSize = width * height;
@@ -152,6 +145,8 @@ void RenderEngine::setupShapesBuffer()
     std::vector<GPUShape> gpu_shapes;
     std::vector<GPUBVHNode> gpu_bvh_nodes;
     std::vector<GPUTriangle> gpu_bvh_triangles;
+
+    bool containsBVH = false;
 
     // Pre-calculate total size needed to avoid reallocations
     size_t estimatedShapes = 0;
@@ -226,6 +221,7 @@ void RenderEngine::setupShapesBuffer()
             }
 
             gpu_shape.data.bvh = bvh_gpu;
+            containsBVH = true;
             break;
         }
         default:
@@ -254,6 +250,30 @@ void RenderEngine::setupShapesBuffer()
                                   shape_buffer_size,
                                   gpu_shapes.data());
         std::cout << "Buffer created or updated successfully! (" << shapesCount << " shapes)" << std::endl;
+        if (containsBVH)
+        {
+            bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        bvh_nodes_buffer_size,
+                                        gpu_bvh_nodes.data());
+            bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                            bvh_triangles_buffer_size,
+                                            gpu_bvh_triangles.data());
+            std::cout << "BVH Buffers created or updated successfully! (" << bvhCount << " BVH, " << bvhTrianglesCount << " triangles)" << std::endl;
+        }
+        else
+        {
+            // Create dummy BVH buffers to avoid null buffer issues
+            GPUBVHNode dummyBVHNode = {};
+            bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        sizeof(GPUBVHNode),
+                                        &dummyBVHNode);
+            bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                            sizeof(GPUTriangle),
+                                            nullptr);
+            bvhCount = 0;
+            bvhTrianglesCount = 0;
+            std::cout << "No GPU BVH - created dummy buffers" << std::endl;
+        }
     }
     else
     {
@@ -265,6 +285,17 @@ void RenderEngine::setupShapesBuffer()
                                   &dummyShape);
         shapesCount = 0;
         std::cout << "No GPU shapes - created dummy buffer" << std::endl;
+
+        GPUBVHNode dummyBVHNode = {};
+        bvhNodesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(GPUBVHNode),
+                                    &dummyBVHNode);
+        bvhTrianglesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                                        sizeof(GPUTriangle),
+                                        nullptr);
+        bvhCount = 0;
+        bvhTrianglesCount = 0;
+        std::cout << "No GPU BVH - created dummy buffers" << std::endl;
     }
 }
 
