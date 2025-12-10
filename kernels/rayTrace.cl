@@ -848,10 +848,9 @@ struct Ray createCamRay(const int x_coord, const int y_coord, const int width, c
 __kernel void render_kernel(__global float* output, __global float* accumBuffer, int width, int height, int frameCount, 
                            __global GPUShape* shapes, int numShapes,
                            __global GPUCamera* camera, __global GPUMaterial* materials, int numMaterials,
-                           __global unsigned char* textureData, int numBVH,
-                           __global const GPUBVH* bvhHeaders,
-                           __global const GPUBVHNode* bvhNodes,
-                           __global const GPUTriangle* bvhTriangles)
+                           __global unsigned char* textureData,
+						   int numBVHNodes, __global const GPUBVHNode* bvhNodes,
+						   int numBVHTriangles, __global const GPUTriangle* bvhTriangles)
 {
 	const int work_item_id = get_global_id(0);		/* id of current pixel that we are working with */
 	int x_coord = work_item_id % width;					/* x-coordinate of the pixel */

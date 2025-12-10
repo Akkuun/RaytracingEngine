@@ -22,7 +22,6 @@ public:
     void deleteShape(Shape *shape);
     inline const std::vector<Shape *> &getShapes() { return shapes; }
     inline const std::vector<Material *> &getMaterials() const { return materials; }
-    inline const std::vector<BVH*> &getBVHLists() const { return bvhLists; }
     void updateUniqueMaterials();
     void buildScene();
     void buildScene(const std::string &path);
@@ -39,6 +38,5 @@ private:
     SceneManager(); // Private constructor
     std::vector<Shape *> shapes;
     std::vector<Material *> materials;
-    std::vector<BVH*> bvhLists; // list of all BVH trees , one per mesh
     void clearShapes();
 };

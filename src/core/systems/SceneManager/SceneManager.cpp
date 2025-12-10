@@ -28,13 +28,6 @@ SceneManager::~SceneManager()
         delete shape;
     }
     shapes.clear();
-
-    // Clean up allocated BVH trees
-    for (BVH *bvh : bvhLists)
-    {
-        delete bvh;
-    }
-    bvhLists.clear();
 }
 
 void SceneManager::addShape(Shape *shape)
@@ -57,13 +50,6 @@ void SceneManager::clearShapes()
         delete shape;
     }
     shapes.clear();
-
-    // Clean up allocated BVH trees
-    for (BVH *bvh : bvhLists)
-    {
-        delete bvh;
-    }
-    bvhLists.clear();
 }
 
 // build the scene ie. Cornell Box
@@ -185,11 +171,6 @@ void SceneManager::buildScene(const std::string &path)
             mesh->translate(position);
             mesh->generateCpuTriangles();
             shape = mesh;
-
-            // add BVH for this mesh
-            BVH *bvh = new BVH();
-            bvh->build(*mesh);
-            bvhLists.push_back(bvh);
         }
         else
         {
@@ -199,24 +180,6 @@ void SceneManager::buildScene(const std::string &path)
         shape->setPosition(position);
         shape->setRotation(rotation);
         shape->setScale(scale);
-
-        if (shape->getType() == ShapeType::MESH)
-        {
-            // print the BVH architecture for debugging
-            BVH *meshBVH = bvhLists.front();
-            bvhNode *rootNode = meshBVH->getRoot();
-            vec3 minBB = rootNode->getMinOfBoundingBox();
-            vec3 maxBB = rootNode->getMaxOfBoundingBox();
-            std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
-            std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
-
-            std::cout << "start printing BVH structure:\n";
-            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-            meshBVH->printRecursive(rootNode);
-            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-            std::chrono::duration<float, std::milli> duration = end - begin;
-            std::cout << "BVH structure printed in: " << duration.count() << " ms\n";   
-        }
     }
 }
 
@@ -346,9 +309,4 @@ void SceneManager::cornellScene()
     mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
     mesh->generateCpuTriangles();
     addShape(mesh);
-
-    // Create BVH for the mesh
-    BVH *bvh = new BVH();
-    bvh->build(*mesh);
-    bvhLists.push_back(bvh);
 }
