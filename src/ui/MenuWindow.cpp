@@ -132,9 +132,14 @@ MenuWindow::MenuWindow(QWidget *parent)
     loadProjectList(this->projectsData);
 
     connect(projectsBtn, &QPushButton::clicked, this, [this, loadProjectList]()
-            { loadProjectList(this->projectsData); });
+            { 
+                titleLabel->setText("Recent Projects");
+                loadProjectList(this->projectsData); });
     connect(examplesBtn, &QPushButton::clicked, this, [this, loadProjectList]()
-            { loadProjectList(this->examplesData); });
+            { 
+                titleLabel->setText("Example Scenes");
+                loadProjectList(this->examplesData);
+            });
 
     // Add slot for loading a project
     connect(openBtn, &QPushButton::clicked, this, [this]()
