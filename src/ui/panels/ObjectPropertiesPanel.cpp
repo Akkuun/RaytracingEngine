@@ -17,6 +17,7 @@
 #include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialEmissiveCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
 
@@ -512,9 +513,7 @@ void ObjectPropertiesPanel::setupUI()
         if (shape) {
             Material *mat = shape->getMaterial();
             if (mat) {
-                mat->setLightIntensity(value);
-                mat->setEmissive(value > 1);
-                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
+                CommandsManager::getInstance().executeCommand(new MaterialEmissiveCommand(*mat, value));
             }
         }
     });
