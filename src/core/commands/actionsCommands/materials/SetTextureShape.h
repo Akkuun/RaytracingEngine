@@ -12,10 +12,11 @@ private:
     ppmLoader::ImageRGB previousTexture;
     ppmLoader::ImageRGB newTexture;
     int commandID;
+    std::string pathFileTexture;
     inline static int nextCommandID = 0;
 public:
-    SetTextureShape(Shape* shape, ppmLoader::ImageRGB newTex)
-        : shape(shape), newTexture(newTex), commandID(nextCommandID++) {
+    SetTextureShape(Shape* shape, ppmLoader::ImageRGB newTex, const std::string& pathFile)
+        : shape(shape), newTexture(newTex), commandID(nextCommandID++), pathFileTexture(pathFile) {
         Material* mat = shape->getMaterial();
         if (mat) {
             try {
@@ -36,6 +37,7 @@ public:
     }
     void execute() override {
         shape->getMaterial()->set_texture(newTexture);
+        shape->getMaterial()->setPathFileTexture(pathFileTexture);
         CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
     }
     void undo() override {

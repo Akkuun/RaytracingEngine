@@ -163,7 +163,7 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-                commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
+                commandManager.executeCommand(new SetTextureShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image, fileName.toStdString()));
             }
         } });
 
@@ -248,7 +248,7 @@ void ObjectPropertiesPanel::setupUI()
 
                 ppmLoader::ImageRGB image;
                 ppmLoader::load_ppm(image, fileName.toStdString());
-                commandManager.executeCommand(new SetNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image));
+                commandManager.executeCommand(new SetNormalShape(SceneManager::getInstance().getShapeByID(currentSelectedShapeID), image, fileName.toStdString()));
             }
         } });
 

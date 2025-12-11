@@ -92,9 +92,9 @@ public:
 
     inline void set_texture(const ppmLoader::ImageRGB &img)
     {
+        has_texture = true;
         image = img;
     }
-
     inline void remove_texture()
     {
         image.data.clear();

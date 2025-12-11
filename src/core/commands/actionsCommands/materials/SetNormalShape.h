@@ -12,10 +12,11 @@ private:
     ppmLoader::ImageRGB previousNormal;
     ppmLoader::ImageRGB newNormal;
     int commandID;
+    std::string pathFileNormalMap;
     inline static int nextCommandID = 0;
 public:
-    SetNormalShape(Shape* shape, ppmLoader::ImageRGB newNorm)
-        : shape(shape), newNormal(newNorm), commandID(nextCommandID++) {
+    SetNormalShape(Shape* shape, ppmLoader::ImageRGB newNorm, const std::string& pathFile)
+        : shape(shape), newNormal(newNorm), commandID(nextCommandID++), pathFileNormalMap(pathFile) {
         Material* mat = shape->getMaterial();
         if (mat) {
             try {
@@ -36,6 +37,7 @@ public:
     }
     void execute() override {
         shape->getMaterial()->setNormals(newNormal);
+        shape->getMaterial()->setPathFileNormalMap(pathFileNormalMap);
         CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
     }
     void undo() override {
