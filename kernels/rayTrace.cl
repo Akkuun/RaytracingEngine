@@ -142,11 +142,14 @@ typedef struct __attribute__((aligned(16))) {
 // If childIndex == -1, it's a leaf node and triangleStartIdx/triangleCount are valid
 // Otherwise, childIndex points to the left child (right child is childIndex + 1)
 typedef struct __attribute__((aligned(16))) {
-    AABBGPU boundingBox;      // 32 bytes (offset 0)
-    int childIndex;           // 4 bytes (offset 32) - index of left child (-1 if leaf)
-    int triangleStartIdx;     // 4 bytes (offset 36) - start index in triangle array (for leaves)
-    int triangleCount;        // 4 bytes (offset 40) - number of triangles (for leaves)
-    int _padding;             // 4 bytes (offset 44) - padding for 16-byte alignment
+    float boundingBoxMin[3]; // 12 bytes (offset 0)
+	float _padding1;          // 4 bytes (offset 12)
+	float boundingBoxMax[3]; // 12 bytes (offset 16)
+	float _padding2;          // 4 bytes (offset 28)
+	int startIndex;		// 4 bytes (offset 32) - start index in triangle array (for leaves)
+	int triangleCount;        // 4 bytes (offset 36) - number of triangles (for leaves)
+	float _padding3;          // 4 bytes (offset 40) - padding for 16-byte alignment
+	float _padding4;          // 4 bytes (offset 44) - padding for 16-byte alignment
 } GPUBVHNode;  // Total: 48 bytes
 
 typedef struct __attribute__((aligned(16))) {
@@ -630,26 +633,110 @@ inline __attribute__((always_inline)) struct Intersection intersect_triangle(__g
 	return result;
 }
 
+inline __attribute__((always_inline)) float intersect_aabb(__global const GPUBVHNode* restrict node, const struct Ray* restrict ray)
+{
+	float3 invDir = 1.0f / ray->dir;
+	Vec3 minVec = {node->boundingBoxMin[0], node->boundingBoxMin[1], node->boundingBoxMin[2], 0.0f};
+	Vec3 maxVec = {node->boundingBoxMax[0], node->boundingBoxMax[1], node->boundingBoxMax[2], 0.0f};
+	float3 t0s = (vec3_to_float3(minVec) - ray->origin) * invDir;
+	float3 t1s = (vec3_to_float3(maxVec) - ray->origin) * invDir;
+
+	float3 tsmaller = fmin(t0s, t1s);
+	float3 tbigger = fmax(t0s, t1s);
+
+	float tmin = fmax(fmax(tsmaller.x, tsmaller.y), fmax(tsmaller.z, EPSILON));
+	float tmax = fmin(fmin(tbigger.x, tbigger.y), tbigger.z);
+
+	if (tmax >= tmin) {
+		return tmin; /* intersection occurs at tmin */
+	} else {
+		return 1e20; /* no intersection */
+	}
+}
 
 inline __attribute__((always_inline)) struct Intersection intersect_bvh(
+	__global const GPUBVH* restrict bvh,
 	__global const GPUBVHNode* restrict nodes,
 	__global const GPUTriangle* restrict triangles,
-	int rootNodeIndex,
-	const struct Ray* restrict ray,
-	int* restrict hitMaterialIndex)
+	const struct Ray* restrict ray)
 {
-	struct Intersection result;
-	result.t = -1.0f; /* default to no intersection */
+
+	int root = bvh->node_offset;
 
 	// Stack for iterative BVH traversal
 	int stack[64];
 	int stackPtr = 0;
-	stack[stackPtr++] = rootNodeIndex;
+	int stackSize = 1;
+	stack[stackPtr++] = root;
 
-	return result;
+	float minDst = 1e20;
+	int hitTriangleIndex = -1;
+	struct Intersection closestIntersection;
+	closestIntersection.t = -1.0f;
+
+	while (stackSize > 0) {
+		GPUBVHNode node = nodes[stack[--stackPtr]];
+		stackSize--;
+
+		if (node.triangleCount > 0) {
+			for (int i = 0; i < node.triangleCount; i++) {
+				int triIndex = node.startIndex + i;
+				float t_temp = 1e20;
+				struct Intersection intersection = intersect_triangle(&triangles[triIndex], ray, &t_temp);
+
+				if (intersection.t > EPSILON && intersection.t < minDst) {
+					minDst = intersection.t;
+					hitTriangleIndex = triIndex;
+					closestIntersection = intersection;
+				}
+			}
+		}
+		else
+		{
+			int leftChildIndex = node.startIndex;
+			int rightChildIndex = node.startIndex + 1;
+
+			float dstA = intersect_aabb(&nodes[leftChildIndex], ray);
+			float dstB = intersect_aabb(&nodes[rightChildIndex], ray);
+
+			if (dstA > dstB)
+			{
+				if (dstA < minDst)
+				{
+					stack[stackPtr++] = leftChildIndex;
+					stackSize++;
+				}
+				if (dstB < minDst)
+				{
+					stack[stackPtr++] = rightChildIndex;
+					stackSize++;
+				}
+			}
+			else
+			{
+				if (dstB < minDst)
+				{
+					stack[stackPtr++] = rightChildIndex;
+					stackSize++;
+				}
+				if (dstA < minDst)
+				{
+					stack[stackPtr++] = leftChildIndex;
+					stackSize++;
+				}
+			}
+		}
+	}
+
+	return closestIntersection;
 }
 
-inline __attribute__((always_inline)) struct Intersection intersect_shape(__global const GPUShape* restrict shape, const struct Ray* restrict ray, float* restrict t)
+inline __attribute__((always_inline)) struct Intersection intersect_shape(
+	__global const GPUShape* restrict shape,
+	const struct Ray* restrict ray,
+	float* restrict t,
+	__global const GPUBVHNode* restrict nodes,
+	__global const GPUTriangle* restrict triangles)
 {
 	if (shape->type == SPHERE) {
 		return intersect_sphere(&shape->data.sphere, ray, t);
@@ -658,7 +745,7 @@ inline __attribute__((always_inline)) struct Intersection intersect_shape(__glob
 	} else if (shape->type == TRIANGLE) {
 		return intersect_triangle(&shape->data.triangle, ray, t);
 	} else if (shape->type == BVH) {
-		// intersect bvh
+		return intersect_bvh(&shape->data.bvh, nodes, triangles, ray);
 	}
 	struct Intersection result;
 	result.t = -1.0f; /* default to no intersection */
@@ -945,3 +1032,4 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	output[base_idx + 1] = displayColor.y; // G
 	output[base_idx + 2] = displayColor.z; // B
 }
+
