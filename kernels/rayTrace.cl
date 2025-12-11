@@ -468,15 +468,17 @@ float3 get_shape_color(__global const GPUShape* shape, __global const GPUMateria
 		// No material found, return white
 		return checkerboard_texture(uv, (float3)(0.502f, 0.502f, 0.502f), (float3)(0.627f, 0.627f, 0.643f), 10.0f);
 	}
+
+	float3 emissive = (material->light_intensity);
 	
 	// Check if material has texture
 	if (material->has_texture) {
 		return sample_texture(textureData, material->texture_offset, 
-		                     material->texture_width, material->texture_height, uv);
+		                     material->texture_width, material->texture_height, uv) * emissive;
 	}
 	
 	// No texture, use material diffuse color
-	return vec3_to_float3(material->diffuse);
+	return vec3_to_float3(material->diffuse) * emissive;
 }
 
 // Optimized intersection functions with inline and restrict
@@ -979,7 +981,8 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	lights[0].color = (float3)(1.0f, 1.0f, 1.0f);
 	lights[0].intensity = 1.0f;
 
-	int numLights = sizeof(lights) / sizeof(lights[0]);
+	//int numLights = sizeof(lights) / sizeof(lights[0]);
+	int numLights = 0; // Disable direct lights for now
 
 	int maxbounce = camera->nbBounces;
 	

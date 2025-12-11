@@ -155,7 +155,7 @@ private:
     bool emissive;
     float metalness;
     vec3 light_color;
-    float light_intensity;
+    float light_intensity = 1.0f;
     ppmLoader::ImageRGB image;
     ppmLoader::ImageRGB normals;
     ppmLoader::ImageRGB emissionMap;

@@ -367,8 +367,8 @@ void ObjectPropertiesPanel::setupUI()
     QHBoxLayout *emissiveLayout = new QHBoxLayout();
     QLabel *emissiveLabel = new QLabel("EMISSIVE:");
     emissiveSpinBox = new QSpinBox();
-    emissiveSpinBox->setRange(0, 1000);
-    emissiveSpinBox->setValue(0);
+    emissiveSpinBox->setRange(1, 1000);
+    emissiveSpinBox->setValue(1);
     emissiveSpinBox->setMaximumWidth(90);
     emissiveLayout->addWidget(emissiveLabel);
     emissiveLayout->addWidget(emissiveSpinBox);
@@ -513,7 +513,7 @@ void ObjectPropertiesPanel::setupUI()
             Material *mat = shape->getMaterial();
             if (mat) {
                 mat->setLightIntensity(value);
-                mat->setEmissive(value > 0);
+                mat->setEmissive(value > 1);
                 CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
             }
         }
