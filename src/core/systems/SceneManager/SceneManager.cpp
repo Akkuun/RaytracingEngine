@@ -17,7 +17,7 @@ SceneManager &SceneManager::getInstance()
 
 SceneManager::SceneManager()
 {
-    buildScene(); // Initialize with default scene or loaded scene
+    cornellScene(); // Initialize with default scene or loaded scene
 }
 
 SceneManager::~SceneManager()
@@ -28,13 +28,6 @@ SceneManager::~SceneManager()
         delete shape;
     }
     shapes.clear();
-
-    // Clean up allocated BVH trees
-    for (BVH *bvh : bvhLists)
-    {
-        delete bvh;
-    }
-    bvhLists.clear();
 }
 
 void SceneManager::addShape(Shape *shape)
@@ -57,13 +50,6 @@ void SceneManager::clearShapes()
         delete shape;
     }
     shapes.clear();
-
-    // Clean up allocated BVH trees
-    for (BVH *bvh : bvhLists)
-    {
-        delete bvh;
-    }
-    bvhLists.clear();
 }
 
 // build the scene ie. Cornell Box
@@ -102,6 +88,7 @@ Shape *SceneManager::getShapesBuffer() const
 
 Shape *SceneManager::getShapeByID(const int &shapeID) const
 {
+    std::cout << "Getting shape by ID: " << shapeID << std::endl;
     if (shapeID < 0 || static_cast<size_t>(shapeID) >= shapes.size())
     {
         return nullptr; // Invalid ID
@@ -185,11 +172,6 @@ void SceneManager::buildScene(const std::string &path)
             mesh->translate(position);
             mesh->generateCpuTriangles();
             shape = mesh;
-
-            // add BVH for this mesh
-            BVH *bvh = new BVH();
-            bvh->build(*mesh);
-            bvhLists.push_back(bvh);
         }
         else
         {
@@ -199,24 +181,6 @@ void SceneManager::buildScene(const std::string &path)
         shape->setPosition(position);
         shape->setRotation(rotation);
         shape->setScale(scale);
-
-        if (shape->getType() == ShapeType::MESH)
-        {
-            // print the BVH architecture for debugging
-            BVH *meshBVH = bvhLists.front();
-            bvhNode *rootNode = meshBVH->getRoot();
-            vec3 minBB = rootNode->getMinOfBoundingBox();
-            vec3 maxBB = rootNode->getMaxOfBoundingBox();
-            std::cout << "Mesh BVH Root AABB Min: (" << minBB.x << ", " << minBB.y << ", " << minBB.z << ")\n";
-            std::cout << "Max: (" << maxBB.x << ", " << maxBB.y << ", " << maxBB.z << ")\n";
-
-            std::cout << "start printing BVH structure:\n";
-            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-            meshBVH->printRecursive(rootNode);
-            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-            std::chrono::duration<float, std::milli> duration = end - begin;
-            std::cout << "BVH structure printed in: " << duration.count() << " ms\n";
-        }
     }
 }
 
@@ -238,6 +202,18 @@ void SceneManager::defaultScene()
         0.15f,
         vec3(0.25f, -0.2f, -0.25f),
         "Boule 1"));
+    
+    // light spehere emissive
+    Material *lightMat = new Material();
+    lightMat->setEmissive(true);
+    lightMat->setLightIntensity(30.0f);
+    lightMat->setDiffuse(vec3(1.0f, 1.0f, 1.0f));
+    addShape(new Sphere(
+        0.1f,
+        vec3(0.0f, 0.1f, 0.0f),
+        "Light Sphere",
+        lightMat
+    ));
 }
 
 void SceneManager::cornellScene()
@@ -270,14 +246,19 @@ void SceneManager::cornellScene()
     poolMat->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
     poolMat->setMetalness(0.75f);
 
-    // Floor - white
+    Material *floor = new Material(std::string("../assets/textures/lava.ppm"));
+    floor->setNormalsFromPath(std::string("../assets/normals/lava_n.ppm"));
+    floor->setEmissiveFromPath(std::string("../assets/emissives/lava_e.ppm"));
+    floor->setLightIntensity(20.0f);
+
+
     addShape(new Square(
         vec3(0.0f, -0.35f, 0.0f), // pos
         vec3(1.5f, 0.0f, 0.0f),   // u_vec
         vec3(0.0f, 0.0f, 1.5f),   // v_vec
         vec3(0.0f, 1.0f, 0.0f),   // normal
         "Floor",                  // name
-        poolMat));
+        floor));
 
     Material *metalMat = new Material(std::string("../assets/textures/rustediron.ppm"));
     metalMat->setNormalsFromPath(std::string("../assets/normals/rustediron_n.ppm"));
@@ -317,10 +298,11 @@ void SceneManager::cornellScene()
         "Left Wall",             // name
         brickwallMat2));
 
-    // Create a second pool material for the back wall (to avoid double-free)
-    Material *poolMat2 = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
-    poolMat2->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
-    poolMat2->setMetalness(0.75f);
+
+    Material *back = new Material(std::string("../assets/textures/military.ppm"));
+    back->setNormalsFromPath(std::string("../assets/normals/military_n.ppm"));
+    back->setEmissiveFromPath(std::string("../assets/emissives/military_e.ppm"));
+    back->setLightIntensity(20.0f);
 
     // Back wall - white
     addShape(new Square(
@@ -329,7 +311,7 @@ void SceneManager::cornellScene()
         vec3(0.0f, 1.5f, 0.0f),  // v_vec
         vec3(0.0f, 0.0f, -1.0f), // normal
         "Back Wall",             // name
-        poolMat2));
+        back));
 
     // Triangle - blue
     addShape(new Triangle(
@@ -339,15 +321,10 @@ void SceneManager::cornellScene()
         vec3(-0.0f, 0.2f, -0.3f)  // vertex B
         ));
 
-    // Mesh *mesh = new Mesh(std::string("../assets/models3D/tripod.off"));
-    // mesh->scale(vec3(0.4f));
-    // mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
-    // mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
-    // mesh->generateCpuTriangles();
-    // addShape(mesh);
-
-    // // Create BVH for the mesh
-    // BVH *bvh = new BVH();
-    // bvh->build(*mesh);
-    // bvhLists.push_back(bvh);
+    Mesh *mesh = new Mesh(std::string("../assets/models3D/tripod.off"));
+   // mesh->scale(vec3(0.4f));
+   // mesh->translate(vec3(-0.3f, 0.0f, -0.1f));
+    //mesh->rotate(vec3(180.0f * 0.0174533f, 0.0f, 0.0f));
+    mesh->generateCpuTriangles();
+    addShape(mesh);
 }

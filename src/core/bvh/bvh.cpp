@@ -1,248 +1,260 @@
 #include "bvh.h"
+#include "../shapes/Mesh.h"
 #include <algorithm>
+#include <iostream>
 
-struct CentroidData
-{
-    Triangle *tri;
-    vec3 centroid;
-};
-
-void BVH::build(const Mesh &mesh)
-{
-    triangles = mesh.getTriangles();
-    associatedMeshID = mesh.getID();
-    if (triangles.empty())
-        return;
-    root = buildRecursive(triangles.begin(), triangles.end()); // setup the division
-    boundingBox = root->boundingBox;
+float max(float a, float b) {
+    return (a > b) ? a : b;
 }
 
-bvhNode *BVH::buildRecursive(std::vector<Triangle>::iterator start,
-                             std::vector<Triangle>::iterator end,
-                             int depth)
+int ceilToInt(float f) {
+    int i = static_cast<int>(f);
+    if (f > static_cast<float>(i)) {
+        return i + 1;
+    }
+    return i;
+}
+
+BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel), Shape(true)
 {
-    // each time we call this function, we execute the same operation for each node :
-    // 1 - compute the bounding box of the node and store it
-    // 2 - check the stop conditions (max depth or min number of triangles)
-    // 3 - if not leaf, compute the best split using SAH and create child nodes (before it was median split, a naive solution to have balanced tree)
-    // based on best axis choosen, reorder the triangles and call recursively the function for each child
-    size_t numTriangles = end - start;
+    nodesList.index = 0;
 
-    auto node = new bvhNode();
+    buildTriangles.reserve(mesh.getTriangles().size());
 
-    // Compute bbox of node
-    for (auto it = start; it != end; ++it)
-        node->boundingBox.GrowToInclude(*it);
-
-    // Leaf stop conditions (numtriangles <=4 <=> moore than the last triangle)
-    if (depth >= maxDepth || numTriangles <= 4)
-    {
-        node->triangles.assign(start, end);
-        return node;
+    AABB globalBox;
+    int idx = 0;
+    for (const auto &tri : mesh.getTriangles()) {
+        buildTriangles.emplace_back(tri, idx++);
+        globalBox.GrowToInclude(tri);
     }
 
-    // Start SAH computation
-    // SAH = Surface Area Heuristic, search for the best split that minimize the cost function instead of just picking the median
-    std::vector<CentroidData> centroids;
-    centroids.reserve(numTriangles);
+    nodesList.add(Node(globalBox, -1, -1)); // root node
 
-    for (auto it = start; it != end; ++it)
+    if (quality == QUALITY_DISABLED)
     {
-        vec3 c = (it->getV0() + it->getV1() + it->getV2()) / 3.0f;
-        centroids.push_back({&(*it), c});
+        nodesList.nodes[0].startIndex = 0;
+        nodesList.nodes[0].triangleCount = static_cast<int>(buildTriangles.size());
+    }
+    else {
+        this->split(0, 0, static_cast<int>(buildTriangles.size()));
+    }
+    
+    // Finalize data for GPU transfer
+    triangles.resize(buildTriangles.size());
+    const auto& meshTriangles = mesh.getTriangles();
+    for (size_t i = 0; i < buildTriangles.size(); ++i) {
+        triangles[i] = meshTriangles[buildTriangles[i].index];
+    }
+    
+    nodes = nodesList.nodes;
+    
+    std::cout << "BVH constructed: " << nodes.size() << " nodes, " << triangles.size() << " triangles" << std::endl;
+}
+
+void BVH::split(int parentIndex, int triGlobalStart, int triNum, int depth) {
+    Node* parentNode = &nodesList.nodes[parentIndex];
+
+    vec3 size = parentNode->boundingBox.maxPoint - parentNode->boundingBox.minPoint;
+
+    float parentCost = NodeCost(size, triNum);
+
+    Split split = chooseSplit(*parentNode, triGlobalStart, triNum);
+
+    if (split.cost < parentCost && depth < MAX_DEPTH) {
+        AABB leftBox;
+        AABB rightBox;
+
+        int numOnLeft = 0;
+
+        for (int i = triGlobalStart; i < triGlobalStart + triNum; ++i) {
+            BVHTriangle tri = buildTriangles[i];
+            float c;
+            switch(split.axis) {
+                case 0:
+                    c = tri.center.x;
+                    break;
+                case 1:
+                    c = tri.center.y;
+                    break;
+                case 2:
+                    c = tri.center.z;
+                    break;
+            }
+
+            if (c < split.pos) {
+                if (tri.box.minPoint.x < leftBox.minPoint.x) leftBox.minPoint.x = tri.box.minPoint.x;
+                if (tri.box.minPoint.y < leftBox.minPoint.y) leftBox.minPoint.y = tri.box.minPoint.y;
+                if (tri.box.minPoint.z < leftBox.minPoint.z) leftBox.minPoint.z = tri.box.minPoint.z;
+                if (tri.box.maxPoint.x > leftBox.maxPoint.x) leftBox.maxPoint.x = tri.box.maxPoint.x;
+                if (tri.box.maxPoint.y > leftBox.maxPoint.y) leftBox.maxPoint.y = tri.box.maxPoint.y;
+                if (tri.box.maxPoint.z > leftBox.maxPoint.z) leftBox.maxPoint.z = tri.box.maxPoint.z;
+                
+                BVHTriangle swap = buildTriangles[numOnLeft + triGlobalStart];
+                buildTriangles[numOnLeft + triGlobalStart] = tri;
+                buildTriangles[i] = swap;
+                numOnLeft++;
+            } else {
+                if (tri.box.minPoint.x < rightBox.minPoint.x) rightBox.minPoint.x = tri.box.minPoint.x;
+                if (tri.box.minPoint.y < rightBox.minPoint.y) rightBox.minPoint.y = tri.box.minPoint.y;
+                if (tri.box.minPoint.z < rightBox.minPoint.z) rightBox.minPoint.z = tri.box.minPoint.z;
+                if (tri.box.maxPoint.x > rightBox.maxPoint.x) rightBox.maxPoint.x = tri.box.maxPoint.x;
+                if (tri.box.maxPoint.y > rightBox.maxPoint.y) rightBox.maxPoint.y = tri.box.maxPoint.y;
+                if (tri.box.maxPoint.z > rightBox.maxPoint.z) rightBox.maxPoint.z = tri.box.maxPoint.z;
+            }
+        }
+
+        int numOnRight = triNum - numOnLeft;
+        int triStartLeft = triGlobalStart + 0;
+        int triStartRight = triGlobalStart + numOnLeft;
+
+        // Split parent into two children
+        Node childLeft = Node(leftBox, triStartLeft, 0);
+        Node childRight = Node(rightBox, triStartRight, 0);
+    
+        int childIndexLeft = nodesList.add(childLeft);
+        int childIndexRight = nodesList.add(childRight);
+
+        // Update parent
+        parentNode->startIndex = childIndexLeft;
+        nodesList.nodes[parentIndex] = *parentNode;
+
+        // Recursively split children
+        this->split(childIndexLeft, triStartLeft, numOnLeft, depth + 1);
+        this->split(childIndexRight, triStartRight, numOnRight, depth + 1);
+    }
+    else
+    {
+        // Parent is a leaf, assign triangles to it
+        parentNode->startIndex = triGlobalStart;
+        parentNode->triangleCount = triNum;
+        nodesList.nodes[parentIndex] = *parentNode;
+    }
+}
+
+float BVH::NodeCost(vec3 size, int numTris) {
+    if (numTris == 0) return 0.0f;
+    float area = size.x * size.x + size.y * size.y + size.z * size.z;
+    return area * static_cast<float>(numTris);
+}
+
+float BVH::evaluateSplit(int splitAxis, float splitPos, int start, int count) {
+    int numOnLeft = 0;
+    int numOnRight = 0;
+
+    AABB leftBox;
+    AABB rightBox;
+
+    int end = start + count;
+
+    for (int i = start; i < end; ++i) {
+        const BVHTriangle &tri = buildTriangles[i];
+        float c;
+        switch(splitAxis) {
+            case 0:
+                c = tri.center.x;
+                break;
+            case 1:
+                c = tri.center.y;
+                break;
+            case 2:
+                c = tri.center.z;
+                break;
+        }
+        if (c < splitPos) {
+            if (tri.box.minPoint.x < leftBox.minPoint.x) leftBox.minPoint.x = tri.box.minPoint.x;
+            if (tri.box.minPoint.y < leftBox.minPoint.y) leftBox.minPoint.y = tri.box.minPoint.y;
+            if (tri.box.minPoint.z < leftBox.minPoint.z) leftBox.minPoint.z = tri.box.minPoint.z;
+            if (tri.box.maxPoint.x > leftBox.maxPoint.x) leftBox.maxPoint.x = tri.box.maxPoint.x;
+            if (tri.box.maxPoint.y > leftBox.maxPoint.y) leftBox.maxPoint.y = tri.box.maxPoint.y;
+            if (tri.box.maxPoint.z > leftBox.maxPoint.z) leftBox.maxPoint.z = tri.box.maxPoint.z;
+            numOnLeft++;
+        } else {
+            if (tri.box.minPoint.x < rightBox.minPoint.x) rightBox.minPoint.x = tri.box.minPoint.x;
+            if (tri.box.minPoint.y < rightBox.minPoint.y) rightBox.minPoint.y = tri.box.minPoint.y;
+            if (tri.box.minPoint.z < rightBox.minPoint.z) rightBox.minPoint.z = tri.box.minPoint.z;
+            if (tri.box.maxPoint.x > rightBox.maxPoint.x) rightBox.maxPoint.x = tri.box.maxPoint.x;
+            if (tri.box.maxPoint.y > rightBox.maxPoint.y) rightBox.maxPoint.y = tri.box.maxPoint.y;
+            if (tri.box.maxPoint.z > rightBox.maxPoint.z) rightBox.maxPoint.z = tri.box.maxPoint.z;
+            numOnRight++;
+        }
     }
 
-    float bestCost = std::numeric_limits<float>::infinity(); // initialize to +inf
-    int bestAxis = -1;                                       // no axis yet
-    int bestSplit = -1;
+    float costA = NodeCost(leftBox.maxPoint - leftBox.minPoint, numOnLeft);
+    float costB = NodeCost(rightBox.maxPoint - rightBox.minPoint, numOnRight);
 
-    AABB parentBB = node->boundingBox;
+    return costA + costB;
+}
 
-    // SAH constants
-    const float C_trav = 1.0f;
-    const float C_isect = 1.0f;
+BVH::Split BVH::chooseSplit(Node node, int start, int count) {
+    Split bestSplit;
+    bestSplit.cost = FLT_MAX;
+    bestSplit.axis = 0;
+    bestSplit.pos = 0.0f;
+    if (count <= 1) {
+        return bestSplit;
+    }
 
-    // we test on each axes
-    for (int axis = 0; axis < 3; axis++)
-    {
+    vec3 size = node.boundingBox.maxPoint - node.boundingBox.minPoint;
 
-        // Sort by centroid
-        std::sort(centroids.begin(), centroids.end(),
-                  [axis](const CentroidData &a, const CentroidData &b)
-                  {
-                      return a.centroid[axis] < b.centroid[axis];
-                  });
+    if (quality == QUALITY_LOW) {
+        int largestAxisIndex = size[0] > size[1] && size[0] > size[2] ? 0 : (size[1] > size[2] ? 1 : 2);
+        float pos;
+        if (largestAxisIndex == 0) {
+            pos = node.boundingBox.minPoint.x + size.x * 0.5f;
+        } else if (largestAxisIndex == 1) {
+            pos = node.boundingBox.minPoint.y + size.y * 0.5f;
+        } else {
+            pos = node.boundingBox.minPoint.z + size.z * 0.5f;
+        }
+        bestSplit.axis = largestAxisIndex;
+        bestSplit.pos = pos;
+        // cost is not used in low quality
+        return bestSplit;
+    }
 
-        // Precompute left and right BBoxes
-        std::vector<AABB> leftBB(numTriangles);
-        std::vector<AABB> rightBB(numTriangles);
+    float bestPos = 0.0f;
+    int bestAxis = 0;
+    int maxTests = count < 10 ? 3 : 5;
+    float maxAxis = max(size.x, max(size.y, size.z));
+    float bestCost = FLT_MAX;
 
-        AABB bb;
-
-        // prefix (left boxes)
-        for (int i = 0; i < numTriangles; i++)
-        {
-            bb.GrowToInclude(*centroids[i].tri);
-            leftBB[i] = bb;
+    for (int axis = 0; axis < 3; ++axis) {
+        float axisSize;
+        float axisMin;
+        
+        switch(axis) {
+            case 0:
+                axisSize = size.x;
+                axisMin = node.boundingBox.minPoint.x;
+                break;
+            case 1:
+                axisSize = size.y;
+                axisMin = node.boundingBox.minPoint.y;
+                break;
+            case 2:
+                axisSize = size.z;
+                axisMin = node.boundingBox.minPoint.z;
+                break;
         }
 
-        // suffix (right boxes)
-        bb = AABB();
-        for (int i = numTriangles - 1; i >= 0; i--)
-        {
-            bb.GrowToInclude(*centroids[i].tri);
-            rightBB[i] = bb;
-        }
+        int numSplitTests = ceilToInt(maxTests * (axisSize / maxAxis));
+        numSplitTests = max(numSplitTests, 2);
 
-        // if we found a better splitScore, we store it and we continue until getting the best one (at the end)
-        for (int i = 1; i < numTriangles; i++)
-        {
-            float SAleft = leftBB[i - 1].SurfaceArea();
-            float SAright = rightBB[i].SurfaceArea();
-            float SAparent = parentBB.SurfaceArea();
-
-            float cost =
-                C_trav +
-                C_isect * (SAleft / SAparent) * i +
-                C_isect * (SAright / SAparent) * (numTriangles - i);
-
-            if (cost < bestCost)
-            {
+        for (int i = 0; i < numSplitTests; ++i) {
+            float splitT = (i + 1) / static_cast<float>(numSplitTests + 1);
+            float splitPos = axisMin + axisSize * splitT;
+            float cost = evaluateSplit(axis, splitPos, start, count);
+            if (cost < bestCost) {
                 bestCost = cost;
+                bestPos = splitPos;
                 bestAxis = axis;
-                bestSplit = i;
             }
         }
     }
 
-    // if no valid axes found -> no more triangle to split -> become leaf
-    if (bestAxis == -1)
-    {
-        node->triangles.assign(start, end);
-        return node;
-    }
+    bestSplit.axis = bestAxis;
+    bestSplit.pos = bestPos;
+    bestSplit.cost = bestCost;
 
-    // Reorder original triangles according to the best axis
-    std::sort(start, end, [bestAxis](const Triangle &a, const Triangle &b)
-              {
-                  vec3 ca = (a.getV0() + a.getV1() + a.getV2()) / 3.0f;
-                  vec3 cb = (b.getV0() + b.getV1() + b.getV2()) / 3.0f;
-                  return ca[bestAxis] < cb[bestAxis]; });
-
-    auto mid = start + bestSplit;
-
-    node->childA = buildRecursive(start, mid, depth + 1);
-    node->childB = buildRecursive(mid, end, depth + 1);
-
-    return node;
-}
-
-GPUBVH BVH::toGPU(std::vector<GPUBVHNode> &outNodes, std::vector<GPUTriangle> &outTriangles) const
-{
-    GPUBVH gpuBVH;
-    gpuBVH.rootNodeIndex = 0;
-    gpuBVH.meshID = associatedMeshID;
-
-    if (!root)
-    {
-        gpuBVH.numNodes = 0;
-        gpuBVH.numTriangles = 0;
-        return gpuBVH;
-    }
-
-    outNodes.clear();
-    outTriangles.clear();
-
-    int currentNodeIdx = 0;
-    flattenBVH(root, outNodes, outTriangles, currentNodeIdx);
-
-    gpuBVH.numNodes = static_cast<int>(outNodes.size());
-    gpuBVH.numTriangles = static_cast<int>(outTriangles.size());
-
-    return gpuBVH;
-}
-
-void BVH::flattenBVH(bvhNode *node, std::vector<GPUBVHNode> &outNodes,
-                     std::vector<GPUTriangle> &outTriangles, int &currentNodeIdx) const
-{
-    if (!node)
-        return;
-
-    int myIndex = currentNodeIdx++;
-
-    // Reserve space for this node (we'll fill it properly after processing children)
-    outNodes.push_back(GPUBVHNode{});
-
-    if (node->isLeaf())
-    {
-        // Leaf node: store triangles
-        int triStartIdx = static_cast<int>(outTriangles.size());
-        int triCount = static_cast<int>(node->triangles.size());
-
-        // Add triangles to the output array
-        for (const Triangle &tri : node->triangles)
-        {
-            GPUTriangle gpuTri;
-            vec3 v0 = tri.getV0();
-            vec3 v1 = tri.getV1();
-            vec3 v2 = tri.getV2();
-
-            gpuTri.v0 = {v0.x, v0.y, v0.z, 0.0f};
-            gpuTri.v1 = {v1.x, v1.y, v1.z, 0.0f};
-            gpuTri.v2 = {v2.x, v2.y, v2.z, 0.0f};
-            gpuTri.materialIndex = (tri.getMaterial() != nullptr) ? tri.getMaterial()->getMaterialId() : -1;
-            gpuTri._padding[0] = 0.0f;
-            gpuTri._padding[1] = 0.0f;
-            gpuTri._padding[2] = 0.0f;
-
-            outTriangles.push_back(gpuTri);
-        }
-
-        // Fill the node with leaf data
-        outNodes[myIndex] = node->toGPU(-1, triStartIdx, triCount);
-    }
-    else
-    {
-        // Internal node: process children first to get their indices
-        int leftChildIdx = currentNodeIdx;
-
-        // Process left child
-        flattenBVH(node->childA, outNodes, outTriangles, currentNodeIdx);
-
-        // Process right child (will be at leftChildIdx + 1 if tree is complete,
-        // but we use currentNodeIdx to handle any case)
-        flattenBVH(node->childB, outNodes, outTriangles, currentNodeIdx);
-
-        // Fill the node with internal node data
-        // childIndex points to left child, right child is always at childIndex + 1
-        outNodes[myIndex] = node->toGPU(leftChildIdx, -1, 0);
-    }
-}
-// debug function to print the BVH structure in terminal
-void BVH::printRecursive(bvhNode *node, int depth) const
-{
-    if (!node)
-        return;
-
-    // indentation
-    for (int i = 0; i < depth; i++)
-        std::cout << "  ";
-
-    // node info
-    std::cout << "- Node (depth " << depth << ")";
-    // if leaf
-    if (!node->childA && !node->childB)
-    {
-        std::cout << " [LEAF] triangles=" << node->triangles.size() << "\n";
-    }
-    else // if internal node
-    {
-        std::cout << " [INTERNAL]\n";
-    }
-
-    // display children
-    if (node->childA)
-        printRecursive(node->childA, depth + 1);
-    if (node->childB)
-        printRecursive(node->childB, depth + 1);
+    return bestSplit;
 }

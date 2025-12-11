@@ -57,7 +57,6 @@ private:
     cl::Buffer cameraBuffer;
     cl::Buffer materialBuffer;
     cl::Buffer textureBuffer;      // Buffer containing all texture data (RGB pixels)
-    cl::Buffer bvhHeaderBuffer;    // Buffer containing BVH headers (GPUBVH)
     cl::Buffer bvhNodesBuffer;     // Buffer containing all flattened BVH nodes
     cl::Buffer bvhTrianglesBuffer; // Buffer containing all BVH triangles
 
@@ -74,6 +73,7 @@ private:
     bool textureBufferDirty = true; // Track if texture buffer needs update
     bool bvhBufferDirty = true;     // Track if BVH buffer needs update (when a mesh is added/removed/modified)
     int bvhCount = 0;               // Number of BVH stored stored in bvhBuffer
+    int bvhTrianglesCount = 0;     // Number of triangles stored in bvhTrianglesBuffer
 
     Camera sceneCamera;
 
@@ -81,5 +81,4 @@ private:
     void setupShapesBuffer();
     void setupMaterialBuffer();
     void setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials);
-    void setupBVHBuffer();
 };

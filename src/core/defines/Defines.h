@@ -14,7 +14,8 @@ enum ShapeType
     SPHERE = 1,
     SQUARE = 2,
     TRIANGLE = 3,
-    MESH = 4
+    MESH = 4,
+    SHAPE_BVH = 5
 };
 
 enum BufferType
@@ -53,6 +54,16 @@ struct __attribute__((aligned(16))) GPUTriangle
     float _padding[3]; // 12 bytes (offset 52)
 }; // Total: 64 bytes
 
+struct __attribute__((aligned(16))) GPUBVH
+{
+    int node_offset;      // 4 bytes (offset 0)
+    int triangle_offset;  // 4 bytes (offset 4)
+    int node_count;       // 4 bytes (offset 8)
+    int triangle_count;   // 4 bytes (offset 12)
+    int material_index;   // 4 bytes (offset 16)
+    float _padding[11];   // 44 bytes (offset 20)
+}; // Total: 64 bytes
+
 // Struct GPU-compatible (for the kernel)
 typedef struct __attribute__((aligned(16)))
 {
@@ -63,6 +74,7 @@ typedef struct __attribute__((aligned(16)))
         GPUSphere sphere;
         GPUSquare square;
         GPUTriangle triangle;
+        GPUBVH bvh;
     } data;
 } GPUShape;
 
@@ -123,24 +135,11 @@ struct __attribute__((aligned(16))) AABBGPU
 }; // Total: 32 bytes
 
 // GPU-compatible BVH Node structure
-// Using a flattened array representation for GPU traversal
-// If childIndex == -1, it's a leaf node and triangleStartIdx/triangleCount are valid
-// Otherwise, childIndex points to the left child (right child is childIndex + 1)
 struct __attribute__((aligned(16))) GPUBVHNode
 {
-    AABBGPU boundingBox;  // 32 bytes (offset 0)
-    int childIndex;       // 4 bytes (offset 32) - index of left child (-1 if leaf)
-    int triangleStartIdx; // 4 bytes (offset 36) - start index in triangle array (for leaves)
-    int triangleCount;    // 4 bytes (offset 40) - number of triangles (for leaves)
-    int _padding;         // 4 bytes (offset 44) - padding for 16-byte alignment
+    float minx, miny, minz, _padding1; // 16 bytes (offset 0)
+    float maxx, maxy, maxz, _padding2; // 16 bytes (offset 16)
+    int startIndex;                    // 4 bytes (offset 32)
+    int triangleCount;                 // 4 bytes (offset 36)
+    int _padding3[2];                  // 8 bytes (offset 40) -
 }; // Total: 48 bytes
-
-// GPU-compatible BVH structure
-// Contains flattened arrays of nodes and triangles
-struct __attribute__((aligned(16))) GPUBVH
-{
-    int numNodes;      // 4 bytes (offset 0)
-    int numTriangles;  // 4 bytes (offset 4)
-    int rootNodeIndex; // 4 bytes (offset 8) - always 0 for single BVH
-    int meshID;        // 4 bytes (offset 12) - associated mesh ID
-}; // Total: 16 bytes (header only, nodes and triangles are separate buffers)

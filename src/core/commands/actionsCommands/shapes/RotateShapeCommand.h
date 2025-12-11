@@ -46,9 +46,7 @@ public:
             Mesh *mesh = static_cast<Mesh *>(shape);
             mesh->rotate(newRotation - previousRotation); // Rotate all vertices
             mesh->generateCpuTriangles();
-
-            // Notify BVH changed since the mesh has rotated
-            CommandsManager::getInstance().notifyBVHChanged();
+            mesh->rebuildBVH();
         }
         if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }
@@ -63,9 +61,7 @@ public:
             Mesh *mesh = static_cast<Mesh *>(shape);
             mesh->rotate(previousRotation - newRotation); // Rotate all vertices
             mesh->generateCpuTriangles();
-
-            // Notify BVH changed since the mesh has rotated
-            CommandsManager::getInstance().notifyBVHChanged();
+            mesh->rebuildBVH();
         }
         if (shape) CommandsManager::getInstance().notifyShapesChanged();
     }

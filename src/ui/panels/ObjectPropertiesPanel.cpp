@@ -17,6 +17,7 @@
 #include "../../core/commands/actionsCommands/materials/MaterialTransparencyCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialIORCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialMetalnessCommand.h"
+#include "../../core/commands/actionsCommands/materials/MaterialEmissiveCommand.h"
 #include "../../core/commands/actionsCommands/materials/MaterialDiffuseColorCommand.h"
 #include "../../core/systems/SceneManager/SceneManager.h"
 #include "./CustomDoubleSpinBox.h"
@@ -59,26 +60,32 @@ void ObjectPropertiesPanel::setupUI()
 
     QHBoxLayout *colorControlsLayout = new QHBoxLayout();
     // Red spinbox
-    redSpinBox = new QSpinBox();
+    redSpinBox = new CustomDoubleSpinBox();
     redSpinBox->setRange(0, 255);
     redSpinBox->setPrefix("R: ");
     redSpinBox->setValue(255);
+    redSpinBox->setFocusPolicy(Qt::ClickFocus);
+    redSpinBox->installEventFilter(this);
 
     // Green spinbox
-    greenSpinBox = new QSpinBox();
+    greenSpinBox = new CustomDoubleSpinBox();
     greenSpinBox->setRange(0, 255);
     greenSpinBox->setPrefix("G: ");
     greenSpinBox->setValue(255);
+    greenSpinBox->setFocusPolicy(Qt::ClickFocus);
+    greenSpinBox->installEventFilter(this);
 
     // Blue spinbox
-    blueSpinBox = new QSpinBox();
+    blueSpinBox = new CustomDoubleSpinBox();
     blueSpinBox->setRange(0, 255);
     blueSpinBox->setPrefix("B: ");
     blueSpinBox->setValue(255);
+    blueSpinBox->setFocusPolicy(Qt::ClickFocus);
+    blueSpinBox->installEventFilter(this);
 
-    connect(redSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
-    connect(greenSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
-    connect(blueSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(redSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(greenSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(blueSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
 
     colorControlsLayout->addWidget(redSpinBox);
     colorControlsLayout->addWidget(greenSpinBox);
@@ -352,8 +359,8 @@ void ObjectPropertiesPanel::setupUI()
     QHBoxLayout *emissiveLayout = new QHBoxLayout();
     QLabel *emissiveLabel = new QLabel("EMISSIVE:");
     emissiveSpinBox = new QSpinBox();
-    emissiveSpinBox->setRange(0, 1000);
-    emissiveSpinBox->setValue(0);
+    emissiveSpinBox->setRange(1, 1000);
+    emissiveSpinBox->setValue(1);
     emissiveSpinBox->setMaximumWidth(90);
     emissiveLayout->addWidget(emissiveLabel);
     emissiveLayout->addWidget(emissiveSpinBox);
@@ -497,9 +504,7 @@ void ObjectPropertiesPanel::setupUI()
         if (shape) {
             Material *mat = shape->getMaterial();
             if (mat) {
-                mat->setLightIntensity(value);
-                mat->setEmissive(value > 0);
-                CommandsManager::getInstance().notifyMaterialChanged(); // To do replace with actual command
+                CommandsManager::getInstance().executeCommand(new MaterialEmissiveCommand(*mat, value));
             }
         } });
 
@@ -662,8 +667,16 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
             defaultBlackPreview(metalPreviewFrame);
         }
 
-        // same for emissive
-        // TODO
+        QImage emissiveImage(reinterpret_cast<const uchar *>(material->getEmissive().data.data()), material->getEmissive().w, material->getEmissive().h, QImage::Format_RGB888);
+        if (!emissiveImage.isNull())
+        {
+            QPixmap pixmap = QPixmap::fromImage(emissiveImage);
+            emissivePreviewFrame->findChild<QLabel *>()->setPixmap(pixmap.scaled(emissivePreviewFrame->width() - 2, emissivePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+        else
+        {
+            defaultBlackPreview(emissivePreviewFrame);
+        }
     }
     else
     {
@@ -671,6 +684,7 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
         defaultTexturePreview(texturePreviewFrame);
         defaultNormalPreview(normalPreviewFrame);
         defaultBlackPreview(metalPreviewFrame);
+        defaultBlackPreview(emissivePreviewFrame);
     }
 }
 

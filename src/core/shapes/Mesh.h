@@ -3,11 +3,13 @@
 #include "../defines/Defines.h"
 
 #include <vector>
+#include <optional>
 #include "Triangle.h"
 
 #include "../math/aabb.h"
 #include "../math/vec3.h"
 #include "../math/mat3.h"
+#include "../bvh/bvh.h"
 
 struct MeshVertex
 {
@@ -41,9 +43,9 @@ private:
     std::vector<MeshTriangle> triangles;
     std::vector<Triangle> cpuTriangles;
     std::string filename;
+    std::optional<BVH> bvh;
 
 public:
-    Mesh() : Shape() {}
     Mesh(const std::string &filename) : Shape(extractFilename(filename) + " " + std::to_string(nextID))
     {
         loadOFF(filename);
@@ -52,6 +54,8 @@ public:
         scaleToUnit();
         generateCpuTriangles();
         this->filename = filename;
+        // Build BVH after mesh is fully loaded
+        bvh.emplace(*this);
     }
     ShapeType getType() const override { return ShapeType::MESH; }
 
@@ -71,6 +75,12 @@ public:
             cpuTriangles.emplace_back(v0, v1, v2, true);
         }
     }
+
+    void rebuildBVH()
+    {
+        bvh.emplace(*this);
+    }
+
     const std::vector<Triangle> &getTriangles() const
     {
         return cpuTriangles;
@@ -95,6 +105,7 @@ public:
     void translate(const vec3 &offset);
     // Uses angles in radians
     void rotate(const vec3 &angles);
+    BVH &getBVH() { return *bvh; }
 
     std::string getFilename() const { return filename; }
 };

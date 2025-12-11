@@ -3,6 +3,7 @@
 #include <QWidget>
 #include "../../core/commands/CommandsManager.h"
 #include "../../core/material/Material.h"
+#include "./CustomDoubleSpinBox.h"
 #include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QFrame>
@@ -57,9 +58,9 @@ private:
 
     QFrame *colorFrame;
     QLabel *colorPreview;
-    QSpinBox *redSpinBox;
-    QSpinBox *greenSpinBox;
-    QSpinBox *blueSpinBox;
+    CustomDoubleSpinBox *redSpinBox;
+    CustomDoubleSpinBox *greenSpinBox;
+    CustomDoubleSpinBox *blueSpinBox;
     QDoubleSpinBox *reflectionSpinBox;
     QDoubleSpinBox *refractionSpinBox;
     QSpinBox *emissiveSpinBox;

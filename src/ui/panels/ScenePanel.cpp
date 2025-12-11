@@ -127,7 +127,7 @@ void ScenePanel::onAddSquare()
 
 void ScenePanel::onAddTriangle()
 {
-    Shape *triangle = new Triangle(); // Use default constructor
+    Shape *triangle = new Triangle(true); // Use default constructor
     commandManager.executeCommand(new AddShapeCommand(triangle));
     emit addedShape();
     sceneTreeWidget->setSelected(SceneManager::getInstance().getShapes().back()->getID());
