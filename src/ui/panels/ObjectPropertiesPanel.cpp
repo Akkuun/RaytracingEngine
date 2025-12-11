@@ -55,26 +55,32 @@ void ObjectPropertiesPanel::setupUI()
 
     QHBoxLayout *colorControlsLayout = new QHBoxLayout();
     // Red spinbox
-    redSpinBox = new QSpinBox();
+    redSpinBox = new CustomDoubleSpinBox();
     redSpinBox->setRange(0, 255);
     redSpinBox->setPrefix("R: ");
     redSpinBox->setValue(255);
+    redSpinBox->setFocusPolicy(Qt::ClickFocus);
+    redSpinBox->installEventFilter(this);
 
     // Green spinbox
-    greenSpinBox = new QSpinBox();
+    greenSpinBox = new CustomDoubleSpinBox();
     greenSpinBox->setRange(0, 255);
     greenSpinBox->setPrefix("G: ");
     greenSpinBox->setValue(255);
+    greenSpinBox->setFocusPolicy(Qt::ClickFocus);
+    greenSpinBox->installEventFilter(this);
 
     // Blue spinbox
-    blueSpinBox = new QSpinBox();
+    blueSpinBox = new CustomDoubleSpinBox();
     blueSpinBox->setRange(0, 255);
     blueSpinBox->setPrefix("B: ");
     blueSpinBox->setValue(255);
+    blueSpinBox->setFocusPolicy(Qt::ClickFocus);
+    blueSpinBox->installEventFilter(this);
 
-    connect(redSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
-    connect(greenSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
-    connect(blueSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(redSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(greenSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
+    connect(blueSpinBox, QOverload<double>::of(&CustomDoubleSpinBox::valueChanged), this, &ObjectPropertiesPanel::RGBChanged);
 
     colorControlsLayout->addWidget(redSpinBox);
     colorControlsLayout->addWidget(greenSpinBox);
