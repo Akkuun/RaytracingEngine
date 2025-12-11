@@ -113,7 +113,8 @@ MenuWindow::MenuWindow(QWidget *parent)
     listRecentProjects();
     this->examplesData = {
         {"Cornell Box", "./saves/exampleScenes/CornellBox.json"},
-        {"Lutz Goat", "./saves/exampleScenes/lutzScene.json"}
+        {"Lutz Goat", "./saves/exampleScenes/lutzScene.json"},
+        {"Minecraft", "./saves/exampleScenes/minecraft.json"}
     };
 
     // Use a folder icon for each project
