@@ -17,7 +17,7 @@ SceneManager &SceneManager::getInstance()
 
 SceneManager::SceneManager()
 {
-    buildScene(); // Initialize with default scene or loaded scene
+    cornellScene(); // Initialize with default scene or loaded scene
 }
 
 SceneManager::~SceneManager()
@@ -246,14 +246,19 @@ void SceneManager::cornellScene()
     poolMat->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
     poolMat->setMetalness(0.75f);
 
-    // Floor - white
+    Material *floor = new Material(std::string("../assets/textures/lava.ppm"));
+    floor->setNormalsFromPath(std::string("../assets/normals/lava_n.ppm"));
+    floor->setEmissiveFromPath(std::string("../assets/emissives/lava_e.ppm"));
+    floor->setLightIntensity(20.0f);
+
+
     addShape(new Square(
         vec3(0.0f, -0.35f, 0.0f), // pos
         vec3(1.5f, 0.0f, 0.0f),   // u_vec
         vec3(0.0f, 0.0f, 1.5f),   // v_vec
         vec3(0.0f, 1.0f, 0.0f),   // normal
         "Floor",                  // name
-        poolMat));
+        floor));
 
     Material *metalMat = new Material(std::string("../assets/textures/rustediron.ppm"));
     metalMat->setNormalsFromPath(std::string("../assets/normals/rustediron_n.ppm"));
@@ -293,10 +298,11 @@ void SceneManager::cornellScene()
         "Left Wall",             // name
         brickwallMat2));
 
-    // Create a second pool material for the back wall (to avoid double-free)
-    Material *poolMat2 = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
-    poolMat2->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
-    poolMat2->setMetalness(0.75f);
+
+    Material *back = new Material(std::string("../assets/textures/military.ppm"));
+    back->setNormalsFromPath(std::string("../assets/normals/military_n.ppm"));
+    back->setEmissiveFromPath(std::string("../assets/emissives/military_e.ppm"));
+    back->setLightIntensity(20.0f);
 
     // Back wall - white
     addShape(new Square(
@@ -305,7 +311,7 @@ void SceneManager::cornellScene()
         vec3(0.0f, 1.5f, 0.0f),  // v_vec
         vec3(0.0f, 0.0f, -1.0f), // normal
         "Back Wall",             // name
-        poolMat2));
+        back));
 
     // Triangle - blue
     addShape(new Triangle(

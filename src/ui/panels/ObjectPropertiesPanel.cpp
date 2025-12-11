@@ -667,8 +667,16 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
             defaultBlackPreview(metalPreviewFrame);
         }
 
-        // same for emissive
-        // TODO
+        QImage emissiveImage(reinterpret_cast<const uchar *>(material->getEmissive().data.data()), material->getEmissive().w, material->getEmissive().h, QImage::Format_RGB888);
+        if (!emissiveImage.isNull())
+        {
+            QPixmap pixmap = QPixmap::fromImage(emissiveImage);
+            emissivePreviewFrame->findChild<QLabel *>()->setPixmap(pixmap.scaled(emissivePreviewFrame->width() - 2, emissivePreviewFrame->height() - 2, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+        else
+        {
+            defaultBlackPreview(emissivePreviewFrame);
+        }
     }
     else
     {
@@ -676,6 +684,7 @@ void ObjectPropertiesPanel::onTextureSelectionChanged(const Material *material)
         defaultTexturePreview(texturePreviewFrame);
         defaultNormalPreview(normalPreviewFrame);
         defaultBlackPreview(metalPreviewFrame);
+        defaultBlackPreview(emissivePreviewFrame);
     }
 }
 

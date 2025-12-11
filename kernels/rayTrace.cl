@@ -293,6 +293,29 @@ float sample_metal_map(__global const unsigned char* textureData, int offset, in
 	return metalness;
 }
 
+float sample_emissive_map(__global const unsigned char* textureData, int offset, int width, int height, float2 uv)
+{
+	if (offset < 0 || width <= 0 || height <= 0) {
+		return 0.0f; // Default emissive if no map
+	}
+	
+	// Wrap UV coordinates to [0,1]
+	uv.x = uv.x - floor(uv.x);
+	uv.y = uv.y - floor(uv.y);
+	
+	// Convert UV to pixel coordinates
+	int x = (int)(uv.x * width) % width;
+	int y = (int)(uv.y * height) % height;
+	
+	// Calculate pixel index in texture buffer (RGB = 3 bytes per pixel)
+	int pixelIndex = offset + (y * width + x) * 3;
+	
+	// Read red channel and normalize to [0,1] (emissive is typically stored in red channel)
+	float emissive = (float)textureData[pixelIndex + 0] / 255.0f;
+	
+	return emissive;
+}
+
 // Compute tangent space basis (TBN matrix) for normal mapping
 void compute_tangent_space(__global const GPUShape* shape, struct Intersection inter, float3* tangent, float3* bitangent, float3* normal)
 {
@@ -471,15 +494,26 @@ float3 get_shape_color(__global const GPUShape* shape, __global const GPUMateria
 	}
 
 	float3 emissive = (material->light_intensity);
+
+	if (material->has_emissive_map) {
+		emissive *= sample_emissive_map(textureData, material->emissive_map_offset, 
+		                                material->emissive_map_width, material->emissive_map_height, uv);
+	}
+
+	emissive = max(emissive, 0.0f);
 	
-	// Check if material has texture
+	// Get base color (albedo)
+	float3 baseColor;
 	if (material->has_texture) {
-		return sample_texture(textureData, material->texture_offset, 
-		                     material->texture_width, material->texture_height, uv) * emissive;
+		baseColor = sample_texture(textureData, material->texture_offset, 
+		                          material->texture_width, material->texture_height, uv) + 0.00001f;
+								  // + epsilon prevents invisible textures
+	} else {
+		baseColor = vec3_to_float3(material->diffuse);
 	}
 	
-	// No texture, use material diffuse color
-	return vec3_to_float3(material->diffuse) * emissive;
+	// Add emissive component to base color (emissive is additive, not multiplicative)
+	return baseColor / 2.0f + baseColor / 2.0f * emissive;
 }
 
 // Optimized intersection functions with inline and restrict

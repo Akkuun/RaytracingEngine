@@ -385,6 +385,8 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
         {
             const ppmLoader::ImageRGB &image = material->getImage();
             const ppmLoader::ImageRGB &normals = material->getNormals();
+            const ppmLoader::ImageRGB &metallic = material->getMetallic();
+            const ppmLoader::ImageRGB &emissive = material->getEmissive();
 
             if (!image.data.empty() && image.w > 0 && image.h > 0)
             {
@@ -394,6 +396,16 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             if (material->hasNormalMap() && !normals.data.empty() && normals.w > 0 && normals.h > 0)
             {
                 totalSize += normals.data.size() * 3; // RGB: 3 bytes per pixel
+            }
+
+            if (material->hasMetallicMap() && !metallic.data.empty() && metallic.w > 0 && metallic.h > 0)
+            {
+                totalSize += metallic.data.size() * 3; // RGB: 3 bytes per pixel
+            }
+
+            if (material->hasEmissiveMap() && !emissive.data.empty() && emissive.w > 0 && emissive.h > 0)
+            {
+                totalSize += emissive.data.size() * 3; // RGB: 3 bytes per pixel
             }
         }
     }
@@ -495,6 +507,26 @@ void RenderEngine::setupTextureBuffer(std::vector<GPUMaterial> &gpu_materials)
             else
             {
                 gpu_materials[matId].metal_map_offset = -1; // No metal map
+            }
+
+            // Add emissive map data if exists
+            if (material->hasEmissiveMap() && !material->getEmissive().data.empty())
+            {
+                gpu_materials[matId].emissive_map_offset = currentOffset;
+
+                // Copy RGB data for emissive map
+                for (const auto &pixel : material->getEmissive().data)
+                {
+                    allTextureData.push_back(pixel.r);
+                    allTextureData.push_back(pixel.g);
+                    allTextureData.push_back(pixel.b);
+                }
+
+                currentOffset += material->getEmissive().data.size() * 3; // 3 bytes per pixel (RGB)
+            }
+            else
+            {
+                gpu_materials[matId].emissive_map_offset = -1; // No emissive map
             }
         }
         catch (const std::exception &e)

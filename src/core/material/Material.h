@@ -57,6 +57,7 @@ public:
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
     inline const ppmLoader::ImageRGB &getMetallic() const { return metalicityMap; }
+    inline const ppmLoader::ImageRGB &getEmissive() const { return emissionMap; }
     inline void setDiffuseFromRGB(int r, int g, int b)
     {
         float fr = r / 255.0f;
@@ -129,6 +130,13 @@ public:
         metalicityMap.h = 0;
         has_metal_map = false;
     }
+    inline void removeEmissive()
+    {
+        emissionMap.data.clear();
+        emissionMap.w = 0;
+        emissionMap.h = 0;
+        has_emissive_map = false;
+    }
     inline void setMetallic(const ppmLoader::ImageRGB &img)
     {
         metalicityMap = img;
@@ -143,6 +151,21 @@ public:
             pathFileMetalMap = path;
         }
     }
+    inline void setEmissive(const ppmLoader::ImageRGB &img)
+    {
+        emissionMap = img;
+        has_emissive_map = true;
+    }
+    inline void setEmissiveFromPath(const std::string &path)
+    {
+        ppmLoader::load_ppm(emissionMap, path);
+        if (!emissionMap.data.empty())
+        {
+            has_emissive_map = true;
+            pathFileEmissiveMap = path;
+        }
+    }
+
 
     void setPathFileTexture(const std::string &path) { pathFileTexture = path; }
     void setPathFileNormalMap(const std::string &path) { pathFileNormalMap = path; }
