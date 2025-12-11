@@ -18,6 +18,7 @@ public:
 
 public slots:
     void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget)
+    void onShapeTransformChanged(); // Update UI when shape transform changes externally (e.g., undo/redo)
 
 signals:
     // detect when shape X position change

@@ -60,8 +60,8 @@ void SceneManager::buildScene()
 
     if (FileManager::getInstance().getIsNewProjectSelected())
     {
-        //defaultScene();
-        cornellScene();
+        defaultScene();
+        // cornellScene();
         return;
     }
     else
@@ -202,6 +202,18 @@ void SceneManager::defaultScene()
         0.15f,
         vec3(0.25f, -0.2f, -0.25f),
         "Boule 1"));
+    
+    // light spehere emissive
+    Material *lightMat = new Material();
+    lightMat->setEmissive(true);
+    lightMat->setLightIntensity(30.0f);
+    lightMat->setDiffuse(vec3(1.0f, 1.0f, 1.0f));
+    addShape(new Sphere(
+        0.1f,
+        vec3(0.0f, 0.1f, 0.0f),
+        "Light Sphere",
+        lightMat
+    ));
 }
 
 void SceneManager::cornellScene()
@@ -224,13 +236,13 @@ void SceneManager::cornellScene()
 
     // Sphere 2 - Texture Material
     addShape(new Sphere(
-        0.1f,                                         // radius
-        vec3(-0.25f, -0.25f, -0.25f),                 // center
-        "Boule 2",                                    // name
-        earthMat                                     // Earth texture
-    ));
+        0.1f,                         // radius
+        vec3(-0.25f, -0.25f, -0.25f), // center
+        "Boule 2",                    // name
+        earthMat                      // Earth texture
+        ));
 
-    Material* poolMat = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
+    Material *poolMat = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
     poolMat->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
     poolMat->setMetalness(0.75f);
 
@@ -242,21 +254,20 @@ void SceneManager::cornellScene()
         vec3(0.0f, 1.0f, 0.0f),   // normal
         "Floor",                  // name
         poolMat));
-    
-    Material* metalMat = new Material(std::string("../assets/textures/rustediron.ppm"));
+
+    Material *metalMat = new Material(std::string("../assets/textures/rustediron.ppm"));
     metalMat->setNormalsFromPath(std::string("../assets/normals/rustediron_n.ppm"));
     metalMat->setMetallicFromPath(std::string("../assets/metallics/rustediron_m.ppm"));
 
-        // Ceiling - white (no name)
+    // Ceiling - white (no name)
     addShape(new Square(
         vec3(0.0f, 0.35f, 0.0f), // pos
         vec3(1.5f, 0.0f, 0.0f),  // u_vec
         vec3(0.0f, 0.0f, 1.5f),  // v_vec
         vec3(0.0f, -1.0f, 0.0f), // normal
-        "Ceiling",              
-        metalMat
-    ));
-            
+        "Ceiling",
+        metalMat));
+
     Material *brickwallMat = new Material(std::string("../assets/textures/brickwall.ppm"));
     brickwallMat->setNormalsFromPath(std::string("../assets/normals/brickwall_n.ppm"));
 
@@ -283,7 +294,7 @@ void SceneManager::cornellScene()
         brickwallMat2));
 
     // Create a second pool material for the back wall (to avoid double-free)
-    Material* poolMat2 = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
+    Material *poolMat2 = new Material(std::string("../assets/textures/white_pool_tiles.ppm"));
     poolMat2->setNormalsFromPath(std::string("../assets/normals/pool_tiles_n.ppm"));
     poolMat2->setMetalness(0.75f);
 

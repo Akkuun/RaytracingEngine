@@ -1,6 +1,7 @@
 #include "FileManager.h"
 #include <iostream>
 #include <QFileDialog>
+#include <QCoreApplication>
 #include "../SceneManager/SceneManager.h"
 #include "../../shapes/Shape.h"
 #include "../../camera/Camera.h"
@@ -35,12 +36,28 @@ void FileManager::saveProject()
 
 void FileManager::createNewProjectSaveFile()
 {
-    // open QDialog to choose the path and name of the new save file
-    // then call saveProjectAs with the chosen path
-    QString newPath = QFileDialog::getSaveFileName(nullptr, "Save Project As", "", "JSON Files (*.json)");
-    if (!newPath.isEmpty())
+    QFileDialog dialog(nullptr, "Save Project As");
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setNameFilter("JSON Files (*.json)");
+
+    // Force Qt's non-native dialog
+    dialog.setOption(QFileDialog::DontUseNativeDialog, true);
+
+    // suggest a default filename
+    dialog.selectFile("project.json");
+    dialog.setDirectory(QDir::homePath());
+
+    std::string actualProjectPath;
+
+    if (dialog.exec() == QDialog::Accepted)
     {
-        actualProjectPath = newPath.toStdString() + ".json"; // add .json extension
+        QString newPath = dialog.selectedFiles().first();
+
+        // Ensure the .json extension is present
+        if (!newPath.endsWith(".json", Qt::CaseInsensitive))
+            newPath += ".json";
+
+        actualProjectPath = newPath.toStdString();
         saveProjectAs(actualProjectPath);
     }
 }
@@ -85,7 +102,7 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         {"near_plane", camera.getNearPlane()},
         {"far_plane", camera.getFarPlane()}};
 
-    std::cout << " new fov: " << jsonData["camera"]["fov"] << std::endl;    
+    std::cout << " new fov: " << jsonData["camera"]["fov"] << std::endl;
 
     // 3 - save shapes and their properties
 
@@ -106,79 +123,108 @@ void FileManager::saveProjectAs(const std::string &newProjectPath)
         if (mat)
         {
             nlohmann::json matJson;
-            matJson["id"] = mat->getMaterialId();
-            matJson["ambient"] = {mat->getAmbient().x, mat->getAmbient().y, mat->getAmbient().z};
+
+            // Save material ID
+            matJson["material_id"] = mat->getMaterialId();
+
+            // Save base color properties (always save these for compatibility)
             matJson["diffuse"] = {mat->getDiffuse().x, mat->getDiffuse().y, mat->getDiffuse().z};
+            matJson["ambient"] = {mat->getAmbient().x, mat->getAmbient().y, mat->getAmbient().z};
             matJson["specular"] = {mat->getSpecular().x, mat->getSpecular().y, mat->getSpecular().z};
             matJson["shininess"] = mat->getShininess();
+
+            // Save physical properties
             matJson["transparency"] = mat->getTransparency();
             matJson["index_medium"] = mat->getIndexMedium();
+            matJson["metalness"] = mat->getMetalness();
+
+            // Save emissive properties
             matJson["emissive"] = mat->isEmissive();
             matJson["light_color"] = {mat->getLightColor().x, mat->getLightColor().y, mat->getLightColor().z};
             matJson["light_intensity"] = mat->getLightIntensity();
-            matJson["has_normal_map"] = mat->hasNormalMap();
-            matJson["material_id"] = mat->getMaterialId();
+
+            // Save texture scaling
             matJson["texture_scale_x"] = mat->getTextureScaleX();
             matJson["texture_scale_y"] = mat->getTextureScaleY();
+
+            // Save texture paths if they exist
             if (mat->hasTexture())
             {
                 matJson["texture"] = mat->getPathFileTexture();
             }
+
+            // Save normal map path if it exists
             if (mat->hasNormalMap())
             {
                 matJson["normal_map"] = mat->getPathFileNormalMap();
             }
+
+            // Save metal map path if it exists
+            if (mat->hasMetalMap())
+            {
+                matJson["metal_map"] = mat->getPathFileMetalMap();
+            }
+
+            // Save emissive map path if it exists
+            if (mat->hasEmissiveMap())
+            {
+                matJson["emissive_map"] = mat->getPathFileEmissiveMap();
+            }
+
+            // Save boolean flags for map presence
+            matJson["has_normal_map"] = mat->hasNormalMap();
+
             shapeJson["material"] = matJson;
         }
 
         // Based on shape type, save specific properties
         switch (shape->getType())
         {
-            case ShapeType::SPHERE:
+        case ShapeType::SPHERE:
+        {
+            Sphere *sphere = dynamic_cast<Sphere *>(shape);
+            if (sphere)
             {
-                Sphere *sphere = dynamic_cast<Sphere *>(shape);
-                if (sphere)
-                {
-                    shapeJson["radius"] = sphere->getRadius();
-                    shapeJson["center"] = {sphere->getCenter().x, sphere->getCenter().y, sphere->getCenter().z};
-                }
-                break;
+                shapeJson["radius"] = sphere->getRadius();
+                shapeJson["center"] = {sphere->getCenter().x, sphere->getCenter().y, sphere->getCenter().z};
             }
-            case ShapeType::SQUARE:
+            break;
+        }
+        case ShapeType::SQUARE:
+        {
+            Square *square = dynamic_cast<Square *>(shape);
+            if (square)
             {
-                Square *square = dynamic_cast<Square *>(shape);
-                if (square)
-                {
-                    shapeJson["u_vec"] = {square->getUVector().x, square->getUVector().y, square->getUVector().z};
-                    shapeJson["v_vec"] = {square->getVVector().x, square->getVVector().y, square->getVVector().z};
-                    shapeJson["normal"] = {square->getNormal().x, square->getNormal().y, square->getNormal().z};
-                }
-                break;
+                shapeJson["u_vec"] = {square->getUVector().x, square->getUVector().y, square->getUVector().z};
+                shapeJson["v_vec"] = {square->getVVector().x, square->getVVector().y, square->getVVector().z};
+                shapeJson["normal"] = {square->getNormal().x, square->getNormal().y, square->getNormal().z};
             }
+            break;
+        }
 
-            case ShapeType::TRIANGLE:
+        case ShapeType::TRIANGLE:
+        {
+            Triangle *triangle = dynamic_cast<Triangle *>(shape);
+            if (triangle)
             {
-                Triangle *triangle = dynamic_cast<Triangle *>(shape);
-                if (triangle)
-                {
-                    shapeJson["vertexA"] = {triangle->getV0().x, triangle->getV0().y, triangle->getV0().z};
-                    shapeJson["vertexB"] = {triangle->getV2().x, triangle->getV2().y, triangle->getV2().z}; // Switch v1 and v2 to fix normal
-                    shapeJson["vertexC"] = {triangle->getV1().x, triangle->getV1().y, triangle->getV1().z};
-                }
-                break;
+                shapeJson["vertexA"] = {triangle->getV0().x, triangle->getV0().y, triangle->getV0().z};
+                shapeJson["vertexB"] = {triangle->getV2().x, triangle->getV2().y, triangle->getV2().z}; // Switch v1 and v2 to fix normal
+                shapeJson["vertexC"] = {triangle->getV1().x, triangle->getV1().y, triangle->getV1().z};
             }
-            case ShapeType::MESH:
+            break;
+        }
+        case ShapeType::MESH:
+        {
+            Mesh *mesh = dynamic_cast<Mesh *>(shape);
+            if (mesh)
             {
-                Mesh *mesh = dynamic_cast<Mesh *>(shape);
-                if (mesh)
-                {
-                    shapeJson["file_path"] = mesh->getFilename();
-                }
-                break;
+                shapeJson["file_path"] = mesh->getFilename();
             }
-            default:
-                std::cerr << "Warning: Unknown shape type while saving project." << std::endl;
-                break;
+            break;
+        }
+        default:
+            std::cerr << "Warning: Unknown shape type while saving project." << std::endl;
+            break;
         }
 
         jsonData["shapes"].push_back(shapeJson);

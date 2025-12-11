@@ -23,8 +23,9 @@ public:
     void handleKeyPress(int key, bool pressed);
 
 public slots:
-    void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget  
-    void onShapeAdded(); // Receiver of the signal emitted when a new shape is added
+    void onShapeSelectionChanged(int shapeID); // Receiver of the signal emitted when the selected shape changes (from SceneTreeWidget
+    void onShapeAdded();                       // Receiver of the signal emitted when a new shape is added
+    void onMaterialChanged();                  // Update UI when material changes externally (e.g., undo/redo)
 
 signals:
     void materialChanged();
@@ -54,7 +55,7 @@ private:
     QPushButton *clearEmissiveBtn;
 
     // Material properties
-    
+
     QFrame *colorFrame;
     QLabel *colorPreview;
     CustomDoubleSpinBox *redSpinBox;

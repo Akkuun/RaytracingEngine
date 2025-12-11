@@ -29,7 +29,8 @@ typedef struct {
     float fov;        // Field of view in degrees (4 bytes)
 	int nbBounces;    // Number of ray bounces (4 bytes)
 	int raysPerPixel; //  Number of rays per pixel (4 bytes)
-    int bufferType;
+    int bufferType;   // Buffer type (4 bytes)
+    int denoise;      // Temporal denoising enabled (4 bytes)
 } GPUCamera;
 
 // Helper function to convert Vec3 to float3
@@ -1028,26 +1029,32 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	// index *3 for RGB
 	int base_idx = work_item_id * 3;
 	
-	// Temporal accumulation: blend new sample with accumulated samples
+	// Temporal accumulation: blend new sample with accumulated samples (only if denoise is enabled)
 	float3 accumulatedColor;
-	if (frameCount == 0) {
-		// First frame: just use current sample
-		accumulatedColor = outputPixelColor;
-	} else {
-		// Progressive accumulation using running average
-		float3 previousAccum = (float3)(accumBuffer[base_idx], 
-		                                 accumBuffer[base_idx + 1], 
-		                                 accumBuffer[base_idx + 2]);
+	if (camera->denoise) {
+		// Denoising enabled: use temporal accumulation
+		if (frameCount == 0) {
+			// First frame: just use current sample
+			accumulatedColor = outputPixelColor;
+		} else {
+			// Progressive accumulation using running average
+			float3 previousAccum = (float3)(accumBuffer[base_idx], 
+			                                 accumBuffer[base_idx + 1], 
+			                                 accumBuffer[base_idx + 2]);
+			
+			// Running average: new_avg = (old_avg * n + new_sample) / (n + 1)
+			float t = (float)frameCount / (float)(frameCount + 1);
+			accumulatedColor = previousAccum * t + outputPixelColor * (1.0f - t);
+		}
 		
-		// Running average: new_avg = (old_avg * n + new_sample) / (n + 1)
-		float t = (float)frameCount / (float)(frameCount + 1);
-		accumulatedColor = previousAccum * t + outputPixelColor * (1.0f - t);
+		// Store accumulated color (linear space)
+		accumBuffer[base_idx] = accumulatedColor.x;
+		accumBuffer[base_idx + 1] = accumulatedColor.y;
+		accumBuffer[base_idx + 2] = accumulatedColor.z;
+	} else {
+		// Denoising disabled: use current frame directly
+		accumulatedColor = outputPixelColor;
 	}
-	
-	// Store accumulated color (linear space)
-	accumBuffer[base_idx] = accumulatedColor.x;
-	accumBuffer[base_idx + 1] = accumulatedColor.y;
-	accumBuffer[base_idx + 2] = accumulatedColor.z;
 	
 	// Apply post-processing for display
 	float3 displayColor = clamp(accumulatedColor, 0.0f, 1.0f);

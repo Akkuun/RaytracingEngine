@@ -27,6 +27,11 @@
 ObjectPanel::ObjectPanel(QWidget *parent) : QWidget(parent), currentSelectedShapeID(SceneManager::getInstance().getShapes().front()->getID()), commandManager(CommandsManager::getInstance())
 {
     setupUI();
+    
+    // Register callback for shape changes (undo/redo)
+    commandManager.addShapesChangedCallback([this]() {
+        this->onShapeTransformChanged();
+    });
 }
 
 void ObjectPanel::setupUI()
@@ -272,4 +277,51 @@ void ObjectPanel::handleKeyPress(int key, bool pressed)
 bool ObjectPanel::isShortcutPressed() const
 {
     return keysPressed[Qt::Key_Control];
+}
+
+void ObjectPanel::onShapeTransformChanged()
+{
+    // Update UI widgets when shape transform changes externally (e.g., undo/redo)
+    Shape *shape = SceneManager::getInstance().getShapeByID(currentSelectedShapeID);
+    if (shape == nullptr)
+    {
+        return;
+    }
+
+    // Block signals to prevent feedback loop
+    posX->blockSignals(true);
+    posY->blockSignals(true);
+    posZ->blockSignals(true);
+    rotX->blockSignals(true);
+    rotY->blockSignals(true);
+    rotZ->blockSignals(true);
+    scaleX->blockSignals(true);
+    scaleY->blockSignals(true);
+    scaleZ->blockSignals(true);
+
+    // Update position spinboxes
+    posX->setValue(shape->getPosition().x);
+    posY->setValue(shape->getPosition().y);
+    posZ->setValue(shape->getPosition().z);
+
+    // Update rotation spinboxes
+    rotX->setValue(shape->getRotation().x);
+    rotY->setValue(shape->getRotation().y);
+    rotZ->setValue(shape->getRotation().z);
+
+    // Update scale spinboxes
+    scaleX->setValue(shape->getScale().x);
+    scaleY->setValue(shape->getScale().y);
+    scaleZ->setValue(shape->getScale().z);
+
+    // Unblock signals
+    posX->blockSignals(false);
+    posY->blockSignals(false);
+    posZ->blockSignals(false);
+    rotX->blockSignals(false);
+    rotY->blockSignals(false);
+    rotZ->blockSignals(false);
+    scaleX->blockSignals(false);
+    scaleY->blockSignals(false);
+    scaleZ->blockSignals(false);
 }

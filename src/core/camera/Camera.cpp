@@ -13,11 +13,12 @@
 
 Camera::Camera()
 {
-    if(FileManager::getInstance().getIsNewProjectSelected()) 
+    if (FileManager::getInstance().getIsNewProjectSelected())
     {
         init();
     }
-    else{
+    else
+    {
         loadCameraSettings();
     }
 }
@@ -348,6 +349,7 @@ GPUCamera Camera::toGPU() const
     gpu_camera.nbBounces = m_nb_bounces;
     gpu_camera.raysPerPixel = m_rays_per_pixel;
     gpu_camera.bufferType = m_bufferType;
+    gpu_camera.denoise = m_denoise ? 1 : 0;
 
     return gpu_camera;
 }
@@ -371,13 +373,21 @@ void Camera::setFOV(float fov)
     emit fovChanged(fov);
 }
 
-void Camera::setNbBounces(int bounces) {
+void Camera::setNbBounces(int bounces)
+{
     m_nb_bounces = bounces;
     emit nbBouncesChanged(bounces);
 }
-void Camera::setRaysPerPixel(int rpp) {
+void Camera::setRaysPerPixel(int rpp)
+{
     m_rays_per_pixel = rpp;
     emit raysPerPixelChanged(rpp);
+}
+
+void Camera::setDenoise(bool denoise)
+{
+    m_denoise = denoise;
+    CommandsManager::getInstance().notifyCameraChanged();
 }
 
 void Camera::loadCameraSettings()
@@ -393,8 +403,6 @@ void Camera::loadCameraSettings()
 
     nlohmann::json jsonData;
     file >> jsonData;
-
-
 
     // load camera settings from json
     if (jsonData.contains("camera"))

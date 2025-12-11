@@ -13,9 +13,10 @@ private:
     ppmLoader::ImageRGB newMetallic;
     int commandID;
     inline static int nextCommandID = 0;
+    std::string pathFileMetal;
 public:
-    SetMetallicShape(Shape* shape, ppmLoader::ImageRGB newMetal)
-        : shape(shape), newMetallic(newMetal), commandID(nextCommandID++) {
+    SetMetallicShape(Shape* shape, ppmLoader::ImageRGB newMetal, const std::string& pathFileMetal)
+        : shape(shape), newMetallic(newMetal), commandID(nextCommandID++), pathFileMetal(pathFileMetal) {
         Material* mat = shape->getMaterial();
         if (mat) {
             try {
@@ -36,6 +37,9 @@ public:
     }
     void execute() override {
         shape->getMaterial()->setMetallic(newMetallic);
+        shape->getMaterial()->setHasMetalMap(true);
+        std::cout << pathFileMetal << std::endl;
+        shape->getMaterial()->setPathFileMetalMap(pathFileMetal);
         CommandsManager::getInstance().notifySceneChanged(); // notifyMaterialChanged didn't work to update texture for meshes
     }
     void undo() override {

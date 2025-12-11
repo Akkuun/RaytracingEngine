@@ -3,6 +3,7 @@
 #include <QWidget>
 
 class QSpinBox;
+class QCheckBox;
 
 class ParametersPanel : public QWidget
 {
@@ -23,4 +24,5 @@ private:
 
     QSpinBox *raysSpin;
     QSpinBox *reboundsSpin;
+    QCheckBox *denoiseCheck;
 };

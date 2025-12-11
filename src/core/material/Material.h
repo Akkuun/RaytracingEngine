@@ -51,6 +51,8 @@ public:
     inline const vec3 &getLightColor() const { return light_color; }
     inline float getLightIntensity() const { return light_intensity; }
     inline bool hasNormalMap() const { return has_normal_map; }
+    inline bool hasEmissiveMap() const { return has_emissive_map; }
+    inline bool hasMetalMap() const { return has_metal_map; }
     inline bool hasMetallicMap() const { return has_metal_map; }
     inline const ppmLoader::ImageRGB &getImage() const { return image; }
     inline const ppmLoader::ImageRGB &getNormals() const { return normals; }
@@ -66,6 +68,8 @@ public:
     inline bool hasTexture() const { return  has_texture; }
     inline std::string getPathFileTexture() const { return pathFileTexture; }
     inline std::string getPathFileNormalMap() const { return pathFileNormalMap; }
+    inline std::string getPathFileMetalMap() const { return pathFileMetalMap; }
+    inline std::string getPathFileEmissiveMap() const { return pathFileEmissiveMap; }
     inline float getTextureScaleX() const { return texture_scale_x; }
     inline float getTextureScaleY() const { return texture_scale_y; }
     // Setters
@@ -136,12 +140,17 @@ public:
         if (!metalicityMap.data.empty())
         {
             has_metal_map = true;
+            pathFileMetalMap = path;
         }
     }
 
     void setPathFileTexture(const std::string &path) { pathFileTexture = path; }
     void setPathFileNormalMap(const std::string &path) { pathFileNormalMap = path; }
+    void setPathFileEmissiveMap(const std::string &path) { pathFileEmissiveMap = path; }
+    void setPathFileMetalMap(const std::string &path) { pathFileMetalMap = path; }
     void setHasNormalMap(bool has) { has_normal_map = has; }
+    void setHasMetalMap(bool has) { has_metal_map = has; }
+    void setHasEmissiveMap(bool has) { has_emissive_map = has; }
 
     GPUMaterial toGPU() const;
 
@@ -169,4 +178,6 @@ private:
     int material_id = MaterialId::getInstance().getNewId();
     std::string pathFileTexture = "";
     std::string pathFileNormalMap = "";
+    std::string pathFileEmissiveMap = "";
+    std::string pathFileMetalMap = "";
 };
