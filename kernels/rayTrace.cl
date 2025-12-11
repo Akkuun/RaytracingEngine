@@ -361,16 +361,15 @@ float3 get_perturbed_normal(__global const GPUShape* shape, struct Intersection 
 	return normalize(world_normal);
 }
 
-// Get material by materialIndex, searching through materials array by material_id
+// Get material by materialIndex with O(1) direct access
 __global const GPUMaterial* get_material_by_index(int materialIndex, __global const GPUMaterial* materials, int numMaterials)
 {
-	if (materialIndex < 0) return NULL;
+	if (materialIndex < 0 || materialIndex >= numMaterials) return NULL;
 	
-	for (int i = 0; i < numMaterials; i++) {
-		if (materials[i].material_id == materialIndex) {
-			return &materials[i];
-		}
+	if (materials[materialIndex].material_id == materialIndex) {
+		return &materials[materialIndex];
 	}
+	
 	return NULL;
 }
 
@@ -397,7 +396,7 @@ int get_shape_material_index(__global const GPUShape* shape, __global const GPUM
 		materialIndex = shape->data.square.materialIndex;
 	} else if (shape->type == TRIANGLE) {
 		materialIndex = shape->data.triangle.materialIndex;
-	} else if (shape->type == BVH) {
+	} else if (shape->type == MESH || shape->type == BVH) {
 		materialIndex = shape->data.bvh.material_index;
 	}
 	
