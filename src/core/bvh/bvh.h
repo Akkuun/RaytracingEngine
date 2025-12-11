@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
 #include "../shapes/Triangle.h"
-#include "../shapes/Mesh.h"
 #include "../math/aabb.h"
 #include "../defines/Defines.h"
+
+// Forward declaration to avoid circular dependency
+class Mesh;
 
 #define QUALITY_DISABLED -1
 #define QUALITY_LOW 0
@@ -49,11 +51,11 @@ public:
         AABB box;
         int index;
 
-        BVHTriangle(const Triangle &tri)
+        BVHTriangle(const Triangle &tri, int idx)
         {
             center = (tri.getV0() + tri.getV1() + tri.getV2()) / 3.0f;
             box.GrowToInclude(tri);
-            index = tri.getID();
+            index = idx;
         }
 
         

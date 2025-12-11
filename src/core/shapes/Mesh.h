@@ -3,6 +3,7 @@
 #include "../defines/Defines.h"
 
 #include <vector>
+#include <optional>
 #include "Triangle.h"
 
 #include "../math/aabb.h"
@@ -42,7 +43,7 @@ private:
     std::vector<MeshTriangle> triangles;
     std::vector<Triangle> cpuTriangles;
     std::string filename;
-    BVH bvh = BVH(*this);
+    std::optional<BVH> bvh;
 
 public:
     Mesh() : Shape() {}
@@ -54,6 +55,8 @@ public:
         scaleToUnit();
         generateCpuTriangles();
         this->filename = filename;
+        // Build BVH after mesh is fully loaded
+        bvh.emplace(*this);
     }
     ShapeType getType() const override { return ShapeType::MESH; }
 
@@ -97,7 +100,7 @@ public:
     void translate(const vec3 &offset);
     // Uses angles in radians
     void rotate(const vec3 &angles);
-    BVH &getBVH() { return bvh; }
+    BVH &getBVH() { return *bvh; }
 
     std::string getFilename() const { return filename; }
 };

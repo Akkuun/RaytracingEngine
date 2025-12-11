@@ -207,7 +207,7 @@ void RenderEngine::setupShapesBuffer()
             bvh_gpu.node_offset = static_cast<int>(gpu_bvh_nodes.size());
             bvh_gpu.triangle_offset = static_cast<int>(gpu_bvh_triangles.size());
             bvh_gpu.node_count = mesh->getBVH().nodes.size();
-            bvh_gpu.triangle_count = mesh->getTriangles().size();   
+            bvh_gpu.triangle_count = mesh->getBVH().triangles.size();   
 
             // Append BVH nodes
             for (const auto &node : mesh->getBVH().nodes)
@@ -215,8 +215,8 @@ void RenderEngine::setupShapesBuffer()
                 gpu_bvh_nodes.push_back(node.toGPU());
             }
 
-            // Append BVH triangles
-            for (const auto &tri : mesh->getTriangles())
+            // Append BVH triangles (use BVH's reordered triangles, not original mesh triangles)
+            for (const auto &tri : mesh->getBVH().triangles)
             {
                 gpu_bvh_triangles.push_back(tri.toGPU());
             }

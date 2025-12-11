@@ -1,6 +1,7 @@
 #define SPHERE 1
 #define SQUARE 2
 #define TRIANGLE 3
+#define MESH 4
 #define BVH 5
 
 #define EPSILON 0.001f
@@ -744,7 +745,7 @@ inline __attribute__((always_inline)) struct Intersection intersect_shape(
 		return intersect_square(&shape->data.square, ray, t);
 	} else if (shape->type == TRIANGLE) {
 		return intersect_triangle(&shape->data.triangle, ray, t);
-	} else if (shape->type == BVH) {
+	} else if (shape->type == MESH || shape->type == BVH) {
 		return intersect_bvh(&shape->data.bvh, nodes, triangles, ray);
 	}
 	struct Intersection result;
@@ -752,7 +753,12 @@ inline __attribute__((always_inline)) struct Intersection intersect_shape(
 	return result;
 }
 
-inline __attribute__((always_inline)) struct Intersection compute_intersection(__global const GPUShape* restrict shapes, int numShapes, const struct Ray* restrict ray)
+inline __attribute__((always_inline)) struct Intersection compute_intersection(
+	__global const GPUShape* restrict shapes, 
+	int numShapes, 
+	const struct Ray* restrict ray,
+	__global const GPUBVHNode* restrict nodes,
+	__global const GPUTriangle* restrict triangles)
 {
 	float t = 1e20;
 	int hitShapeIndex = -1;
@@ -762,7 +768,7 @@ inline __attribute__((always_inline)) struct Intersection compute_intersection(_
 	for (int i = 0; i < numShapes; i++){
 		float t_temp = 1e20;
 		struct Intersection intersection;
-		intersection = intersect_shape(&shapes[i], ray, &t_temp);
+		intersection = intersect_shape(&shapes[i], ray, &t_temp, nodes, triangles);
 
 		if (intersection.t > EPSILON && intersection.t < t){
 			t = intersection.t;
@@ -775,12 +781,18 @@ inline __attribute__((always_inline)) struct Intersection compute_intersection(_
 	return finalIntersection;
 }
 
-inline __attribute__((always_inline)) bool compute_shadow(__global const GPUShape* restrict shapes, int numShapes, const struct Ray* restrict shadowRay, float maxDistance)
+inline __attribute__((always_inline)) bool compute_shadow(
+	__global const GPUShape* restrict shapes, 
+	int numShapes, 
+	const struct Ray* restrict shadowRay, 
+	float maxDistance,
+	__global const GPUBVHNode* restrict nodes,
+	__global const GPUTriangle* restrict triangles)
 {
 	for (int i = 0; i < numShapes; i++){
 		float t_temp = 1e20;
 		struct Intersection intersection;
-		intersection = intersect_shape(&shapes[i], shadowRay, &t_temp);
+		intersection = intersect_shape(&shapes[i], shadowRay, &t_temp, nodes, triangles);
 
 		if (intersection.t > EPSILON && intersection.t < maxDistance){
 			return true; /* in shadow */
@@ -792,7 +804,19 @@ inline __attribute__((always_inline)) bool compute_shadow(__global const GPUShap
 
 // Iterative version to avoid recursion issues with Rusticl driver
 // Uses hemisphere sampling for diffuse materials
-float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape* shapes, int numShapes, const struct Light* lights, int numLights, int maxBounces, uint* seed, __global const GPUMaterial* materials, int numMaterials, __global const unsigned char* textureData)
+float3 raytrace_iterative(
+	const struct Ray* initialRay, 
+	__global const GPUShape* shapes, 
+	int numShapes, 
+	const struct Light* lights, 
+	int numLights, 
+	int maxBounces, 
+	uint* seed, 
+	__global const GPUMaterial* materials, 
+	int numMaterials, 
+	__global const unsigned char* textureData,
+	__global const GPUBVHNode* restrict nodes,
+	__global const GPUTriangle* restrict triangles)
 {
 	float3 accumulatedColor = (float3)(0.0f, 0.0f, 0.0f);
 	float3 throughput = (float3)(1.0f, 1.0f, 1.0f); // Track how much light can pass through
@@ -800,7 +824,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 	struct Ray currentRay = *initialRay;
 	
 	for (int bounce = 0; bounce < maxBounces; bounce++) {
-		struct Intersection intersection = compute_intersection(shapes, numShapes, &currentRay);
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &currentRay, nodes, triangles);
 		
 		if (intersection.t < EPSILON) {
 			// No intersection, could add sky color here
@@ -826,7 +850,7 @@ float3 raytrace_iterative(const struct Ray* initialRay, __global const GPUShape*
 				shadowRay.dir = lightDir;
 				float lightDistance = length(lights[i].pos - intersection.hitpoint);
 				
-				if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON)) {
+				if (!compute_shadow(shapes, numShapes, &shadowRay, lightDistance - EPSILON, nodes, triangles)) {
 					// Not in shadow - add full lighting
 					directLight += diffuse * lights[i].color * lights[i].intensity * dotLN;
 				} else {
@@ -965,21 +989,21 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	
 	float3 outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
 	if (camera->bufferType == BUFFER_IMAGE) {
-		outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData);
+		outputPixelColor = raytrace_iterative(&camray, shapes, numShapes, lights, numLights, maxbounce, &seed, materials, numMaterials, textureData, bvhNodes, bvhTriangles);
 
 		/* If no intersection found, return background colour */
 		if (outputPixelColor.x == 0.0f && outputPixelColor.y == 0.0f && outputPixelColor.z == 0.0f) {
 			outputPixelColor = (float3)(fy * 0.7f, fy * 0.3f, 0.3f);
 		}
 	} else if (camera->bufferType == BUFFER_ALBEDO) {
-		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray);
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray, bvhNodes, bvhTriangles);
 		if (intersection.t > EPSILON) {
 			outputPixelColor = get_shape_color(&shapes[intersection.hitShapeIndex], materials, numMaterials, textureData, intersection.uv);
 		} else {
 			outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
 		}
 	} else if (camera->bufferType == BUFFER_NORMAL) {
-		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray);
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray, bvhNodes, bvhTriangles);
 		if (intersection.t > EPSILON) {
 			float3 normal = get_perturbed_normal(&shapes[intersection.hitShapeIndex], intersection, get_material_by_index(get_shape_material_index(&shapes[intersection.hitShapeIndex], materials, numMaterials), materials, numMaterials), textureData);
 			outputPixelColor = normal * 0.5f + 0.5f; // Map from [-1,1] to [0,1]
@@ -987,7 +1011,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 			outputPixelColor = (float3)(0.0f, 0.0f, 0.0f);
 		}
 	} else if (camera->bufferType == BUFFER_DEPTH) {
-		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray);
+		struct Intersection intersection = compute_intersection(shapes, numShapes, &camray, bvhNodes, bvhTriangles);
 		if (intersection.t > EPSILON) {
 			// Map depth to [0,1] range for visualization
 			float depth = intersection.t;

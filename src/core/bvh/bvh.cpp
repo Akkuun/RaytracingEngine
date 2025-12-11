@@ -1,5 +1,7 @@
 #include "bvh.h"
+#include "../shapes/Mesh.h"
 #include <algorithm>
+#include <iostream>
 
 float max(float a, float b) {
     return (a > b) ? a : b;
@@ -19,8 +21,9 @@ BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel) {
     buildTriangles.reserve(mesh.getTriangles().size());
 
     AABB globalBox;
+    int idx = 0;
     for (const auto &tri : mesh.getTriangles()) {
-        buildTriangles.emplace_back(new BVHTriangle(tri));
+        buildTriangles.emplace_back(tri, idx++);
         globalBox.GrowToInclude(tri);
     }
 
@@ -43,9 +46,11 @@ BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel) {
     }
     
     nodes = nodesList.nodes;
+    
+    std::cout << "BVH constructed: " << nodes.size() << " nodes, " << triangles.size() << " triangles" << std::endl;
 }
 
-void BVH::split(int parentIndex, int triGlobalStart, int triNum, int depth=0) {
+void BVH::split(int parentIndex, int triGlobalStart, int triNum, int depth) {
     Node* parentNode = &nodesList.nodes[parentIndex];
 
     vec3 size = parentNode->boundingBox.maxPoint - parentNode->boundingBox.minPoint;
