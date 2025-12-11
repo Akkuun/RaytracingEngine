@@ -182,6 +182,7 @@ void SceneManager::buildScene(const std::string &path)
             mesh->translate(position);
             mesh->generateCpuTriangles();
             mesh->setMaterial(material);
+            mesh->rebuildBVH();
             shape = mesh;
         }
         else
