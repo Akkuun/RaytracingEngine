@@ -33,22 +33,12 @@ public:
         sceneManager.deleteShape(shape);
         ownsShape = true;
         CommandsManager::getInstance().notifyShapesChanged();
-
-        // notify BVH changed ONLY if the shape is a mesh
-        if (shape->getType() == ShapeType::MESH) {
-            CommandsManager::getInstance().notifyBVHChanged();
-        }
     }
 
     void undo() override {
         sceneManager.addShape(shape);
         ownsShape = false;
         CommandsManager::getInstance().notifyShapesChanged();
-
-        // notify BVH changed ONLY if the shape is a mesh
-        if (shape->getType() == ShapeType::MESH) {
-            CommandsManager::getInstance().notifyBVHChanged();
-        }
     }
 
     int getID() const override {

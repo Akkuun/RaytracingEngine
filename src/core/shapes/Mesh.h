@@ -76,6 +76,12 @@ public:
             cpuTriangles.emplace_back(v0, v1, v2, true);
         }
     }
+
+    void rebuildBVH()
+    {
+        bvh.emplace(*this);
+    }
+
     const std::vector<Triangle> &getTriangles() const
     {
         return cpuTriangles;
