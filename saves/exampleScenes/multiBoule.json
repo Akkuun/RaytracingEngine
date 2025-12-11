@@ -1,0 +1,2697 @@
+{
+    "camera": {
+        "far_plane": 10000.0,
+        "fov": 40.0,
+        "near_plane": 0.10000000149011612,
+        "position": [
+            1.9643299579620361,
+            0.04925159364938736,
+            -1.9262512922286987
+        ],
+        "rotation": [
+            0.1694713830947876,
+            -0.8919193148612976,
+            0.0
+        ]
+    },
+    "project_name": "multiBoule",
+    "shapes": [
+        {
+            "id": 0,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.4901960790157318,
+                    0.7137255072593689,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.159999966621399,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 0,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Floor",
+            "normal": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "position": [
+                0.0,
+                -0.3499999940395355,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                3.450000047683716,
+                3.450000047683716,
+                3.450000047683716
+            ],
+            "type": 2,
+            "u_vec": [
+                1.5,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.0,
+                1.5
+            ]
+        },
+        {
+            "center": [
+                1.2899999618530273,
+                -0.009999999776482582,
+                -0.25
+            ],
+            "id": 1,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5,
+                    0.5,
+                    0.5
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 0.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 1,
+                "metalness": 1.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.1899999976158142
+            },
+            "name": "Boule 1",
+            "position": [
+                1.2899999618530273,
+                -0.009999999776482582,
+                -0.25
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                3.8499999046325684,
+                3.8499999046325684,
+                3.8499999046325684
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.18000000715255737,
+                1.7899999618530273,
+                -0.33000001311302185
+            ],
+            "id": 2,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.9843137264251709,
+                    0.7882353067398071,
+                    0.7372549176216125
+                ],
+                "emissive": true,
+                "has_normal_map": false,
+                "index_medium": 1.3899999856948853,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 30.0,
+                "material_id": 2,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Light Sphere",
+            "position": [
+                -0.18000000715255737,
+                1.7899999618530273,
+                -0.33000001311302185
+            ],
+            "radius": 0.10000000149011612,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                8.449999809265137,
+                8.449999809265137,
+                8.449999809265137
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.699999988079071,
+                -0.23999999463558197,
+                -0.30000001192092896
+            ],
+            "id": 3,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.12941177189350128,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 3,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 3",
+            "position": [
+                -0.699999988079071,
+                -0.23999999463558197,
+                -0.30000001192092896
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -1.399999976158142,
+                -0.20000000298023224,
+                0.4699999988079071
+            ],
+            "id": 4,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.8235294222831726,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 4,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 4",
+            "position": [
+                -1.399999976158142,
+                -0.20000000298023224,
+                0.4699999988079071
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.399999976158142,
+                1.399999976158142,
+                1.399999976158142
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -1.149999976158142,
+                -0.27000001072883606,
+                -1.0
+            ],
+            "id": 5,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.7411764860153198,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 5,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 5",
+            "position": [
+                -1.149999976158142,
+                -0.27000001072883606,
+                -1.0
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.6499999761581421,
+                0.6499999761581421,
+                0.6499999761581421
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.05000000074505806,
+                0.0,
+                -0.30000001192092896
+            ],
+            "id": 7,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5,
+                    0.5,
+                    0.5
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 0.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 7,
+                "metalness": 1.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 7",
+            "position": [
+                -0.05000000074505806,
+                0.0,
+                -0.30000001192092896
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                3.049999952316284,
+                3.049999952316284,
+                3.049999952316284
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.20999999344348907,
+                -0.20999999344348907,
+                -1.6699999570846558
+            ],
+            "id": 8,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.30980393290519714,
+                    0.45098039507865906,
+                    0.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 8,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 8",
+            "position": [
+                -0.20999999344348907,
+                -0.20999999344348907,
+                -1.6699999570846558
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                -7.039999961853027,
+                -5.597079753875732
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -1.3200000524520874,
+                -0.2199999988079071,
+                -1.4299999475479126
+            ],
+            "id": 10,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.8313725590705872,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 10,
+                "metalness": 1.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 10",
+            "position": [
+                -1.3200000524520874,
+                -0.2199999988079071,
+                -1.4299999475479126
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.5,
+                -0.23000000417232513,
+                -1.0800000429153442
+            ],
+            "id": 11,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.49803921580314636,
+                    0.16078431904315948
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 11,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 11",
+            "position": [
+                0.5,
+                -0.23000000417232513,
+                -1.0800000429153442
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.7400000095367432,
+                -0.20000000298023224,
+                -2.2899999618530273
+            ],
+            "id": 12,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.49803921580314636,
+                    0.2705882489681244
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 12,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 12",
+            "position": [
+                -0.7400000095367432,
+                -0.20000000298023224,
+                -2.2899999618530273
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.350000023841858,
+                1.350000023841858,
+                1.350000023841858
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.7699999809265137,
+                -0.3499999940395355,
+                -1.8600000143051147
+            ],
+            "id": 13,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5,
+                    0.5,
+                    0.5
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 13,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 13",
+            "position": [
+                0.7699999809265137,
+                -0.3499999940395355,
+                -1.8600000143051147
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.3499999940395355,
+                0.3499999940395355,
+                0.3499999940395355
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -1.2699999809265137,
+                -0.27000001072883606,
+                -0.30000001192092896
+            ],
+            "id": 14,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.0784313753247261,
+                    0.10588235408067703,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 14,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 14",
+            "position": [
+                -1.2699999809265137,
+                -0.27000001072883606,
+                -0.30000001192092896
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.44999998807907104,
+                0.44999998807907104,
+                0.44999998807907104
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                2.059999942779541,
+                -0.25,
+                -0.30000001192092896
+            ],
+            "id": 15,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.9411764740943909,
+                    0.9137254953384399
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0700000524520874,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 46.0,
+                "material_id": 15,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 15",
+            "position": [
+                2.059999942779541,
+                -0.25,
+                -0.30000001192092896
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.7799999713897705,
+                -0.3199999928474426,
+                -1.4900000095367432
+            ],
+            "id": 16,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.2823529541492462,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 16,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 16",
+            "position": [
+                1.7799999713897705,
+                -0.3199999928474426,
+                -1.4900000095367432
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                2.440000057220459,
+                -0.3100000023841858,
+                -0.9200000166893005
+            ],
+            "id": 17,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.0470588244497776,
+                    0.003921568859368563
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 17,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 17",
+            "position": [
+                2.440000057220459,
+                -0.3100000023841858,
+                -0.9200000166893005
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.30000001192092896,
+                0.30000001192092896,
+                0.30000001192092896
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                2.0,
+                -0.30000001192092896,
+                0.5199999809265137
+            ],
+            "id": 18,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.11764705926179886,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 18,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 18",
+            "position": [
+                2.0,
+                -0.30000001192092896,
+                0.5199999809265137
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.2899999618530273,
+                -0.3100000023841858,
+                -1.1200000047683716
+            ],
+            "id": 19,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.003921568859368563,
+                    0.21960784494876862,
+                    0.21960784494876862
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 19,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 19",
+            "position": [
+                1.2899999618530273,
+                -0.3100000023841858,
+                -1.1200000047683716
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.3600000143051147,
+                -0.25999999046325684,
+                -1.940000057220459
+            ],
+            "id": 20,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.49803921580314636,
+                    1.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 20,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 20",
+            "position": [
+                1.3600000143051147,
+                -0.25999999046325684,
+                -1.940000057220459
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -2.049999952316284,
+                -0.20000000298023224,
+                -0.30000001192092896
+            ],
+            "id": 21,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.12941177189350128,
+                    0.0117647061124444,
+                    0.12941177189350128
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 21,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 21",
+            "position": [
+                -2.049999952316284,
+                -0.20000000298023224,
+                -0.30000001192092896
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.23000000417232513,
+                -0.25,
+                -1.090000033378601
+            ],
+            "id": 22,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.3921568691730499,
+                    0.3921568691730499,
+                    0.3921568691730499
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 22,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 22",
+            "position": [
+                -0.23000000417232513,
+                -0.25,
+                -1.090000033378601
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.75,
+                -0.28999999165534973,
+                -1.899999976158142
+            ],
+            "id": 23,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.0235294122248888,
+                    0.27450981736183167,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 23,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 23",
+            "position": [
+                -0.75,
+                -0.28999999165534973,
+                -1.899999976158142
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.6000000238418579,
+                0.6000000238418579,
+                0.6000000238418579
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.05000000074505806,
+                -0.28999999165534973,
+                -2.299999952316284
+            ],
+            "id": 24,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.9764705896377563,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 24,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 24",
+            "position": [
+                -0.05000000074505806,
+                -0.28999999165534973,
+                -2.299999952316284
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.6000000238418579,
+                0.6000000238418579,
+                0.6000000238418579
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.5799999833106995,
+                -0.30000001192092896,
+                -2.299999952316284
+            ],
+            "id": 25,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.27450981736183167,
+                    0.10588235408067703,
+                    0.01568627543747425
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 25,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 25",
+            "position": [
+                0.5799999833106995,
+                -0.30000001192092896,
+                -2.299999952316284
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.8999999761581421,
+                0.8999999761581421,
+                0.8999999761581421
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.4099999964237213,
+                -0.28999999165534973,
+                -1.6699999570846558
+            ],
+            "id": 26,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.3921568691730499,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 26,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 26",
+            "position": [
+                0.4099999964237213,
+                -0.28999999165534973,
+                -1.6699999570846558
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.800000011920929,
+                0.800000011920929,
+                0.800000011920929
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.05000000074505806,
+                -0.3100000023841858,
+                -1.3899999856948853
+            ],
+            "id": 27,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.3490196168422699,
+                    0.21960784494876862,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 27,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 27",
+            "position": [
+                -0.05000000074505806,
+                -0.3100000023841858,
+                -1.3899999856948853
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.25,
+                0.25,
+                0.25
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.8999999761581421,
+                -0.28999999165534973,
+                -1.4600000381469727
+            ],
+            "id": 28,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6627451181411743,
+                    0.6745098233222961,
+                    0.6235294342041016
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 28,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 28",
+            "position": [
+                0.8999999761581421,
+                -0.28999999165534973,
+                -1.4600000381469727
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                -3.8370795249938965,
+                0.0
+            ],
+            "scale": [
+                0.699999988079071,
+                0.699999988079071,
+                0.699999988079071
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.7799999713897705,
+                -0.30000001192092896,
+                -1.0299999713897705
+            ],
+            "id": 29,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.9019607901573181,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 29,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 29",
+            "position": [
+                1.7799999713897705,
+                -0.30000001192092896,
+                -1.0299999713897705
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                3.197079658508301,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.550000011920929,
+                0.550000011920929,
+                0.550000011920929
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.399999976158142,
+                -0.3100000023841858,
+                -1.600000023841858
+            ],
+            "id": 30,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.9529411792755127,
+                    0.9372549057006836
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 30,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 30",
+            "position": [
+                1.399999976158142,
+                -0.3100000023841858,
+                -1.600000023841858
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                -0.637079656124115,
+                0.0
+            ],
+            "scale": [
+                0.3499999940395355,
+                0.3499999940395355,
+                0.3499999940395355
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.9800000190734863,
+                -0.3400000035762787,
+                -2.069999933242798
+            ],
+            "id": 31,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.49803921580314636,
+                    0.8117647171020508
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 31,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 31",
+            "position": [
+                0.9800000190734863,
+                -0.3400000035762787,
+                -2.069999933242798
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.2750000059604645,
+                0.2750000059604645,
+                0.2750000059604645
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.3700000047683716,
+                -0.3100000023841858,
+                -1.9800000190734863
+            ],
+            "id": 32,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.7843137383460999,
+                    0.16862745583057404,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 32,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 32",
+            "position": [
+                0.3700000047683716,
+                -0.3100000023841858,
+                -1.9800000190734863
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.6000000238418579,
+                -0.3100000023841858,
+                -1.3200000524520874
+            ],
+            "id": 33,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.49803921580314636,
+                    0.5843137502670288
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 33,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 33",
+            "position": [
+                0.6000000238418579,
+                -0.3100000023841858,
+                -1.3200000524520874
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.4000000059604645,
+                0.4000000059604645,
+                0.4000000059604645
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.2800000011920929,
+                -0.33000001311302185,
+                -2.299999952316284
+            ],
+            "id": 34,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.0470588244497776,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 34,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 34",
+            "position": [
+                0.2800000011920929,
+                -0.33000001311302185,
+                -2.299999952316284
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.4800000190734863,
+                -0.3100000023841858,
+                -1.3700000047683716
+            ],
+            "id": 35,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.0,
+                    0.9803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 35,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 35",
+            "position": [
+                1.4800000190734863,
+                -0.3100000023841858,
+                -1.3700000047683716
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.637079656124115,
+                -0.47999998927116394,
+                0.0
+            ],
+            "scale": [
+                0.699999988079071,
+                0.699999988079071,
+                0.699999988079071
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.1299999952316284,
+                -0.3400000035762787,
+                -1.7000000476837158
+            ],
+            "id": 36,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.04313725605607033,
+                    0.0
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 36,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 36",
+            "position": [
+                1.1299999952316284,
+                -0.3400000035762787,
+                -1.7000000476837158
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.6000000238418579,
+                0.6000000238418579,
+                0.6000000238418579
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.009999999776482582,
+                -0.2199999988079071,
+                -1.9700000286102295
+            ],
+            "id": 37,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.9019607901573181,
+                    0.3529411852359772,
+                    0.7843137383460999
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 37,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 37",
+            "position": [
+                0.009999999776482582,
+                -0.2199999988079071,
+                -1.9700000286102295
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.2000000476837158,
+                1.2000000476837158,
+                1.2000000476837158
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.9200000166893005,
+                -0.3100000023841858,
+                -1.0199999809265137
+            ],
+            "id": 38,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.3333333432674408,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 38,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 38",
+            "position": [
+                0.9200000166893005,
+                -0.3100000023841858,
+                -1.0199999809265137
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                -1.2770795822143555,
+                0.0
+            ],
+            "scale": [
+                0.44999998807907104,
+                0.44999998807907104,
+                0.44999998807907104
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -0.7099999785423279,
+                -0.28999999165534973,
+                -1.1299999952316284
+            ],
+            "id": 39,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.7058823704719543,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 39,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 39",
+            "position": [
+                -0.7099999785423279,
+                -0.28999999165534973,
+                -1.1299999952316284
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.44999998807907104,
+                0.44999998807907104,
+                0.44999998807907104
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.10000000149011612,
+                -0.2199999988079071,
+                0.8500000238418579
+            ],
+            "id": 40,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.49803921580314636,
+                    0.7215686440467834
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 40,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 40",
+            "position": [
+                0.10000000149011612,
+                -0.2199999988079071,
+                0.8500000238418579
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.6299999952316284,
+                -0.30000001192092896,
+                -0.47999998927116394
+            ],
+            "id": 41,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6627451181411743,
+                    0.6000000238418579,
+                    0.6705882549285889
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 41,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 41",
+            "position": [
+                0.6299999952316284,
+                -0.30000001192092896,
+                -0.47999998927116394
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.4749999940395355,
+                0.4749999940395355,
+                0.4749999940395355
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                -1.2400000095367432,
+                -0.23999999463558197,
+                -1.9199999570846558
+            ],
+            "id": 42,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6235294342041016,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 42,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 42",
+            "position": [
+                -1.2400000095367432,
+                -0.23999999463558197,
+                -1.9199999570846558
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.8500000238418579,
+                0.8500000238418579,
+                0.8500000238418579
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.1599999964237213,
+                -0.3100000023841858,
+                -1.2100000381469727
+            ],
+            "id": 43,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.7137255072593689,
+                    0.686274528503418,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 43,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 43",
+            "position": [
+                0.1599999964237213,
+                -0.3100000023841858,
+                -1.2100000381469727
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.44999998807907104,
+                0.44999998807907104,
+                0.44999998807907104
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                2.140000104904175,
+                -0.27000001072883606,
+                -1.6799999475479126
+            ],
+            "id": 44,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    0.729411780834198,
+                    0.027450980618596077
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 44,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 44",
+            "position": [
+                2.140000104904175,
+                -0.27000001072883606,
+                -1.6799999475479126
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.7000000476837158,
+                1.7000000476837158,
+                1.7000000476837158
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                2.0399999618530273,
+                -0.2800000011920929,
+                -1.1299999952316284
+            ],
+            "id": 45,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.7254902124404907,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 45,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 45",
+            "position": [
+                2.0399999618530273,
+                -0.2800000011920929,
+                -1.1299999952316284
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.6000000238418579,
+                0.6000000238418579,
+                0.6000000238418579
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                1.5099999904632568,
+                -0.27000001072883606,
+                -0.8999999761581421
+            ],
+            "id": 46,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.47058823704719543,
+                    0.3843137323856354
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 46,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 46",
+            "position": [
+                1.5099999904632568,
+                -0.27000001072883606,
+                -0.8999999761581421
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 1
+        },
+        {
+            "center": [
+                0.4099999964237213,
+                -0.25,
+                -0.6700000166893005
+            ],
+            "id": 47,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.49803921580314636,
+                    1.0,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0099999904632568,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 6.0,
+                "material_id": 47,
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Sphere 47",
+            "position": [
+                0.4099999964237213,
+                -0.25,
+                -0.6700000166893005
+            ],
+            "radius": 0.15000000596046448,
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.75,
+                0.75,
+                0.75
+            ],
+            "type": 1
+        }
+    ]
+}
