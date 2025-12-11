@@ -263,7 +263,7 @@
       "v_vec": [0.0, 0.30000001192092896, 0.0]
     },
     {
-      "file_path": "/home/mathis/Programming/RaytracingEngine/build/assets/models3D/tripod.off",
+      "file_path": "../assets/models3D/tripod.off",
       "id": 11,
       "material": {
         "ambient": [0.0, 0.0, 0.0],
