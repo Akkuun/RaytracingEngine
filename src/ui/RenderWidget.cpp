@@ -423,7 +423,7 @@ void RenderWidget::captureScreenshot()
         }
     }
 
-    std::string dateTimeStr = QDateTime::currentDateTime().toString("yyyy_ddMM_HHmm").toStdString();
+    std::string dateTimeStr = QDateTime::currentDateTime().toString("dd_MM_yyyy_HH_mm_ss").toStdString();
 
     screenshot.save(QString("../screenshots/screenshot_" + QString::fromStdString(dateTimeStr) + ".png"));
 }

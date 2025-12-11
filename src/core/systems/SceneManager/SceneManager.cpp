@@ -17,7 +17,7 @@ SceneManager &SceneManager::getInstance()
 
 SceneManager::SceneManager()
 {
-    cornellScene(); // Initialize with default scene or loaded scene
+    buildScene(); // Initialize with default scene or loaded scene
 }
 
 SceneManager::~SceneManager()
@@ -89,11 +89,21 @@ Shape *SceneManager::getShapesBuffer() const
 Shape *SceneManager::getShapeByID(const int &shapeID) const
 {
     std::cout << "Getting shape by ID: " << shapeID << std::endl;
-    if (shapeID < 0 || static_cast<size_t>(shapeID) >= shapes.size())
+    if (shapeID < 0)
     {
         return nullptr; // Invalid ID
     }
-    return shapes[shapeID];
+    
+    // Iterate through shapes to find the one with matching ID
+    for (Shape* shape : shapes)
+    {
+        if (shape && shape->getID() == shapeID)
+        {
+            return shape;
+        }
+    }
+    
+    return nullptr; // Shape with this ID not found
 }
 
 // push all the unique materials used to avoid duplications in GPU
@@ -171,6 +181,8 @@ void SceneManager::buildScene(const std::string &path)
             mesh->rotate(rotation);
             mesh->translate(position);
             mesh->generateCpuTriangles();
+            mesh->setMaterial(material);
+            mesh->rebuildBVH();
             shape = mesh;
         }
         else
