@@ -1,0 +1,3353 @@
+{
+    "camera": {
+        "far_plane": 10000.0,
+        "fov": 80.0,
+        "near_plane": 0.10000000149011612,
+        "position": [
+            -0.6358072757720947,
+            0.2075328230857849,
+            -0.5753114223480225
+        ],
+        "rotation": [
+            0.0671171247959137,
+            1.368100643157959,
+            0.0
+        ]
+    },
+    "project_name": "minecraft",
+    "shapes": [
+        {
+            "id": 0,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5,
+                    0.5,
+                    0.5
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 6,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 6",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                0.0,
+                -0.30000001192092896
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 1,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5568627715110779,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 7,
+                "metal_map": "../assets/metallics/minecraft/diamond_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/diamond_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/diamond.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 7",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.0,
+                -0.30000001192092896
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 2,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5058823823928833,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 8,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 8",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                0.30000001192092896,
+                -0.30000001192092896
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 3,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5176470875740051,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 5.0,
+                "material_id": 9,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/glowstone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/glowstone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 9",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.0,
+                -0.30000001192092896
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 4,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5490196347236633,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 10,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 10",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.30000001192092896,
+                -0.30000001192092896
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 5,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5803921818733215,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": false,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 11,
+                "metal_map": "../assets/metallics/minecraft/diamond_m.ppm",
+                "metalness": 0.0,
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/diamond.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 11",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.15000000596046448,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 6,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5607843399047852,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 12,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 12",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.20000000298023224,
+                0.30000001192092896,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 7,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6352941393852234,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 13,
+                "metal_map": "../assets/metallics/minecraft/diamond_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/diamond_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/diamond.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 13",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.30000001192092896,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 8,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5568627715110779,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 14,
+                "metal_map": "../assets/metallics/minecraft/diamond_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/diamond_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/diamond.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 14",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.5,
+                0.0,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 9,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6039215922355652,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 15,
+                "metal_map": "../assets/metallics/minecraft/gold_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/gold_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/gold.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 15",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 10,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6901960968971252,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 16,
+                "metal_map": "../assets/metallics/minecraft/gold_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/gold_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/gold.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 16",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                -0.15000000596046448,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 11,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6509804129600525,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 7.0,
+                "material_id": 18,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/magma_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/magma.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 18",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                -0.15000000596046448,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 12,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6235294342041016,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 19,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 19",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                -0.15000000596046448,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 13,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.658823549747467,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 20,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 20",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                -0.15000000596046448,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 14,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6431372761726379,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 21,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 21",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                -0.15000000596046448,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 15,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.843137264251709,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 22,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 22",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                -0.15000000596046448,
+                -0.75
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 16,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.8627451062202454,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 23,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 23",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                -0.15000000596046448,
+                -0.75
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 17,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6196078658103943,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 24,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 24",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.4000000059604645,
+                0.0,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 18,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    1.0,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 25,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 25",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.4000000059604645,
+                0.30000001192092896,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 19,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5921568870544434,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 26,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 26",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.10000000149011612,
+                0.0,
+                -0.75
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 20,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5921568870544434,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 27,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 27",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.15000000596046448,
+                -0.75
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 21,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5529412031173706,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 28,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 28",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.0,
+                -0.6000000238418579
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 22,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5764706134796143,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 5.0,
+                "material_id": 30,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/glowstone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/glowstone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 30",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.4000000059604645,
+                0.30000001192092896,
+                -0.75
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 23,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5960784554481506,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 31,
+                "metal_map": "../assets/metallics/minecraft/emerald_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/emerald_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/emerald.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 31",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                0.44999998807907104,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 24,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5882353186607361,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 32,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 32",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.44999998807907104,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 25,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6117647290229797,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 5.0,
+                "material_id": 33,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/glowstone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/glowstone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 33",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.44999998807907104,
+                -0.75
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 26,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5764706134796143,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 34,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 34",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                0.44999998807907104,
+                -0.75
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 27,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.7333333492279053,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 35,
+                "metal_map": "../assets/metallics/minecraft/emerald_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/emerald_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/emerald.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 35",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.44999998807907104,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 28,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5803921818733215,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 36,
+                "metalness": 0.9900000095367432,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 36",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.44999998807907104,
+                -0.75
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 29,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5843137502670288,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 5.0,
+                "material_id": 37,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/glowstone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/glowstone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 37",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.44999998807907104,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 30,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6235294342041016,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 38,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 38",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.44999998807907104,
+                -0.75
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 31,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.7215686440467834,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 39,
+                "metal_map": "../assets/metallics/minecraft/gold_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/gold_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/gold.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 39",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.44999998807907104,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 32,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6000000238418579,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 40,
+                "metal_map": "../assets/metallics/minecraft/gold_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/gold_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/gold.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 40",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.44999998807907104,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                270.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 33,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5960784554481506,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 41,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 41",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.30000001192092896,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 34,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6901960968971252,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 7.0,
+                "material_id": 42,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/magma_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/magma.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 42",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.800000011920929,
+                0.0,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                0.0,
+                270.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 35,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6313725709915161,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 43,
+                "metal_map": "../assets/metallics/minecraft/gold_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/gold_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/gold.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 43",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.800000011920929,
+                0.0,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                0.0,
+                270.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 36,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6039215922355652,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 44,
+                "metal_map": "../assets/metallics/minecraft/gold_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/gold_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/gold.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 44",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.800000011920929,
+                0.30000001192092896,
+                -0.15000000596046448
+            ],
+            "rotation": [
+                0.0,
+                270.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 37,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6352941393852234,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 7.0,
+                "material_id": 45,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/magma_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/magma.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 45",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.800000011920929,
+                0.30000001192092896,
+                -0.44999998807907104
+            ],
+            "rotation": [
+                0.0,
+                270.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 38,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.8509804010391235,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 46,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 46",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.5,
+                0.0,
+                -0.75
+            ],
+            "rotation": [
+                0.0,
+                270.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 39,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6823529601097107,
+                    0.3843137323856354,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 47,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 47",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.0,
+                -0.6000000238418579
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 40,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.7058823704719543,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 48,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/stone_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/stone.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 48",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                0.0,
+                -0.8999999761581421
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 41,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5843137502670288,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 49,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 49",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.0,
+                -0.8999999761581421
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 42,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5843137502670288,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 50,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 50",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.05000000074505806,
+                0.30000001192092896,
+                -0.8999999761581421
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 43,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6901960968971252,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 51,
+                "metal_map": "../assets/metallics/minecraft/iron_m.ppm",
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/iron_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/iron.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 51",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                0.25,
+                0.30000001192092896,
+                -0.8999999761581421
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 44,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5803921818733215,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 52,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 52",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.3499999940395355,
+                0.30000001192092896,
+                -0.8999999761581421
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 45,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.6117647290229797,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 53,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 53",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.30000001192092896,
+                -0.8999999761581421
+            ],
+            "rotation": [
+                0.0,
+                180.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 46,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5803921818733215,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 7.0,
+                "material_id": 54,
+                "metalness": 0.0,
+                "normal_map": "../assets/normals/minecraft/magma_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/magma.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 54",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.800000011920929,
+                0.30000001192092896,
+                -0.75
+            ],
+            "rotation": [
+                0.0,
+                270.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        },
+        {
+            "id": 47,
+            "material": {
+                "ambient": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "diffuse": [
+                    0.5803921818733215,
+                    0.49803921580314636,
+                    0.49803921580314636
+                ],
+                "emissive": false,
+                "has_normal_map": true,
+                "index_medium": 1.0,
+                "light_color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "light_intensity": 1.0,
+                "material_id": 55,
+                "metalness": 0.949999988079071,
+                "normal_map": "../assets/normals/minecraft/amethyst_n.ppm",
+                "shininess": 32.0,
+                "specular": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "texture": "../assets/textures/minecraft/amethyst.ppm",
+                "texture_scale_x": 1.0,
+                "texture_scale_y": 1.0,
+                "transparency": 0.0
+            },
+            "name": "Square 55",
+            "normal": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "position": [
+                -0.6499999761581421,
+                0.15000000596046448,
+                -0.75
+            ],
+            "rotation": [
+                90.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "type": 2,
+            "u_vec": [
+                0.30000001192092896,
+                0.0,
+                0.0
+            ],
+            "v_vec": [
+                0.0,
+                0.30000001192092896,
+                0.0
+            ]
+        }
+    ]
+}
