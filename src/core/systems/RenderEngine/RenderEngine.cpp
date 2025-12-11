@@ -242,9 +242,6 @@ void RenderEngine::setupShapesBuffer()
     bvhCount = static_cast<int>(gpu_bvh_nodes.size() > 0 ? 1 : 0); // For now, we consider one BVH if there are any nodes
     bvhTrianglesCount = static_cast<int>(gpu_bvh_triangles.size());
 
-
-    // TODO CONTINUE HERE
-
     if (shape_buffer_size > 0)
     {
         shapesBuffer = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,

@@ -46,7 +46,6 @@ private:
     std::optional<BVH> bvh;
 
 public:
-    Mesh() : Shape() {}
     Mesh(const std::string &filename) : Shape(extractFilename(filename) + " " + std::to_string(nextID))
     {
         loadOFF(filename);

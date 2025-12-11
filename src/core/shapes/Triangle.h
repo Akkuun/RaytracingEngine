@@ -9,13 +9,18 @@ class Triangle : public Shape
 public:
     // Default constructor with default values (upward-pointing triangle)
     Triangle()
-        : Shape(vec3(-0.05f, 0.0f, -0.3f),
-                std::string("Triangle " + std::to_string(nextID)), new Material()),
+        : Shape((0.0f + 0.05f + -1.5f), false),
           v0(-0.2f, -0.15f, -1.5f),
           v1(0.0f, 0.15f, -1.5f), // swapped v1 and v2 to fix normal direction
           v2(0.2f, -0.15f, -1.5f)
-    {
-    }
+    {}
+
+    Triangle(bool named)
+        : Shape((0.0f + 0.05f + -1.5f), "Triangle " + std::to_string(nextID), new Material()),
+          v0(-0.2f, -0.15f, -1.5f),
+          v1(0.0f, 0.15f, -1.5f), // swapped v1 and v2 to fix normal direction
+          v2(0.2f, -0.15f, -1.5f)
+    {}
 
     Triangle(const vec3 &v0, const vec3 &v1, const vec3 &v2)
         : Shape((v0 + v1 + v2) * (1.0f / 3.0f), "Triangle " + std::to_string(nextID), new Material()), v0(v0), v1(v1), v2(v2) {}

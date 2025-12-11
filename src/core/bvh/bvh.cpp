@@ -15,7 +15,8 @@ int ceilToInt(float f) {
     return i;
 }
 
-BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel) {
+BVH::BVH(const Mesh &mesh, int qualityLevel) : quality(qualityLevel), Shape(true)
+{
     nodesList.index = 0;
 
     buildTriangles.reserve(mesh.getTriangles().size());

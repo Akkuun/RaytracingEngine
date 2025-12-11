@@ -15,7 +15,11 @@ class Mesh;
 class BVH : public Shape
 {
 public:
-    ~BVH() = default;
+    ~BVH() {
+        nodes.clear();
+        triangles.clear();
+        buildTriangles.clear();
+    }
 
     struct Node 
     {

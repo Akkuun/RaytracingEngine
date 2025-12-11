@@ -33,10 +33,22 @@ public:
         material = mat;
     }
 
-    Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(new Material()) {}
-    Shape(const vec3 &pos, const std::string &name, Material *mat) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(mat) {}
-    Shape(const vec3 &pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(new Material()) {}
-    Shape(std::string name) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(new Material()) {}
+    Shape() : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(new Material()) {
+        std::cout << "1" <<std::endl;
+    }
+    Shape(bool dontIncrementID) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(-1), shapeName(""), material(new Material())
+    {
+        (void)dontIncrementID; // unused, just for signature differentiation
+    }
+    Shape(const vec3 &pos, const std::string &name, Material *mat) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(mat) {
+        std::cout << "2" <<std::endl;
+    }
+    Shape(const vec3 &pos) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName("Shape " + std::to_string(id)), material(new Material()) {
+        std::cout << "3" <<std::endl;
+    }
+    Shape(std::string name) : position(0.0f, 0.0f, 0.0f), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(nextID++), shapeName(name), material(new Material()) {
+        std::cout << "4" <<std::endl;
+    }
 
     // Don't increment ID when we add triangles that are part of a mesh
     Shape(const vec3 &pos, bool incrementID) : position(pos), scale(1.0f, 1.0f, 1.0f), rotation(0.0f, 0.0f, 0.0f), id(-1), shapeName(""), material(nullptr)

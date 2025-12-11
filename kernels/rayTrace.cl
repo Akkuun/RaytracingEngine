@@ -975,7 +975,7 @@ __kernel void render_kernel(__global float* output, __global float* accumBuffer,
 	struct Ray camray = createCamRay(x_coord, y_coord, width, height, camera);
 
 	struct Light lights[1];
-	lights[0].pos = (float3)(0.0f, 0.2f, 2.5f);
+	lights[0].pos = (float3)(0.0f, 0.2f, 0.0f);
 	lights[0].color = (float3)(1.0f, 1.0f, 1.0f);
 	lights[0].intensity = 1.0f;
 

@@ -88,6 +88,7 @@ Shape *SceneManager::getShapesBuffer() const
 
 Shape *SceneManager::getShapeByID(const int &shapeID) const
 {
+    std::cout << "Getting shape by ID: " << shapeID << std::endl;
     if (shapeID < 0 || static_cast<size_t>(shapeID) >= shapes.size())
     {
         return nullptr; // Invalid ID
