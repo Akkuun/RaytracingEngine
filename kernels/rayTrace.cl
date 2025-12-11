@@ -680,7 +680,7 @@ inline __attribute__((always_inline)) struct Intersection intersect_bvh(
 
 		if (node.triangleCount > 0) {
 			for (int i = 0; i < node.triangleCount; i++) {
-				int triIndex = node.startIndex + i;
+				int triIndex = bvh->triangle_offset + node.startIndex + i;
 				float t_temp = 1e20;
 				struct Intersection intersection = intersect_triangle(&triangles[triIndex], ray, &t_temp);
 
@@ -693,8 +693,8 @@ inline __attribute__((always_inline)) struct Intersection intersect_bvh(
 		}
 		else
 		{
-			int leftChildIndex = node.startIndex;
-			int rightChildIndex = node.startIndex + 1;
+			int leftChildIndex = bvh->node_offset + node.startIndex;
+			int rightChildIndex = bvh->node_offset + node.startIndex + 1;
 
 			float dstA = intersect_aabb(&nodes[leftChildIndex], ray);
 			float dstB = intersect_aabb(&nodes[rightChildIndex], ray);
