@@ -17,7 +17,7 @@ SceneManager &SceneManager::getInstance()
 
 SceneManager::SceneManager()
 {
-    cornellScene(); // Initialize with default scene or loaded scene
+    buildScene(); // Initialize with default scene or loaded scene
 }
 
 SceneManager::~SceneManager()
@@ -181,6 +181,7 @@ void SceneManager::buildScene(const std::string &path)
             mesh->rotate(rotation);
             mesh->translate(position);
             mesh->generateCpuTriangles();
+            mesh->setMaterial(material);
             shape = mesh;
         }
         else
