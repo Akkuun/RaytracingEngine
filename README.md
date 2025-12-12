@@ -95,7 +95,7 @@ sudo pacman -S intel-compute-runtime
 - If you update the submodule, you may need to re-run the CLHPP build/install step.
 - For OpenCL runtime issues, check your GPU drivers and OpenCL ICD loader.
 - We encountered winodow bad behavior with Qt6 and Xubuntu, if the pannel are not well aligned, this is caused by a dependacy error.
-- We encountered some FPS performance with NVIDIA device, just restart the app to clear this problem. 
+- We encountered some FPS performance issue with NVIDIA device, just restart the app to clear this problem. 
 
 ## Keybinds
 
