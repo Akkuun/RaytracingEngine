@@ -96,3 +96,5 @@ compile_commands.json
 #ignore screenshots files
 /screenshots/*
 !/screenshots/.gitkeep
+!/screenshots/_spheres.webp
+!/screenshots/_minecraft.webp
