@@ -94,6 +94,8 @@ sudo pacman -S intel-compute-runtime
 - If you get errors about missing `CL/opencl.hpp`, ensure CLHPP is installed and included in your CMake configuration.
 - If you update the submodule, you may need to re-run the CLHPP build/install step.
 - For OpenCL runtime issues, check your GPU drivers and OpenCL ICD loader.
+- We encountered winodow bad behavior with Qt6 and Xubuntu, if the pannel are not well aligned, this is caused by a dependacy error.
+- We encountered some FPS performance with NVIDIA device, just restart the app to clear this problem. 
 
 ## Keybinds
 
@@ -107,7 +109,8 @@ sudo pacman -S intel-compute-runtime
 - Q : move the camera to the left
 - D : move the camera to the right
 - space : move the camera upper
-- C : move the camera below
+- A : move the camera below
+- C : switch static camera to FPS camera (rotation with the mouse)
 
 - right arrow : rotate the camera to the right
 - left arrow : rotate the camera to the left
