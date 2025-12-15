@@ -1,4 +1,10 @@
-# RaytracingEngine Project
+# Real time RaytracingEngine Project in OpenCL 
+![Spheres Scene](screenshots/_spheres.webp)
+
+
+https://github.com/user-attachments/assets/9d758873-80c8-441b-a713-ff29f9dc5f47
+
+
 
 ## Prerequisites
 - Linux system (tested on Arch Linux)
@@ -124,10 +130,11 @@ sudo pacman -S intel-compute-runtime
 - Ctrl + Z : undo action
 - Ctrl + Maj + Z : redo action
 
-## Screenshots
+## Screenshots from the engine 
 
 ![Spheres Scene](screenshots/_spheres.webp)
 
 ![Minecraft Scene](screenshots/_minecraft.webp)
+
 
 
